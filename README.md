@@ -15,11 +15,9 @@ Why not use of any cloud db? At the moment I'm focusing on learning TypeScript t
 ## Todo
 
 - enable
-  - adding project name to issue (enable selecting project - input gh nickname to get all repos)
   - auto adding date of opening an issue
   - markdown editor for issue description
   - editing an issue
   - closing an issue
   - storing issues history
   - filter issues by project, priority, type etc.
-  - issues table

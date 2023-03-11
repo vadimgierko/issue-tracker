@@ -1,9 +1,15 @@
 import { useParams } from "react-router-dom";
 import { getLocalStorageItem } from "../../lib/localStorage";
 import slugify from "slugify";
+import { Issue } from "../../interfaces/Issue";
+import IssuesList from "../Issues/IssuesList";
 
 export default function Project() {
 	const { projectSlug } = useParams<string>();
+	const projectTitle: string = projectSlug
+		? getProjectTitleBySlug(projectSlug)
+		: "";
+	const projectIssues: Issue[] = projectTitle ? getProjectIssues() : [];
 
 	function getProjectTitleBySlug(slug: string): string {
 		interface SlugifiedProject {
@@ -33,12 +39,34 @@ export default function Project() {
 		}
 	}
 
+	function getProjectIssues(): Issue[] | [] {
+		if (projectTitle) {
+			const storedIssues: Issue[] = getLocalStorageItem("issues");
+			if (storedIssues)
+				return storedIssues.filter((issue) => issue.project === projectTitle);
+			return [];
+		} else {
+			return [];
+		}
+	}
+
 	if (!projectSlug)
 		return (
 			<p className="text-center text-danger">There is no such project...</p>
 		);
 
 	return (
-		<h2 className="text-center my-3">{getProjectTitleBySlug(projectSlug)}</h2>
+		<>
+			<header className="text-center my-3">
+				<h2>{projectTitle}</h2>
+			</header>
+			{projectIssues.length ? (
+				<IssuesList passedIssues={projectIssues} />
+			) : (
+				<p className="text-center text-danger">
+					There are no issues in the project. Add one!
+				</p>
+			)}
+		</>
 	);
 }
