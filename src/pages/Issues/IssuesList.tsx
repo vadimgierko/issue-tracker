@@ -14,10 +14,14 @@ export default function IssuesList() {
 	}
 
 	if (!issues || (issues && !issues.length))
-		return <p>There are no issues stored in local storage. Add one!</p>;
+		return (
+			<p className="text-center text-danger my-3">
+				There are no issues stored in local storage. Add one!
+			</p>
+		);
 
 	return (
-		<ul>
+		<ul className="mt-3">
 			{issues.map((i) => (
 				<li key={i.title}>
 					<h3>

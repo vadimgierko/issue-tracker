@@ -9,6 +9,9 @@ import Projects from "./pages/Projects";
 import Issues from "./pages/Issues";
 import IssueForm from "./pages/Issues/IssuesForm";
 import IssuesList from "./pages/Issues/IssuesList";
+import ProjectsList from "./pages/Projects/ProjectsList";
+import ProjectForm from "./pages/Projects/ProjectsForm";
+import Project from "./pages/Projects/Project";
 
 const router = createBrowserRouter([
 	{
@@ -18,6 +21,20 @@ const router = createBrowserRouter([
 			{
 				path: "projects",
 				element: <Projects />,
+				children: [
+					{
+						path: "add",
+						element: <ProjectForm />,
+					},
+					{
+						path: "list",
+						element: <ProjectsList />,
+					},
+					{
+						path: ":projectSlug",
+						element: <Project />,
+					},
+				],
 			},
 			{
 				path: "issues",

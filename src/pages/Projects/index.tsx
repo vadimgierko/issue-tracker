@@ -1,36 +1,30 @@
-import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import {
-	getLocalStorageItem,
-	setLocalStorageItem,
-} from "../../lib/localStorage";
+import Nav from "react-bootstrap/Nav";
+import { LinkContainer } from "react-router-bootstrap";
 
 export default function Projects() {
-	const [projects, setProjects] = useState<string[]>(getProjects());
-
-	function getProjects() {
-		const storedProjects = getLocalStorageItem("projects");
-
-		if (storedProjects) return storedProjects;
-
-		return [];
-	}
-
-	function addProject(name: string) {
-		const updatedProjects = [...projects, name];
-		setLocalStorageItem("projects", updatedProjects);
-	}
-
-	if (!projects || (projects && !projects.length))
-		return <p>There are no projects stored in local storage. Add one!</p>;
-
 	return (
-		<>
+		<div className="projects">
 			<header className="text-center">
 				<h1>Projects</h1>
-				<hr />
+				<Nav
+					variant="tabs"
+					//defaultActiveKey="list"
+					className="justify-content-center"
+				>
+					<Nav.Item>
+						<LinkContainer to="list">
+							<Nav.Link eventKey="list">List</Nav.Link>
+						</LinkContainer>
+					</Nav.Item>
+					<Nav.Item>
+						<LinkContainer to="add">
+							<Nav.Link eventKey="add">Add</Nav.Link>
+						</LinkContainer>
+					</Nav.Item>
+				</Nav>
 			</header>
 			<Outlet />
-		</>
+		</div>
 	);
 }
