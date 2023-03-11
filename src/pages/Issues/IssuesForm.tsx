@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Issue } from "../../interfaces/Issue";
+import {
+	getLocalStorageItem,
+	setLocalStorageItem,
+} from "../../lib/localStorage";
 
-interface IssueFormProps {
-	onSubmit: (e: React.FormEvent<HTMLFormElement>, issue: Issue) => void;
-}
+// interface IssueFormProps {
+// 	onSubmit: (e: React.FormEvent<HTMLFormElement>, issue: Issue) => void;
+// }
 
-export default function IssueForm({ onSubmit }: IssueFormProps) {
+export default function IssueForm() {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [type, setType] = useState<"bug" | "feature request" | "improvement">(
@@ -13,6 +17,14 @@ export default function IssueForm({ onSubmit }: IssueFormProps) {
 	);
 	const [priority, setPriority] = useState<"high" | "medium" | "low">("high");
 	const [status, setStatus] = useState<"open" | "closed">("open");
+
+	function addIssue(e: React.FormEvent<HTMLFormElement>, issue: Issue) {
+		e.preventDefault();
+		const storedIssues = getLocalStorageItem("issues");
+		const updatedIssues = storedIssues ? [...storedIssues, issue] : [issue];
+		setLocalStorageItem("issues", updatedIssues);
+		clearForm();
+	}
 
 	function clearForm() {
 		setTitle("");
@@ -24,13 +36,13 @@ export default function IssueForm({ onSubmit }: IssueFormProps) {
 
 	return (
 		<div className="add-issue-form">
-			<h2 style={{ textAlign: "center" }}>Add Issue</h2>
+			<header className="text-center my-3">
+				<h2>Add Issue</h2>
+			</header>
 			<form
 				onSubmit={(e) => {
 					const issue: Issue = { title, description, type, priority, status };
-					onSubmit(e, issue);
-
-					clearForm();
+					addIssue(e, issue);
 				}}
 			>
 				<label>
