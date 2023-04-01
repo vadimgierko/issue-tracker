@@ -12,12 +12,18 @@ import IssuesList from "./pages/Issues/IssuesList";
 import ProjectsList from "./pages/Projects/ProjectsList";
 import ProjectForm from "./pages/Projects/ProjectsForm";
 import Project from "./pages/Projects/Project";
+import { ThemeProvider } from "./context/useTheme";
+import About from "./pages/About";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <App />,
 		children: [
+			{
+				path: "about",
+				element: <About />,
+			},
 			{
 				path: "projects",
 				element: <Projects />,
@@ -59,7 +65,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
 	<React.StrictMode>
-		<RouterProvider router={router} />
+		<ThemeProvider>
+			<RouterProvider router={router} />
+		</ThemeProvider>
 	</React.StrictMode>
 );
 

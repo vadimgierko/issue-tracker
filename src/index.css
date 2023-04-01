@@ -2,3 +2,52 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* SCROLL TO TOP */
+
+.scroll-to-top {
+  z-index: 1;
+  color: grey;
+  position: fixed;
+  right: 30px;
+  bottom: 20px;
+  cursor: pointer;
+}
+
+.scroll-to-top:hover {
+  color:rgb(27, 71, 216)
+}
+
+/* FOOTER */
+
+.footer-icon-link {
+  color: grey;
+}
+
+/* .footer-icon-link {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.footer-icon-link:hover {
+  color: rgba(255, 255, 255, 0.75) !important;
+} */
+
+/* DASHBOARD */
+
+.dashboard-nav-link {
+  color: grey;
+}
+
+/* ABOUT */
+
+.about h1 {
+  text-align: center;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.about h2,
+.about h3 {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}

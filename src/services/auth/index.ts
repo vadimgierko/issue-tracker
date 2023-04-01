@@ -8,6 +8,8 @@ import {
 	reauthenticateWithCredential,
 	updatePassword,
 	updateEmail,
+	User,
+	UserCredential,
 } from "firebase/auth";
 import {
 	addDocumentWithCustomId,
@@ -77,10 +79,13 @@ async function logOut(): Promise<void> {
  * to force user to log in again if no passedPassword provided
  * or re-authenticate user automatically if passedPassword provided.
  */
-
- async function reauthenticateUser(passedPassword = "") {
+async function reauthenticateUser(passedPassword?: string): Promise<UserCredential | undefined> {
 	try {
 		const user = auth.currentUser;
+
+		if (!user) {
+			throw new Error("User is not signed in.");
+		}
 
 		const password = passedPassword
 			? passedPassword
@@ -88,10 +93,20 @@ async function logOut(): Promise<void> {
 					"This is security-sensitive action, so you need to re-authenticate yourself. Please enter your password here to continue:"
 			  );
 
-		const credential = EmailAuthProvider.credential(user.email, password);
+				if (!password) {
+					throw new Error("Password not provided...");
+				}
+
+		const email = user.email;
+
+		if (!email) {
+			throw new Error("User email is not available.");
+		}
+
+		const credential = EmailAuthProvider.credential(email, password);
 
 		return reauthenticateWithCredential(user, credential);
-	} catch (error) {
+	} catch (error: any) {
 		console.error(
 			`Error message in reauthenticateUser(): ${error.message}. Error code: ${error.code}`
 		);
@@ -101,6 +116,8 @@ async function logOut(): Promise<void> {
 	}
 }
 
+
+
 /**
  * Changes the password for the current user using Firebase Authentication.
  * If the user is not currently authenticated, the function will attempt to reauthenticate
@@ -109,16 +126,17 @@ async function logOut(): Promise<void> {
  * @returns {Promise<void>} A Promise that resolves when the password has been successfully changed.
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
- async function changePassword(
-	authUser = auth.currentUser,
-	oldPassword = "",
-	newPassword = ""
-) {
+async function changePassword(
+	authUser: User | null = auth.currentUser,
+	oldPassword: string = "",
+	newPassword: string = ""
+): Promise<void> {
 	try {
+		if (!authUser) throw new Error("User is not passed to changePassword() or is not signed in.");
 		await updatePassword(authUser, newPassword);
 		alert("Your password was successfully changed!");
 		return;
-	} catch (error) {
+	} catch (error: any) {
 		if (error.code === "auth/requires-recent-login") {
 			console.log(
 				"User needs to re-authenticate to update password. Re-authenticate automatically using passed old password..."
@@ -140,6 +158,7 @@ async function logOut(): Promise<void> {
 	}
 }
 
+
 /**
  * Changes the email address for the current user using Firebase Authentication and Firestore.
  * If the user is not currently authenticated, the function will attempt to reauthenticate
@@ -148,31 +167,37 @@ async function logOut(): Promise<void> {
  * @returns {Promise<void>} A Promise that resolves when the email address has been successfully changed.
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
- async function changeEmail(authUser = auth.currentUser, newEmail = "") {
-	try {
-		await updateEmail(authUser, newEmail);
-		await updateDocument({ email: newEmail }, "users", authUser.uid);
-		alert("Your email was successfully changed!");
-		return;
-	} catch (error) {
-		if (error.code === "auth/requires-recent-login") {
-			console.log("User needs to re-authenticate to update email.");
-			// Require user to sign in again:
-			await reauthenticateUser();
-			// then try to change password:
-			return changeEmail(authUser, newEmail);
-		} else {
-			console.error(
-				`Error message changeEmail(): ${error.message}. Error code: ${error.code}`
-			);
-			// return Promise.reject() allows the caller of the function
-			// to handle the error using a try-catch block or a .catch() method call:
-			return Promise.reject(
-				`Error message changeEmail(): ${error.message}. Error code: ${error.code}`
-			);
-		}
-	}
+async function changeEmail(
+  authUser: User | null = auth.currentUser,
+  newEmail: string = ""
+): Promise<void> {
+  try {
+		if (!authUser) throw new Error("User is not passed to changeEmail() or is not signed in.");
+
+    await updateEmail(authUser, newEmail);
+    await updateDocument({ email: newEmail }, "users", authUser!.uid);
+    alert("Your email was successfully changed!");
+    return;
+  } catch (error: any) {
+    if (error.code === "auth/requires-recent-login") {
+      console.log("User needs to re-authenticate to update email.");
+      // Require user to sign in again:
+      await reauthenticateUser();
+      // then try to change password:
+      return changeEmail(authUser, newEmail);
+    } else {
+      console.error(
+        `Error message changeEmail(): ${error.message}. Error code: ${error.code}`
+      );
+      // return Promise.reject() allows the caller of the function
+      // to handle the error using a try-catch block or a .catch() method call:
+      return Promise.reject(
+        `Error message changeEmail(): ${error.message}. Error code: ${error.code}`
+      );
+    }
+  }
 }
+
 
 /**
  * Deletes user account & his/her data from /users/$uid in Firestore, if user is logged.
@@ -183,44 +208,43 @@ async function logOut(): Promise<void> {
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
 
-async function deleteUserAccount(authUser = auth.currentUser) {
-	try {
-		const deletedUserId = authUser.uid;
+async function deleteUserAccount(authUser: User | null = auth.currentUser): Promise<void> {
+  try {
+    if (!authUser) {
+      throw new Error('You need to be logged in to delete your user account!');
+    }
 
-		if (deletedUserId) {
-			console.log("Deleting user with the id", deletedUserId, "...");
-			// delete user data stored in /users/[deletedUserId] in Firestore first:
-			await deleteDocument(deletedUserId, "users");
-			// now delete user account from Firebase Auth:
-			await deleteUser(authUser);
-			console.log(
-				`Your user account with the id ${deletedUserId} and your data was successfully deleted.`
-			);
-			alert(
-				`Your user account with the id ${deletedUserId} and your data was successfully deleted.`
-			);
-			return;
-		} else {
-			alert("You need to be logged, if you want to delete your user account!");
-		}
-	} catch (error) {
-		if (error.code === "auth/requires-recent-login") {
-			// Require user to sign in again:
-			await reauthenticateUser();
-			// then try to delete user account:
-			return deleteUserAccount(authUser);
-		} else {
-			console.error(
-				`Error message deleteUserAccount(): ${error.message}. Error code: ${error.code}`
-			);
-			// return Promise.reject() allows the caller of the function
-			// to handle the error using a try-catch block or a .catch() method call:
-			return Promise.reject(
-				`Error message deleteUserAccount(): ${error.message}. Error code: ${error.code}`
-			);
-		}
-	}
+    const deletedUserId = authUser.uid;
+
+    console.log(`Deleting user with the id ${deletedUserId}...`);
+
+    // delete user data stored in /users/[deletedUserId] in Firestore first:
+    await deleteDocument(deletedUserId, "users");
+
+    // now delete user account from Firebase Auth:
+    await deleteUser(authUser);
+
+    console.log(`Your user account with the id ${deletedUserId} and your data was successfully deleted.`);
+    alert(`Your user account with the id ${deletedUserId} and your data was successfully deleted.`);
+  } catch (error: any) {
+    if (error.code === "auth/requires-recent-login") {
+      // Require user to sign in again:
+      await reauthenticateUser();
+      // then try to delete user account:
+      return deleteUserAccount(authUser);
+    } else {
+      console.error(
+        `Error message deleteUserAccount(): ${error.message}. Error code: ${error.code}`
+      );
+      // return Promise.reject() allows the caller of the function
+      // to handle the error using a try-catch block or a .catch() method call:
+      return Promise.reject(
+        `Error message deleteUserAccount(): ${error.message}. Error code: ${error.code}`
+      );
+    }
+  }
 }
+
 
 export {
 	signIn,

@@ -30,8 +30,15 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 - TypeScript
 - Firebase
 - Local Storage
+- React Icons
+- React Markdown
 
 ## Todo
+
+- fix dark mode on not template pages
+- render md on About page
+- firebase user features
+- is current license (borrowed from teplate) accurate for this project?
 
 - enable
   - auto adding date of opening an issue

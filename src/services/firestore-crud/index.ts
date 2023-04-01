@@ -6,8 +6,6 @@ import {
 	collection,
 	getDoc,
 	getDocs,
-	query,
-	where,
 	updateDoc,
 	deleteDoc,
   QueryDocumentSnapshot,
