@@ -14,6 +14,9 @@ import ProjectForm from "./pages/Projects/ProjectsForm";
 import Project from "./pages/Projects/Project";
 import { ThemeProvider } from "./context/useTheme";
 import About from "./pages/About";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import { UserProvider } from "./context/useUser";
 
 const router = createBrowserRouter([
 	{
@@ -23,6 +26,14 @@ const router = createBrowserRouter([
 			{
 				path: "about",
 				element: <About />,
+			},
+			{
+				path: "signin",
+				element: <SignIn />,
+			},
+			{
+				path: "signup",
+				element: <SignUp />,
 			},
 			{
 				path: "projects",
@@ -66,7 +77,9 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<ThemeProvider>
-			<RouterProvider router={router} />
+			<UserProvider>
+				<RouterProvider router={router} />
+			</UserProvider>
 		</ThemeProvider>
 	</React.StrictMode>
 );
