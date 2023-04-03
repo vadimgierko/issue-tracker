@@ -79,13 +79,13 @@ export default function NavigationBar() {
 								menuVariant={theme?.value}
 								drop="down-centered"
 							>
-								{/* <LinkContainer to="/dashboard">
+								<LinkContainer to="/dashboard">
 									<NavDropdown.Item>
 										<AiOutlineSetting /> Profile Settings
 									</NavDropdown.Item>
 								</LinkContainer>
 
-								<NavDropdown.Divider /> */}
+								<NavDropdown.Divider />
 
 								<LinkContainer to="/" onClick={logOut}>
 									<NavDropdown.Item>

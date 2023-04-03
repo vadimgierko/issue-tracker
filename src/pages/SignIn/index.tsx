@@ -26,7 +26,7 @@ export default function SignIn() {
 		}
 	}
 
-	if (firebaseUser) return <Navigate to="/" replace />;
+	if (firebaseUser) return <Navigate to="/dashboard" replace />;
 
 	return (
 		<div

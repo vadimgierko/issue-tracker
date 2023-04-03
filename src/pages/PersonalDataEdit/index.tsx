@@ -1,50 +1,44 @@
 import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
+import { Button, Form } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
-import { signUp } from "../../services/auth";
+import { updateDocument } from "../../services/firestore-crud";
 
-export default function SignUp() {
+export default function PersonalDataEdit() {
 	const theme = useTheme();
-	const { firebaseUser } = useUser();
+	const { user } = useUser();
+	const navigate = useNavigate();
+
 	const [userData, setUserData] = useState({
-		firstName: "",
-		lastName: "",
-		email: "",
-		password: "",
+		firstName: user?.firstName || "",
+		lastName: user?.lastName || "",
+		email: user?.email || "",
 	});
 
 	async function handleSubmit(e: React.SyntheticEvent) {
 		e.preventDefault();
-		const { firstName, lastName, email, password } = userData;
-		if (firstName && lastName && email && password) {
-			return signUp(firstName, lastName, email, password);
+		const { firstName, lastName, email } = userData;
+		if (firstName && lastName && email) {
+			if (user && user.uid) {
+				await updateDocument(userData, "users", user.uid);
+				navigate("/dashboard");
+			}
 		}
 	}
 
-	if (firebaseUser) return <Navigate to="/dashboard" replace />;
-
 	return (
-		<div
-			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
-				maxWidth: 360,
-				margin: "auto",
-			}}
-		>
-			<h1 className="text-center mb-3">Sign Up!</h1>
-
-			<Form
-				className="border border-secondary rounded p-3 shadow"
-				onSubmit={handleSubmit}
-			>
+		<>
+			<header>
+				<h4 className="text-center">Edit your personal data</h4>
+				<hr />
+			</header>
+			<Form onSubmit={handleSubmit}>
 				<Form.Group className="mb-3">
 					<Form.Label>First name</Form.Label>
 					<Form.Control
 						placeholder="Enter your first name"
+						value={userData.firstName}
 						required
 						onChange={(e) =>
 							setUserData({
@@ -65,6 +59,7 @@ export default function SignUp() {
 					<Form.Control
 						placeholder="Enter your last name"
 						required
+						value={userData.lastName}
 						onChange={(e) =>
 							setUserData({
 								...userData,
@@ -84,6 +79,7 @@ export default function SignUp() {
 					<Form.Control
 						type="email"
 						placeholder="Enter your email address"
+						value={userData.email}
 						required
 						onChange={(e) =>
 							setUserData({
@@ -91,46 +87,43 @@ export default function SignUp() {
 								email: e.target.value,
 							})
 						}
+						className="mb-2"
 						style={{
 							backgroundColor:
 								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme?.value === "light" ? "black" : "white",
 						}}
 					/>
-				</Form.Group>
-
-				<Form.Group className="mb-3">
-					<Form.Label>Password</Form.Label>
-					<Form.Control
-						type="password"
-						placeholder="Enter your password"
-						required
-						onChange={(e) =>
-							setUserData({
-								...userData,
-								password: e.target.value,
-							})
-						}
-						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
-						}}
-					/>
-				</Form.Group>
-
-				<Form.Group className="mb-3">
-					<Form.Text>
-						Already have an account? <Link to="/signin">Sign in!</Link>
+					<Form.Text className="text-danger">
+						WARNING: if you change your email address here, it will be changed
+						only in your personal data and database, but it DOESN'T change the
+						email address you're using to log in into the app. If you want to
+						change the email address you're using to log in into the app,{" "}
+						<Link to="/email-change">click here</Link>.
 					</Form.Text>
 				</Form.Group>
 
-				<div className="d-grid mb-2">
+				<div className="text-end mt-5">
+					<Button
+						variant="secondary"
+						className="me-1"
+						type="button"
+						onClick={() => {
+							setUserData({
+								firstName: user?.firstName || "",
+								lastName: user?.lastName || "",
+								email: user?.email || "",
+							});
+							navigate("/dashboard");
+						}}
+					>
+						Cancel
+					</Button>
 					<Button variant="success" type="submit">
-						Sign up
+						Save changes
 					</Button>
 				</div>
 			</Form>
-		</div>
+		</>
 	);
 }

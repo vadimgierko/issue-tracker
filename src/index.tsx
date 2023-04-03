@@ -17,6 +17,8 @@ import About from "./pages/About";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { UserProvider } from "./context/useUser";
+import Dashboard from "./pages/Dashboard";
+import PersonalDataEdit from "./pages/PersonalDataEdit";
 
 const router = createBrowserRouter([
 	{
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
 			{
 				path: "signup",
 				element: <SignUp />,
+			},
+			{
+				path: "dashboard",
+				element: <Dashboard />,
+			},
+			{
+				path: "personal-data-edit",
+				element: <PersonalDataEdit />,
 			},
 			{
 				path: "projects",
