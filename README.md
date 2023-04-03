@@ -35,9 +35,11 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 ## Todo
 
-- [ ] add dashboard & other auth pages
 - [ ] render md on About page
 - [ ] is current license in Footer (borrowed from teplate) accurate for this project?
+- [ ] design Firestore database
+- [ ] create Project & Issue types
+- [ ] rewrite projects & issues CRUD
 
 - enable
   - auto adding date of opening an issue

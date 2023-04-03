@@ -19,16 +19,21 @@ import SignUp from "./pages/SignUp";
 import { UserProvider } from "./context/useUser";
 import Dashboard from "./pages/Dashboard";
 import PersonalDataEdit from "./pages/PersonalDataEdit";
+import EmailChange from "./pages/EmailChange";
+import PasswordChange from "./pages/PasswordChange";
+import PasswordReset from "./pages/PasswordReset";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <App />,
 		children: [
+			//====================== GENERAL =======================
 			{
 				path: "about",
 				element: <About />,
 			},
+			//====================== AUTH / USER ====================
 			{
 				path: "signin",
 				element: <SignIn />,
@@ -45,6 +50,19 @@ const router = createBrowserRouter([
 				path: "personal-data-edit",
 				element: <PersonalDataEdit />,
 			},
+			{
+				path: "email-change",
+				element: <EmailChange />,
+			},
+			{
+				path: "password-change",
+				element: <PasswordChange />,
+			},
+			{
+				path: "password-reset",
+				element: <PasswordReset />,
+			},
+			//====================== FEATURES =======================
 			{
 				path: "projects",
 				element: <Projects />,

@@ -16,7 +16,7 @@ export default function SignUp() {
 		password: "",
 	});
 
-	async function handleSubmit(e: React.SyntheticEvent) {
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const { firstName, lastName, email, password } = userData;
 		if (firstName && lastName && email && password) {

@@ -1,27 +1,34 @@
 import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
-import { signIn } from "../../services/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../firebaseConfig";
 
-export default function SignIn() {
+export default function PasswordReset() {
 	const theme = useTheme();
 	const { firebaseUser } = useUser();
-	const [userData, setUserData] = useState({
-		email: "",
-		password: "",
-	});
+	const [email, setEmail] = useState("");
+	const navigate = useNavigate();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		const { email, password } = userData;
-		if (email && password) {
-			return signIn(email, password);
+
+		if (email) {
+			try {
+				await sendPasswordResetEmail(auth, email);
+				alert(
+					"Password reset email was sent! Check your email and try to sign in again with reset password!"
+				);
+				navigate("/signin");
+			} catch (error: any) {
+				console.error(error.message);
+			}
 		} else {
 			return console.error(
-				"No email or password were provided... Cannot sign in..."
+				"No email address was provided... Cannot send password reset email..."
 			);
 		}
 	}
@@ -37,7 +44,7 @@ export default function SignIn() {
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Sign In!</h1>
+			<h1 className="text-center mb-3">Reset your password!</h1>
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -49,45 +56,13 @@ export default function SignIn() {
 						type="email"
 						placeholder="Enter your email address"
 						required
-						onChange={(e) =>
-							setUserData({
-								...userData,
-								email: e.target.value,
-							})
-						}
+						onChange={(e) => setEmail(e.target.value)}
 						style={{
 							backgroundColor:
 								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme?.value === "light" ? "black" : "white",
 						}}
 					/>
-				</Form.Group>
-
-				<Form.Group className="mb-3">
-					<Form.Label>Password</Form.Label>
-					<Form.Control
-						type="password"
-						placeholder="Enter your password"
-						required
-						onChange={(e) =>
-							setUserData({
-								...userData,
-								password: e.target.value,
-							})
-						}
-						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
-						}}
-					/>
-				</Form.Group>
-
-				<Form.Group className="mb-3">
-					<Form.Text>
-						Forgot password?{" "}
-						<Link to="/password-reset">Send a password reset email!</Link>
-					</Form.Text>
 				</Form.Group>
 
 				<Form.Group className="mb-3">
@@ -98,7 +73,7 @@ export default function SignIn() {
 
 				<div className="d-grid mb-2">
 					<Button variant="success" type="submit">
-						Sign in
+						Send password reset email
 					</Button>
 				</div>
 			</Form>

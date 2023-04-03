@@ -7,7 +7,7 @@ import { updateDocument } from "../../services/firestore-crud";
 
 export default function PersonalDataEdit() {
 	const theme = useTheme();
-	const { user } = useUser();
+	const { firebaseUser, user } = useUser();
 	const navigate = useNavigate();
 
 	const [userData, setUserData] = useState({
@@ -16,7 +16,7 @@ export default function PersonalDataEdit() {
 		email: user?.email || "",
 	});
 
-	async function handleSubmit(e: React.SyntheticEvent) {
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const { firstName, lastName, email } = userData;
 		if (firstName && lastName && email) {
@@ -26,6 +26,9 @@ export default function PersonalDataEdit() {
 			}
 		}
 	}
+
+	if (!firebaseUser)
+		return <p className="text-center">You need to be logged!</p>;
 
 	return (
 		<>
