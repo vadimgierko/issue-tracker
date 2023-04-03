@@ -35,10 +35,11 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 ## Todo
 
-- fix dark mode on not template pages
-- render md on About page
-- firebase user features
-- is current license (borrowed from teplate) accurate for this project?
+- [ ] render md on About page
+- [ ] is current license in Footer (borrowed from teplate) accurate for this project?
+- [ ] design Firestore database
+- [ ] create Project & Issue types
+- [ ] rewrite projects & issues CRUD
 
 - enable
   - auto adding date of opening an issue
@@ -47,3 +48,5 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
   - closing an issue
   - storing issues history
   - filter issues by project, priority, type etc.
+
+- [ ] when the app will be complete & all features will be checked, create a ts react template app

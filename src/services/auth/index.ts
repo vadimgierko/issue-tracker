@@ -8,7 +8,7 @@ import {
 	reauthenticateWithCredential,
 	updatePassword,
 	updateEmail,
-	User,
+	User as FirebaseUser,
 	UserCredential,
 } from "firebase/auth";
 import {
@@ -16,6 +16,7 @@ import {
 	deleteDocument,
 	updateDocument,
 } from "../firestore-crud";
+import { User } from "../../types/User";
 
 async function signIn(email: string, password: string): Promise<void> {
   try {
@@ -26,26 +27,22 @@ async function signIn(email: string, password: string): Promise<void> {
 }
 
 /**
- * Creates a new user in Firebase Auth & adds his data to /users collection in Firestore under user's uid.
+ * Creates a new user in Firebase Auth &
+ * adds his data to /users collection in Firestore under user's uid.
  * Returns updated user data object with the uid.
- * @param firstName user's first name
- * @param lastName user's last name
- * @param email user's email address
- * @param password user's password
- * @returns updated user data object with uid
  */
 async function signUp(
   firstName: string,
   lastName: string,
   email: string,
   password: string
-): Promise<{ uid: string; firstName: string; lastName: string; email: string }> {
+): Promise<User> {
   try {
     // create a new user:
     const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
 
     // add user data to Firestore:
-    const updatedUserDataWithUid = {
+    const updatedUserDataWithUid: User = {
       uid: newUser.uid,
       email,
       firstName,
@@ -60,11 +57,6 @@ async function signUp(
   }
 }
 
-
- /**
- * Logs the current user out.
- * @returns {void}
- */
 async function logOut(): Promise<void> {
   try {
     await signOut(auth);
@@ -73,7 +65,6 @@ async function logOut(): Promise<void> {
   }
 }
 
-
 /**
  * Put this function before any security-sensitive action
  * to force user to log in again if no passedPassword provided
@@ -81,7 +72,7 @@ async function logOut(): Promise<void> {
  */
 async function reauthenticateUser(passedPassword?: string): Promise<UserCredential | undefined> {
 	try {
-		const user = auth.currentUser;
+		const user: FirebaseUser | null = auth.currentUser;
 
 		if (!user) {
 			throw new Error("User is not signed in.");
@@ -116,8 +107,6 @@ async function reauthenticateUser(passedPassword?: string): Promise<UserCredenti
 	}
 }
 
-
-
 /**
  * Changes the password for the current user using Firebase Authentication.
  * If the user is not currently authenticated, the function will attempt to reauthenticate
@@ -127,7 +116,7 @@ async function reauthenticateUser(passedPassword?: string): Promise<UserCredenti
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
 async function changePassword(
-	authUser: User | null = auth.currentUser,
+	authUser: FirebaseUser | null = auth.currentUser,
 	oldPassword: string = "",
 	newPassword: string = ""
 ): Promise<void> {
@@ -168,7 +157,7 @@ async function changePassword(
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
 async function changeEmail(
-  authUser: User | null = auth.currentUser,
+  authUser: FirebaseUser | null = auth.currentUser,
   newEmail: string = ""
 ): Promise<void> {
   try {
@@ -198,7 +187,6 @@ async function changeEmail(
   }
 }
 
-
 /**
  * Deletes user account & his/her data from /users/$uid in Firestore, if user is logged.
  * If not, the function authomatically asks user to re-authenticate,
@@ -208,7 +196,7 @@ async function changeEmail(
  * If an error occurs, the Promise will be rejected with an error message and code.
  */
 
-async function deleteUserAccount(authUser: User | null = auth.currentUser): Promise<void> {
+async function deleteUserAccount(authUser: FirebaseUser | null = auth.currentUser): Promise<void> {
   try {
     if (!authUser) {
       throw new Error('You need to be logged in to delete your user account!');
@@ -244,7 +232,6 @@ async function deleteUserAccount(authUser: User | null = auth.currentUser): Prom
     }
   }
 }
-
 
 export {
 	signIn,

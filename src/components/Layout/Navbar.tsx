@@ -18,16 +18,12 @@ import {
 //import useUser from "../../context/useUser"; // TODO: IMPLEMENT useUser features
 import useMaxWidth from "../../context/useMaxWidth";
 import { logOut } from "../../services/auth";
+import useUser from "../../context/useUser";
 
 export default function NavigationBar() {
 	const maxWidth = useMaxWidth();
 	const theme = useTheme();
-	//const user = useUser();
-	const user = {
-		isLogged: true,
-		firstName: "Vadim",
-		email: "vadimgierko@gmail.com",
-	};
+	const { firebaseUser, user } = useUser();
 
 	return (
 		<Navbar
@@ -63,21 +59,21 @@ export default function NavigationBar() {
 					<hr />
 
 					<Nav>
-						{!user.isLogged && (
+						{!firebaseUser && (
 							<LinkContainer to="/signin">
 								<Nav.Link>
 									<AiOutlineLogin /> Log in
 								</Nav.Link>
 							</LinkContainer>
 						)}
-						{user.isLogged && (
+						{user && (
 							<NavDropdown
 								title={
 									<>
 										<AiOutlineUser />{" "}
-										<span className="me-2">
-											{user.firstName ? user.firstName : user.email}
-										</span>
+										{user.firstName ? (
+											<span className="me-2">{user.firstName}</span>
+										) : null}
 									</>
 								}
 								menuVariant={theme?.value}

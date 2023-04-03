@@ -14,16 +14,55 @@ import ProjectForm from "./pages/Projects/ProjectsForm";
 import Project from "./pages/Projects/Project";
 import { ThemeProvider } from "./context/useTheme";
 import About from "./pages/About";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import { UserProvider } from "./context/useUser";
+import Dashboard from "./pages/Dashboard";
+import PersonalDataEdit from "./pages/PersonalDataEdit";
+import EmailChange from "./pages/EmailChange";
+import PasswordChange from "./pages/PasswordChange";
+import PasswordReset from "./pages/PasswordReset";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <App />,
 		children: [
+			//====================== GENERAL =======================
 			{
 				path: "about",
 				element: <About />,
 			},
+			//====================== AUTH / USER ====================
+			{
+				path: "signin",
+				element: <SignIn />,
+			},
+			{
+				path: "signup",
+				element: <SignUp />,
+			},
+			{
+				path: "dashboard",
+				element: <Dashboard />,
+			},
+			{
+				path: "personal-data-edit",
+				element: <PersonalDataEdit />,
+			},
+			{
+				path: "email-change",
+				element: <EmailChange />,
+			},
+			{
+				path: "password-change",
+				element: <PasswordChange />,
+			},
+			{
+				path: "password-reset",
+				element: <PasswordReset />,
+			},
+			//====================== FEATURES =======================
 			{
 				path: "projects",
 				element: <Projects />,
@@ -66,7 +105,9 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<ThemeProvider>
-			<RouterProvider router={router} />
+			<UserProvider>
+				<RouterProvider router={router} />
+			</UserProvider>
 		</ThemeProvider>
 	</React.StrictMode>
 );
