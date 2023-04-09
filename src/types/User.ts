@@ -1,6 +1,6 @@
 export type User = {
-	uid: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-} | null
+	uid: string
+	firstName: string
+	lastName: string
+	email: string
+}

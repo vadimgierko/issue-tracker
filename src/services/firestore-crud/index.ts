@@ -151,8 +151,6 @@ async function fetchDocsByIdFromCollection(
   }
 }
 
-
-
 async function deleteDocument(docId: string, collectionName: string): Promise<void> {
   try {
     console.log(`deleting document ${docId} from collection ${collectionName}`);
@@ -162,7 +160,6 @@ async function deleteDocument(docId: string, collectionName: string): Promise<vo
     console.error(err.message);
   }
 }
-
 
 export {
 	addDocumentWithCustomId,

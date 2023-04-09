@@ -1,37 +1,77 @@
-import { Outlet, useLocation } from "react-router-dom";
-import Nav from "react-bootstrap/Nav";
+import { Link } from "react-router-dom";
+import useProjects from "../../context/useProjects";
+import useUser from "../../context/useUser";
+import { Button, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { useState } from "react";
 
 export default function Projects() {
-	const { pathname } = useLocation();
-	const [activeTab, setActiveTab] = useState(() =>
-		pathname.includes("list") ? "list" : "add"
-	);
+	const { user } = useUser();
+	const { value: projects, loading } = useProjects();
+
+	if (!user)
+		return (
+			<>
+				<Header />
+				<NoUser />
+			</>
+		);
+
+	if (loading)
+		return (
+			<>
+				<Header />
+				<Loading />
+			</>
+		);
+
+	if (!projects || !projects.length)
+		return (
+			<>
+				<Header />
+				<NoProjects />
+			</>
+		);
 
 	return (
-		<div className="projects">
-			<header className="text-center">
-				<h1>Projects</h1>
-				<Nav
-					variant="tabs"
-					defaultActiveKey={activeTab}
-					onSelect={(eventKey) => (eventKey ? setActiveTab(eventKey) : null)}
-					className="justify-content-center"
-				>
-					<Nav.Item>
-						<LinkContainer to="list">
-							<Nav.Link eventKey="list">List</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-					<Nav.Item>
-						<LinkContainer to="add">
-							<Nav.Link eventKey="add">Add</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-				</Nav>
-			</header>
-			<Outlet />
+		<>
+			<Header />
+			<ul className="mt-3">
+				{projects.map((project) => (
+					<li key={project.id}>
+						<Link to={"/projects/" + project.id}>{project.title}</Link>
+					</li>
+				))}
+			</ul>
+		</>
+	);
+}
+
+function Header() {
+	return (
+		<header className="text-center">
+			<h1 className="mb-3">Projects</h1>
+			<div className="text-center">
+				<LinkContainer to="/projects/add">
+					<Button className="primary">Add Project</Button>
+				</LinkContainer>
+			</div>
+			<hr />
+		</header>
+	);
+}
+
+function NoUser() {
+	return <p className="text-center">You need to be logged!</p>;
+}
+
+function Loading() {
+	return (
+		<div className="text-center">
+			<Spinner />
 		</div>
 	);
+}
+
+function NoProjects() {
+	return <p className="text-center">There are no projects... Add one!</p>;
 }

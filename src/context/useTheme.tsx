@@ -2,16 +2,26 @@ import { createContext, useContext, useState } from "react";
 
 type Theme = "light" | "dark";
 
-type ThemeContextType = {
+// type ThemeContextType = {
+// 	value: Theme;
+// 	set: (theme: Theme) => void;
+// 	switch: () => void;
+// };
+
+const ThemeContext = createContext<{
 	value: Theme;
 	set: (theme: Theme) => void;
 	switch: () => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+} | null>(null);
 
 export default function useTheme() {
-	return useContext(ThemeContext);
+	const context = useContext(ThemeContext);
+
+	if (!context) {
+		throw new Error("useTheme has to be used within <ThemeContext.Provider>");
+	}
+
+	return context;
 }
 
 interface ThemeProviderProps {
@@ -29,7 +39,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 		}
 	};
 
-	const value: ThemeContextType = {
+	const value = {
 		value: theme,
 		set: setTheme,
 		switch: switchTheme,

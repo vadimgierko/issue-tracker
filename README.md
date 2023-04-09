@@ -40,9 +40,10 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 ## Todo
 
 - [ ] is current license in Footer (borrowed from teplate) accurate for this project?
-- [ ] design Firestore database
-- [ ] create Project & Issue types
-- [ ] rewrite projects & issues CRUD
+- [ ] fix theme?... to just theme or theme.value, because hook was fixed
+- [ ] maybe control resetting the state via App component?
+- [ ] create ProtectedRoute
+- [ ] create PageHeader, ...
 
 - enable
   - auto adding date of opening an issue
@@ -51,5 +52,3 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
   - closing an issue
   - storing issues history
   - filter issues by project, priority, type etc.
-
-- [ ] when the app will be complete & all features will be checked, create a ts react template app

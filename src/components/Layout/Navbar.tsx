@@ -48,12 +48,12 @@ export default function NavigationBar() {
 							<Nav.Link>About</Nav.Link>
 						</LinkContainer>
 						<hr />
-						<LinkContainer to="/projects/list">
+						<LinkContainer to="/projects">
 							<Nav.Link>Projects</Nav.Link>
 						</LinkContainer>
-						<LinkContainer to="/issues/list">
+						{/* <LinkContainer to="/issues">
 							<Nav.Link>Issues</Nav.Link>
-						</LinkContainer>
+						</LinkContainer> */}
 					</Nav>
 
 					<hr />
