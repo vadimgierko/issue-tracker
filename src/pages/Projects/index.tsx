@@ -1,20 +1,10 @@
 import { Link } from "react-router-dom";
 import useProjects from "../../context/useProjects";
-import useUser from "../../context/useUser";
 import { Button, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
 export default function Projects() {
-	const { user } = useUser();
 	const { value: projects, loading } = useProjects();
-
-	if (!user)
-		return (
-			<>
-				<Header />
-				<NoUser />
-			</>
-		);
 
 	if (loading)
 		return (
@@ -58,10 +48,6 @@ function Header() {
 			<hr />
 		</header>
 	);
-}
-
-function NoUser() {
-	return <p className="text-center">You need to be logged!</p>;
 }
 
 function Loading() {

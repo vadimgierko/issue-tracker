@@ -46,9 +46,6 @@ export default function PasswordChange() {
 		}
 	}
 
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
-
 	return (
 		<div
 			style={{

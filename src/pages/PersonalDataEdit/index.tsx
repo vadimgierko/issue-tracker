@@ -7,7 +7,7 @@ import { updateDocument } from "../../services/firestore-crud";
 
 export default function PersonalDataEdit() {
 	const { value: theme } = useTheme();
-	const { firebaseUser, user } = useUser();
+	const { user } = useUser();
 	const navigate = useNavigate();
 
 	const [userData, setUserData] = useState({
@@ -26,9 +26,6 @@ export default function PersonalDataEdit() {
 			}
 		}
 	}
-
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
 
 	return (
 		<>

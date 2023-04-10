@@ -22,15 +22,15 @@ import useUser from "../../context/useUser";
 
 export default function NavigationBar() {
 	const maxWidth = useMaxWidth();
-	const theme = useTheme();
-	const { firebaseUser, user } = useUser();
+	const { value: theme, switch: switchTheme } = useTheme();
+	const { user } = useUser();
 
 	return (
 		<Navbar
 			collapseOnSelect
 			expand="lg"
-			bg={theme?.value}
-			variant={theme?.value}
+			bg={theme}
+			variant={theme}
 			fixed="top"
 			className="shadow"
 		>
@@ -47,19 +47,23 @@ export default function NavigationBar() {
 						<LinkContainer to="/about">
 							<Nav.Link>About</Nav.Link>
 						</LinkContainer>
-						<hr />
-						<LinkContainer to="/projects">
-							<Nav.Link>Projects</Nav.Link>
-						</LinkContainer>
-						{/* <LinkContainer to="/issues">
+						{user && (
+							<>
+								<hr />
+								<LinkContainer to="/projects">
+									<Nav.Link>Projects</Nav.Link>
+								</LinkContainer>
+								{/* <LinkContainer to="/issues">
 							<Nav.Link>Issues</Nav.Link>
 						</LinkContainer> */}
+							</>
+						)}
 					</Nav>
 
 					<hr />
 
 					<Nav>
-						{!firebaseUser && (
+						{!user && (
 							<LinkContainer to="/signin">
 								<Nav.Link>
 									<AiOutlineLogin /> Log in
@@ -76,7 +80,7 @@ export default function NavigationBar() {
 										) : null}
 									</>
 								}
-								menuVariant={theme?.value}
+								menuVariant={theme}
 								drop="down-centered"
 							>
 								<LinkContainer to="/dashboard">
@@ -94,8 +98,8 @@ export default function NavigationBar() {
 								</LinkContainer>
 							</NavDropdown>
 						)}
-						<Nav.Link href="#" onClick={theme?.switch}>
-							{theme?.value === "light" ? <BsMoonFill /> : <BsSunFill />}
+						<Nav.Link href="#" onClick={switchTheme}>
+							{theme === "light" ? <BsMoonFill /> : <BsSunFill />}
 						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
