@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { signIn } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignIn() {
 	const { value: theme } = useTheme();
@@ -37,7 +38,7 @@ export default function SignIn() {
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Sign In!</h1>
+			<PageHeader pageTitle="Sign in" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"

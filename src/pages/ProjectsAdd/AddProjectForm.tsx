@@ -37,51 +37,44 @@ export default function AddProjectForm({
 	}
 
 	return (
-		<div className="add-project-form">
-			<header className="text-center mb-3">
-				<h1>Add Project</h1>
-				<hr />
-			</header>
-			<Form
-				onSubmit={(e) => {
-					handleSubmit(e);
-				}}
-			>
-				<FloatingLabel label="Title" className="mb-3">
-					<Form.Control
-						value={projectData.title}
-						placeholder="type project title here"
-						onChange={(e) =>
-							setProjectData({ ...projectData, title: e.target.value })
-						}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-					/>
-				</FloatingLabel>
+		<Form
+			onSubmit={(e) => {
+				handleSubmit(e);
+			}}
+		>
+			<FloatingLabel label="Title" className="mb-3">
+				<Form.Control
+					value={projectData.title}
+					placeholder="type project title here"
+					onChange={(e) =>
+						setProjectData({ ...projectData, title: e.target.value })
+					}
+					style={{
+						backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+						color: theme === "light" ? "black" : "white",
+					}}
+				/>
+			</FloatingLabel>
 
-				<FloatingLabel label="Description" className="mb-3">
-					<Form.Control
-						value={projectData.description}
-						placeholder="type project title here"
-						onChange={(e) =>
-							setProjectData({ ...projectData, description: e.target.value })
-						}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-					/>
-				</FloatingLabel>
+			<FloatingLabel label="Description" className="mb-3">
+				<Form.Control
+					value={projectData.description}
+					placeholder="type project title here"
+					onChange={(e) =>
+						setProjectData({ ...projectData, description: e.target.value })
+					}
+					style={{
+						backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+						color: theme === "light" ? "black" : "white",
+					}}
+				/>
+			</FloatingLabel>
 
-				<div className="d-grid gap-2">
-					<Button variant="primary" type="submit">
-						add project
-					</Button>
-				</div>
-			</Form>
-			<hr />
-		</div>
+			<div className="d-grid gap-2">
+				<Button variant="primary" type="submit">
+					add project
+				</Button>
+			</div>
+		</Form>
 	);
 }

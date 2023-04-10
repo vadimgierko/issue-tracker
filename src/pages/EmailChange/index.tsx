@@ -5,6 +5,7 @@ import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { changeEmail } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function EmailChange() {
 	const { value: theme } = useTheme();
@@ -33,13 +34,11 @@ export default function EmailChange() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Change your email!</h1>
+			<PageHeader pageTitle="Change your email address" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"

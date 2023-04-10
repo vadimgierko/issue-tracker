@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { updateDocument } from "../../services/firestore-crud";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PersonalDataEdit() {
 	const { value: theme } = useTheme();
@@ -29,10 +30,8 @@ export default function PersonalDataEdit() {
 
 	return (
 		<>
-			<header>
-				<h4 className="text-center">Edit your personal data</h4>
-				<hr />
-			</header>
+			<PageHeader pageTitle="Edit your personal data" />
+
 			<Form onSubmit={handleSubmit}>
 				<Form.Group className="mb-3">
 					<Form.Label>First name</Form.Label>

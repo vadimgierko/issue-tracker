@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { UserProvider } from "./context/useUser";
 import { ThemeProvider } from "./context/useTheme";
 import { ProjectsProvider } from "./context/useProjects";
+import { MaxWidthProvider } from "./context/useMaxWidth";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -15,11 +16,13 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<ThemeProvider>
-			<UserProvider>
-				<ProjectsProvider>
-					<App />
-				</ProjectsProvider>
-			</UserProvider>
+			<MaxWidthProvider>
+				<UserProvider>
+					<ProjectsProvider>
+						<App />
+					</ProjectsProvider>
+				</UserProvider>
+			</MaxWidthProvider>
 		</ThemeProvider>
 	</React.StrictMode>
 );

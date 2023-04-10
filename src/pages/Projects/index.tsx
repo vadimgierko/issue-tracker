@@ -2,29 +2,21 @@ import { Link } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import { Button, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function Projects() {
 	const { value: projects, loading } = useProjects();
 
-	if (loading)
+	function Loading() {
 		return (
-			<>
-				<Header />
-				<Loading />
-			</>
+			<div className="text-center">
+				<Spinner />
+			</div>
 		);
+	}
 
-	if (!projects || !projects.length)
+	function ProjectsList() {
 		return (
-			<>
-				<Header />
-				<NoProjects />
-			</>
-		);
-
-	return (
-		<>
-			<Header />
 			<ul className="mt-3">
 				{projects.map((project) => (
 					<li key={project.id}>
@@ -32,32 +24,30 @@ export default function Projects() {
 					</li>
 				))}
 			</ul>
+		);
+	}
+
+	function NoProjects() {
+		return <p className="text-center">There are no projects... Add one!</p>;
+	}
+
+	return (
+		<>
+			<PageHeader pageTitle="Projects">
+				<div className="text-center my-3">
+					<LinkContainer to="/projects/add">
+						<Button className="primary">Add Project</Button>
+					</LinkContainer>
+				</div>
+			</PageHeader>
+
+			{loading ? (
+				<Loading />
+			) : projects && projects.length ? (
+				<ProjectsList />
+			) : (
+				<NoProjects />
+			)}
 		</>
 	);
-}
-
-function Header() {
-	return (
-		<header className="text-center">
-			<h1 className="mb-3">Projects</h1>
-			<div className="text-center">
-				<LinkContainer to="/projects/add">
-					<Button className="primary">Add Project</Button>
-				</LinkContainer>
-			</div>
-			<hr />
-		</header>
-	);
-}
-
-function Loading() {
-	return (
-		<div className="text-center">
-			<Spinner />
-		</div>
-	);
-}
-
-function NoProjects() {
-	return <p className="text-center">There are no projects... Add one!</p>;
 }

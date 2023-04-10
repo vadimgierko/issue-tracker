@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { changePassword } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PasswordChange() {
 	const { value: theme } = useTheme();
@@ -49,13 +50,11 @@ export default function PasswordChange() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Change your password!</h1>
+			<PageHeader pageTitle="Change your password" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"

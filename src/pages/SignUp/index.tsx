@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { signUp } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignUp() {
 	const { value: theme } = useTheme();
@@ -35,7 +36,7 @@ export default function SignUp() {
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Sign Up!</h1>
+			<PageHeader pageTitle="Create account" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"

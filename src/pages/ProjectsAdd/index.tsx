@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import { ProjectData } from "../../interfaces/Project";
 import AddProjectForm from "./AddProjectForm";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function ProjectsAdd() {
 	const { addProject } = useProjects();
@@ -18,5 +19,10 @@ export default function ProjectsAdd() {
 		}
 	}
 
-	return <AddProjectForm onSubmit={handleAddProject} />;
+	return (
+		<>
+			<PageHeader pageTitle="Add project" />
+			<AddProjectForm onSubmit={handleAddProject} />
+		</>
+	);
 }

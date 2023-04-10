@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import { Project as ProjectType } from "../../interfaces/Project";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
@@ -16,10 +17,8 @@ export default function Project() {
 
 	return (
 		<>
-			<header className="text-center my-3">
-				<h1>{project.title}</h1>
-				<p>{project.description}</p>
-			</header>
+			<PageHeader pageTitle={project.title}>{project.description}</PageHeader>
+
 			{/* {projectIssues.length ? (
 				<IssuesList passedIssues={projectIssues} />
 			) : (

@@ -1,9 +1,17 @@
 import { createContext, useContext } from "react";
 
-const MaxWidthContext = createContext<number | undefined>(undefined);
+const MaxWidthContext = createContext<number>(940);
 
 export default function useMaxWidth() {
-	return useContext(MaxWidthContext);
+	const context = useContext(MaxWidthContext);
+
+	if (!context) {
+		throw new Error(
+			"useMaxWidth has to be used within <MaxWidthContext.Provider>"
+		);
+	}
+
+	return context;
 }
 
 type MaxWidthProviderProps = {
