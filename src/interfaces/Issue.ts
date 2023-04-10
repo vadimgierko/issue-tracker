@@ -1,8 +1,16 @@
 export interface Issue {
-	project: string;
-	title: string;
-	description: string;
-	type: "bug" | "feature request" | "improvement";
-  priority: "high" | "medium" | "low";
-  status: "open" | "closed"
+	title: string
+	description: string
+  id: string
+  authorId: string
+  projectId: string
+	type: IssueType
+  priority: IssuePriority
+  status: IssueStatus
 }
+
+export type IssueType = "bug" | "feature request" | "improvement"
+
+export type IssuePriority = "high" | "medium" | "low"
+
+export type IssueStatus = "open" | "closed"

@@ -11,11 +11,10 @@ import {
 	arrayUnion,
 	DocumentData,
 } from "firebase/firestore";
-import { Project } from "../types/Project";
+import { Project, ProjectData } from "../interfaces/Project";
 import useUser from "./useUser";
-import { ProjectData } from "../types/ProjectData";
 
-// export interface ProjectsContextType {
+// export type ProjectsContextType = {
 // 	value: Project[];
 // 	loading: boolean;
 // 	addProject: (projectData: ProjectData) => Promise<void>;
@@ -39,9 +38,9 @@ export default function useProjects() {
 	return context;
 }
 
-interface ProjectsProviderProps {
+type ProjectsProviderProps = {
 	children: React.ReactNode;
-}
+};
 
 export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	const [projects, setProjects] = useState<Project[]>([]);

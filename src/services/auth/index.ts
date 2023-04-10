@@ -16,7 +16,7 @@ import {
 	deleteDocument,
 	updateDocument,
 } from "../firestore-crud";
-import { User } from "../../types/User";
+import { User } from "../../interfaces/User";
 
 async function signIn(email: string, password: string): Promise<void> {
   try {

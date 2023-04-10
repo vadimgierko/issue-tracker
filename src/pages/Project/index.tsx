@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import useProjects from "../../context/useProjects";
-import { Project as ProjectType } from "../../types/Project";
+import { Project as ProjectType } from "../../interfaces/Project";
 
 export default function Project() {
 	const { projectId } = useParams<string>();

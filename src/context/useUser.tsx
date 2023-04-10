@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { auth, firestore } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
-import { User } from "../types/User";
+import { User } from "../interfaces/User";
 import { User as FirebaseUser } from "firebase/auth";
 
 const UserContext = createContext<{
@@ -11,7 +11,13 @@ const UserContext = createContext<{
 }>({ firebaseUser: null, user: null });
 
 export default function useUser() {
-	return useContext(UserContext);
+	const context = useContext(UserContext);
+
+	if (!context) {
+		throw new Error("useUser has to be used within <UserContext.Provider>");
+	}
+
+	return context;
 }
 
 interface UserProviderProps {

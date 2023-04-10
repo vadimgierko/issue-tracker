@@ -7,7 +7,7 @@ import useUser from "../../context/useUser";
 import { signIn } from "../../services/auth";
 
 export default function SignIn() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [userData, setUserData] = useState({
 		email: "",
@@ -31,8 +31,8 @@ export default function SignIn() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -56,9 +56,8 @@ export default function SignIn() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -76,9 +75,8 @@ export default function SignIn() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

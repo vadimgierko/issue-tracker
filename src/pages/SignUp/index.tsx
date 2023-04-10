@@ -7,7 +7,7 @@ import useUser from "../../context/useUser";
 import { signUp } from "../../services/auth";
 
 export default function SignUp() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [userData, setUserData] = useState({
 		firstName: "",
@@ -29,8 +29,8 @@ export default function SignUp() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -53,9 +53,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -72,9 +71,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -92,9 +90,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -112,9 +109,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

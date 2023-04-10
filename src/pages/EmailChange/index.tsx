@@ -7,7 +7,7 @@ import { changeEmail } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function EmailChange() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [newEmail, setNewEmail] = useState("");
 	const navigate = useNavigate();
@@ -36,8 +36,8 @@ export default function EmailChange() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -57,9 +57,8 @@ export default function EmailChange() {
 						onChange={(e) => setNewEmail(e.target.value)}
 						className="mb-2"
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text className="text-danger">

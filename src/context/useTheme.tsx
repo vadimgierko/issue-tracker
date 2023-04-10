@@ -24,9 +24,9 @@ export default function useTheme() {
 	return context;
 }
 
-interface ThemeProviderProps {
+type ThemeProviderProps = {
 	children: React.ReactNode;
-}
+};
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
 	const [theme, setTheme] = useState<Theme>("dark");

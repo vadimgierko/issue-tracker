@@ -6,7 +6,7 @@ import useUser from "../../context/useUser";
 import { updateDocument } from "../../services/firestore-crud";
 
 export default function PersonalDataEdit() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser, user } = useUser();
 	const navigate = useNavigate();
 
@@ -50,9 +50,8 @@ export default function PersonalDataEdit() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -70,9 +69,8 @@ export default function PersonalDataEdit() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -92,9 +90,8 @@ export default function PersonalDataEdit() {
 						}
 						className="mb-2"
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text className="text-danger">

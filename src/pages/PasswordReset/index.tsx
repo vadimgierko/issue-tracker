@@ -8,7 +8,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebaseConfig";
 
 export default function PasswordReset() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [email, setEmail] = useState("");
 	const navigate = useNavigate();
@@ -38,8 +38,8 @@ export default function PasswordReset() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -58,9 +58,8 @@ export default function PasswordReset() {
 						required
 						onChange={(e) => setEmail(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import useProjects from "../../context/useProjects";
-import { ProjectData } from "../../types/ProjectData";
+import { ProjectData } from "../../interfaces/Project";
 import AddProjectForm from "./AddProjectForm";
 
 export default function ProjectsAdd() {

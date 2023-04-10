@@ -7,7 +7,7 @@ import useUser from "../../context/useUser";
 import { changePassword } from "../../services/auth";
 
 export default function PasswordChange() {
-	const theme = useTheme();
+	const { value: theme } = useTheme();
 	const { firebaseUser } = useUser();
 
 	const [oldPassword, setOldPassword] = useState("");
@@ -52,8 +52,8 @@ export default function PasswordChange() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -72,9 +72,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setOldPassword(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -87,9 +86,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setNewPassword(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text muted>At least 6 characters</Form.Text>
@@ -103,9 +101,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setNewPasswordConfirmed(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
