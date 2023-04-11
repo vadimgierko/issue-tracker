@@ -2,17 +2,11 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { firestore } from "../firebaseConfig";
 import {
 	collection,
-	getDocs,
-	where,
-	query,
 	doc,
 	getDoc,
 	writeBatch,
 	arrayUnion,
-	DocumentData,
-	updateDoc,
 	setDoc,
-	deleteDoc,
 	arrayRemove,
 } from "firebase/firestore";
 import { Project, ProjectData } from "../interfaces/Project";
@@ -96,7 +90,9 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 
 				return newProjectId;
 			} catch (error: any) {
-				console.error(error.message);
+				const errorMessage = `An error occurred while adding the project: ${error.message}. Cannot add project.`;
+				console.error(errorMessage);
+				alert(errorMessage);
 				return "";
 			}
 		}
@@ -121,7 +117,9 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 			);
 			setProjects(updatedProjects);
 		} catch (error: any) {
-			console.error(error.message);
+			const errorMessage = `An error occurred while updating the project: ${error.message}. Cannot update project.`;
+			console.error(errorMessage);
+			alert(errorMessage);
 		}
 	}
 
@@ -160,7 +158,9 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 			const updatedProjects = projects.filter((p) => p.id !== projectId);
 			setProjects(updatedProjects);
 		} catch (error: any) {
-			console.error(error.message);
+			const errorMessage = `An error occurred while deleting the project: ${error.message}. Cannot delete project.`;
+			console.error(errorMessage);
+			alert(errorMessage);
 		}
 	}
 

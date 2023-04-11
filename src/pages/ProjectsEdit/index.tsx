@@ -81,6 +81,7 @@ export default function ProjectsEdit() {
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
+						required
 					/>
 				</FloatingLabel>
 
@@ -95,6 +96,7 @@ export default function ProjectsEdit() {
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
+						required
 					/>
 				</FloatingLabel>
 

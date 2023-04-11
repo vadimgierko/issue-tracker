@@ -25,6 +25,12 @@ I'm working on this custom tracker, because:
 
 And also I want to exercise in TypeScript and... try out my new template app ;-)
 
+## Database structure
+
+The app's data is stored in Firebase Firestore database.
+
+The database is structured as follows: ...
+
 ## Tech Stack
 
 - React
@@ -41,6 +47,8 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 - [ ] is current license in Footer (borrowed from teplate) accurate for this project?
 - [ ] maybe control resetting the state via App component?
+- [ ] add bootstrap alerts for user, not the alerts which are blocking the browser
+- [ ] add cancel buttons
 
 - enable
   - auto adding date of opening an issue
