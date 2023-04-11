@@ -3,10 +3,10 @@ import useProjects from "../../context/useProjects";
 import { Button, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import PageHeader from "../../components/Layout/PageHeader";
-import { BsPencilSquare } from "react-icons/bs";
+import { BsPencilSquare, BsTrash } from "react-icons/bs";
 
 export default function Projects() {
-	const { value: projects, loading } = useProjects();
+	const { projects, loading, deleteProject } = useProjects();
 
 	function Loading() {
 		return (
@@ -14,6 +14,14 @@ export default function Projects() {
 				<Spinner />
 			</div>
 		);
+	}
+
+	async function handleDeleteProject(projectId: string) {
+		if (!projectId)
+			return alert("No project id was provided... Cannot delete project.");
+
+		await deleteProject(projectId);
+		alert(`Your project with the id ${projectId} was successfully deleted.`);
 	}
 
 	function ProjectsList() {
@@ -24,7 +32,11 @@ export default function Projects() {
 						<Link to={"/projects/" + project.id}>{project.title}</Link>{" "}
 						<Link to={"/projects/" + project.id + "/edit"}>
 							<BsPencilSquare />
-						</Link>
+						</Link>{" "}
+						<BsTrash
+							style={{ color: "red" }}
+							onClick={() => handleDeleteProject(project.id)}
+						/>
 					</li>
 				))}
 			</ul>

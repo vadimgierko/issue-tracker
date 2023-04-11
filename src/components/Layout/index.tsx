@@ -8,7 +8,7 @@ import ScrollToTop from "./ScrollToTop";
 
 export default function Layout() {
 	const maxWidth = useMaxWidth();
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 
 	return (
 		<div

@@ -19,7 +19,7 @@ export default function AddProjectForm({
 	project,
 	onSubmit,
 }: ProjectFormProps) {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const [projectData, setProjectData] = useState<ProjectData>(() =>
 		project
 			? { title: project.title, description: project.description }

@@ -9,7 +9,7 @@ import { auth } from "../../firebaseConfig";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PasswordReset() {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [email, setEmail] = useState("");
 	const navigate = useNavigate();

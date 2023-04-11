@@ -22,7 +22,7 @@ import useUser from "../../context/useUser";
 
 export default function NavigationBar() {
 	const maxWidth = useMaxWidth();
-	const { value: theme, switch: switchTheme } = useTheme();
+	const { theme, switchTheme } = useTheme();
 	const { user } = useUser();
 
 	return (

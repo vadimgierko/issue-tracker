@@ -9,9 +9,9 @@ type Theme = "light" | "dark";
 // };
 
 const ThemeContext = createContext<{
-	value: Theme;
-	set: (theme: Theme) => void;
-	switch: () => void;
+	theme: Theme;
+	setTheme: (theme: Theme) => void;
+	switchTheme: () => void;
 } | null>(null);
 
 export default function useTheme() {
@@ -40,9 +40,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 	};
 
 	const value = {
-		value: theme,
-		set: setTheme,
-		switch: switchTheme,
+		theme,
+		setTheme,
+		switchTheme,
 	};
 
 	return (

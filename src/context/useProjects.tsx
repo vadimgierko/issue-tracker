@@ -12,21 +12,18 @@ import {
 	DocumentData,
 	updateDoc,
 	setDoc,
+	deleteDoc,
+	arrayRemove,
 } from "firebase/firestore";
 import { Project, ProjectData } from "../interfaces/Project";
 import useUser from "./useUser";
 
-// export type ProjectsContextType = {
-// 	value: Project[];
-// 	loading: boolean;
-// 	addProject: (projectData: ProjectData) => Promise<void>;
-// }
-
 const ProjectsContext = createContext<{
-	value: Project[];
+	projects: Project[];
 	loading: boolean;
 	addProject: (projectData: ProjectData) => Promise<string>;
 	updateProject: (updatedProject: Project) => Promise<void>;
+	deleteProject: (projectId: string) => Promise<void>;
 } | null>(null);
 
 export default function useProjects() {
@@ -108,13 +105,63 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	}
 
 	async function updateProject(updatedProject: Project) {
-		// NOTE: as we have project data only in /projects collection,
+		// NOTE:
+		// as we have project data only in /projects collection,
 		// we need to update it only there
-		await setDoc(doc(firestore, "projects", updatedProject.id), updatedProject);
-		const updatedProjects = projects.map((p) =>
-			p.id === updatedProject.id ? updatedProject : p
-		);
-		setProjects(updatedProjects);
+
+		try {
+			await setDoc(
+				doc(firestore, "projects", updatedProject.id),
+				updatedProject
+			);
+
+			// update app's state:
+			const updatedProjects = projects.map((p) =>
+				p.id === updatedProject.id ? updatedProject : p
+			);
+			setProjects(updatedProjects);
+		} catch (error: any) {
+			console.error(error.message);
+		}
+	}
+
+	async function deleteProject(projectId: string) {
+		// NOTE:
+		// we need to delete project from /projects collection
+		// & also from /user-projects doc array
+		// so we use batch
+
+		try {
+			if (!projectId)
+				return console.error(
+					"No project id provided... Cannot delete project."
+				);
+			if (!user || (user && !user.uid))
+				return console.log("You need to be logged to delete project. Log in!");
+
+			// init batch to update multiply docs:
+			// Get a new write batch
+			const batch = writeBatch(firestore);
+
+			// delete project:
+			const deletedProjectRef = doc(firestore, "projects", projectId);
+			batch.delete(deletedProjectRef);
+
+			// delete project id from /user-projects doc's "projects" array:
+			const userProjectsRef = doc(firestore, "user-projects", user.uid);
+			batch.update(userProjectsRef, {
+				projectsIds: arrayRemove(projectId),
+			});
+
+			// Commit the batch
+			await batch.commit();
+
+			// update app's state:
+			const updatedProjects = projects.filter((p) => p.id !== projectId);
+			setProjects(updatedProjects);
+		} catch (error: any) {
+			console.error(error.message);
+		}
 	}
 
 	// fetch user projects array from user-projects collection,
@@ -162,7 +209,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				} else {
 					setProjects([]);
 				}
-				setLoading(false);
 			} catch (error: any) {
 				if (error.code === "not-found") {
 					// Handle case where collection doesn't exist
@@ -173,6 +219,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 					console.error(error.message);
 					setProjects([]);
 				}
+			} finally {
 				setLoading(false);
 			}
 		}
@@ -183,12 +230,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 		fetchProjects(user.uid);
 	}, [loading, user]);
 
-	//================================== TODO: =====================//
-
-	// DELETE PROJECT:
-
-	//===============================================================//
-
 	// clear state when user is logged out:
 	useEffect(() => {
 		if (!user) {
@@ -198,10 +239,11 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	}, [user]);
 
 	const value = {
-		value: projects,
+		projects,
 		loading,
 		addProject,
 		updateProject,
+		deleteProject,
 	};
 
 	return (

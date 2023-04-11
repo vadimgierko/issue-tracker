@@ -9,14 +9,12 @@ export default function ProjectsAdd() {
 	const navigate = useNavigate();
 
 	async function handleAddProject(projectData: ProjectData) {
-		if (projectData) {
-			try {
-				const addedProjectId = await addProject(projectData);
-				navigate("/projects/" + addedProjectId);
-			} catch (error: any) {
-				console.error(error.message);
-			}
-		}
+		if (!projectData)
+			return alert("No project data provided... Cannot add project.");
+
+		const addedProjectId = await addProject(projectData);
+		alert(`Your project was successfully added with the id ${addedProjectId}.`);
+		navigate("/projects/" + addedProjectId);
 	}
 
 	return (

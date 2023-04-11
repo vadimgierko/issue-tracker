@@ -7,18 +7,18 @@ import useTheme from "../../context/useTheme";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function ProjectsEdit() {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const { projectId } = useParams();
-	const { value: projects, updateProject } = useProjects();
+	const { projects, updateProject, deleteProject } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
 	const [projectData, setProjectData] = useState<ProjectData | null>(null);
 	const navigate = useNavigate();
 
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function handleProjectUpdate(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		if (!project || !projectData)
-			return console.error(
+		if (!project || !projectData || !projectId)
+			return alert(
 				"No project or project data provided... Cannot update project."
 			);
 
@@ -27,12 +27,20 @@ export default function ProjectsEdit() {
 			...projectData,
 		};
 
-		try {
-			await updateProject(updatedProject);
-			navigate("/projects/" + projectId);
-		} catch (error: any) {
-			console.error(error.message);
-		}
+		await updateProject(updatedProject);
+		alert(`Your project with the id ${projectId} was successfully updated.`);
+		navigate("/projects/" + projectId);
+	}
+
+	async function handleDeleteProject(projectId: string) {
+		if (!projectId)
+			return console.error(
+				"No project id was provided... Cannot delete project."
+			);
+
+		await deleteProject(projectId);
+		alert(`Your project with the id ${projectId} was successfully deleted.`);
+		navigate("/projects");
 	}
 
 	useEffect(() => {
@@ -46,7 +54,7 @@ export default function ProjectsEdit() {
 		}
 	}, [project]);
 
-	if (!projectData)
+	if (!projectData || !project || !projectId)
 		return (
 			<p className="text-center">
 				No project data provided... Cannot update project.
@@ -59,7 +67,7 @@ export default function ProjectsEdit() {
 
 			<Form
 				onSubmit={(e) => {
-					handleSubmit(e);
+					handleProjectUpdate(e);
 				}}
 			>
 				<FloatingLabel label="Title" className="mb-3">
@@ -96,6 +104,11 @@ export default function ProjectsEdit() {
 					</Button>
 				</div>
 			</Form>
+			<div className="d-grid gap-2 mt-3">
+				<Button variant="danger" onClick={() => handleDeleteProject(projectId)}>
+					delete project
+				</Button>
+			</div>
 		</>
 	);
 }

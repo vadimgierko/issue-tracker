@@ -7,7 +7,7 @@ import { updateDocument } from "../../services/firestore-crud";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PersonalDataEdit() {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const { user } = useUser();
 	const navigate = useNavigate();
 

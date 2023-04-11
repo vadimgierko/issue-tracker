@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function EmailChange() {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [newEmail, setNewEmail] = useState("");
 	const navigate = useNavigate();

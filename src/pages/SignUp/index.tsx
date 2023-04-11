@@ -8,7 +8,7 @@ import { signUp } from "../../services/auth";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignUp() {
-	const { value: theme } = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [userData, setUserData] = useState({
 		firstName: "",
