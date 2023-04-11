@@ -10,6 +10,8 @@ import {
 	writeBatch,
 	arrayUnion,
 	DocumentData,
+	updateDoc,
+	setDoc,
 } from "firebase/firestore";
 import { Project, ProjectData } from "../interfaces/Project";
 import useUser from "./useUser";
@@ -24,6 +26,7 @@ const ProjectsContext = createContext<{
 	value: Project[];
 	loading: boolean;
 	addProject: (projectData: ProjectData) => Promise<string>;
+	updateProject: (updatedProject: Project) => Promise<void>;
 } | null>(null);
 
 export default function useProjects() {
@@ -50,7 +53,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	console.log("user projects:", projects);
 
 	/**
-	 *
 	 * @param projectData
 	 * @returns The new project ID.
 	 */
@@ -105,6 +107,16 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 		return "";
 	}
 
+	async function updateProject(updatedProject: Project) {
+		// NOTE: as we have project data only in /projects collection,
+		// we need to update it only there
+		await setDoc(doc(firestore, "projects", updatedProject.id), updatedProject);
+		const updatedProjects = projects.map((p) =>
+			p.id === updatedProject.id ? updatedProject : p
+		);
+		setProjects(updatedProjects);
+	}
+
 	// fetch user projects array from user-projects collection,
 	// then fetch those projects data:
 	useEffect(() => {
@@ -150,7 +162,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				} else {
 					setProjects([]);
 				}
-
 				setLoading(false);
 			} catch (error: any) {
 				if (error.code === "not-found") {
@@ -162,6 +173,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 					console.error(error.message);
 					setProjects([]);
 				}
+				setLoading(false);
 			}
 		}
 
@@ -170,6 +182,12 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 
 		fetchProjects(user.uid);
 	}, [loading, user]);
+
+	//================================== TODO: =====================//
+
+	// DELETE PROJECT:
+
+	//===============================================================//
 
 	// clear state when user is logged out:
 	useEffect(() => {
@@ -183,6 +201,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 		value: projects,
 		loading,
 		addProject,
+		updateProject,
 	};
 
 	return (

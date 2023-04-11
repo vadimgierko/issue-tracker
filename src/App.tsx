@@ -17,6 +17,7 @@ import PasswordChange from "./pages/PasswordChange";
 import PasswordReset from "./pages/PasswordReset";
 import ProjectsAdd from "./pages/ProjectsAdd";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
+import ProjectsEdit from "./pages/ProjectsEdit";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -54,6 +55,10 @@ const privateRoutes: RouteObject[] = [
 	{
 		path: "projects/:projectId",
 		element: <Project />,
+	},
+	{
+		path: "projects/:projectId/edit",
+		element: <ProjectsEdit />,
 	},
 ];
 

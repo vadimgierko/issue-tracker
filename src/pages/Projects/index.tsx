@@ -3,6 +3,7 @@ import useProjects from "../../context/useProjects";
 import { Button, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import PageHeader from "../../components/Layout/PageHeader";
+import { BsPencilSquare } from "react-icons/bs";
 
 export default function Projects() {
 	const { value: projects, loading } = useProjects();
@@ -20,7 +21,10 @@ export default function Projects() {
 			<ul className="mt-3">
 				{projects.map((project) => (
 					<li key={project.id}>
-						<Link to={"/projects/" + project.id}>{project.title}</Link>
+						<Link to={"/projects/" + project.id}>{project.title}</Link>{" "}
+						<Link to={"/projects/" + project.id + "/edit"}>
+							<BsPencilSquare />
+						</Link>
 					</li>
 				))}
 			</ul>
