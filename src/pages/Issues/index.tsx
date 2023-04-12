@@ -1,65 +1,18 @@
 import useIssues from "../../context/useIssues";
-import { Button, Spinner, Table } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
-import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
-import useTheme from "../../context/useTheme";
+import IssuesTable from "./IssuesTable";
 
 export default function Issues() {
 	const { issues, loading } = useIssues();
-	const { projects } = useProjects();
-	const { theme } = useTheme();
 
 	function Loading() {
 		return (
 			<div className="text-center">
 				<Spinner />
 			</div>
-		);
-	}
-
-	function IssuesTable() {
-		return (
-			<Table striped bordered hover responsive className="mt-3" variant={theme}>
-				<thead>
-					<tr>
-						<th>Title</th>
-						<th>Project</th>
-						<th>Description</th>
-						<th>Type</th>
-						<th>Priority</th>
-						<th>Status</th>
-					</tr>
-				</thead>
-				<tbody>
-					{issues.map((issue) => (
-						<tr key={issue.id}>
-							<td>{issue.title}</td>
-							<td>
-								<Link to={"/projects/" + issue.projectId}>
-									{projects.find((p) => p.id === issue.projectId)?.title}
-								</Link>
-							</td>
-							<td>{issue.description}</td>
-							<td className={issue.type === "bug" ? "text-danger" : ""}>
-								{issue.type}
-							</td>
-							<td
-								className={
-									issue.priority === "high"
-										? "text-danger"
-										: issue.priority === "medium"
-										? "text-warning"
-										: "text-secondary"
-								}
-							>
-								{issue.priority}
-							</td>
-							<td>{issue.status}</td>
-						</tr>
-					))}
-				</tbody>
-			</Table>
 		);
 	}
 
@@ -80,7 +33,7 @@ export default function Issues() {
 			{loading ? (
 				<Loading />
 			) : issues && issues.length ? (
-				<IssuesTable />
+				<IssuesTable issues={issues} />
 			) : (
 				<NoIssues />
 			)}
