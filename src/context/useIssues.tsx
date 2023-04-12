@@ -51,7 +51,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		projectId: string
 	): Promise<string> {
 		if (!user || !user.uid) {
-			alert("You need to be logged to add an issue!");
+			logError("You need to be logged to add an issue!");
 			return "";
 		}
 
@@ -97,9 +97,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 			return newIssueId;
 		} catch (error: any) {
-			const errorMessage = `An error occurred while adding an issue: ${error.message}. Cannot add issue.`;
-			console.error(errorMessage);
-			alert(errorMessage);
+			logError(
+				`An error occurred while adding an issue: ${error.message}. Cannot add issue.`
+			);
 			return "";
 		}
 	}
@@ -108,19 +108,31 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
 		// we need to update it only there
+		if (!updatedIssue)
+			return logError("No updated issue data provided... Cannot update issue.");
 
 		try {
-			await setDoc(doc(firestore, "issues", updatedIssue.id), updatedIssue);
+			const updateTime = Date.now();
+
+			const updatedIssueWithUpdateTime: Issue = {
+				...updatedIssue,
+				updated: updateTime,
+			};
+
+			await setDoc(
+				doc(firestore, "issues", updatedIssue.id),
+				updatedIssueWithUpdateTime
+			);
 
 			// update app's state:
 			const updatedIssues = issues.map((i) =>
-				i.id === updatedIssue.id ? updatedIssue : i
+				i.id === updatedIssue.id ? updatedIssueWithUpdateTime : i
 			);
 			setIssues(updatedIssues);
 		} catch (error: any) {
-			const errorMessage = `An error occurred while updating an issue: ${error.message}. Cannot update issue.`;
-			console.error(errorMessage);
-			alert(errorMessage);
+			logError(
+				`An error occurred while updating an issue: ${error.message}. Cannot update issue.`
+			);
 		}
 	}
 

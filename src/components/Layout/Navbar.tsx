@@ -53,9 +53,9 @@ export default function NavigationBar() {
 								<LinkContainer to="/projects">
 									<Nav.Link>Projects</Nav.Link>
 								</LinkContainer>
-								{/* <LinkContainer to="/issues">
-							<Nav.Link>Issues</Nav.Link>
-						</LinkContainer> */}
+								<LinkContainer to="/issues">
+									<Nav.Link>Issues</Nav.Link>
+								</LinkContainer>
 							</>
 						)}
 					</Nav>

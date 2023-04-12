@@ -24,4 +24,5 @@ export interface IssueData {
 	type: IssueType
   priority: IssuePriority
   status: IssueStatus
+  projectId: string
 }

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import { Button, Spinner } from "react-bootstrap";
-import { LinkContainer } from "react-router-bootstrap";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 
@@ -51,9 +50,9 @@ export default function Projects() {
 		<>
 			<PageHeader pageTitle="Projects">
 				<div className="text-center my-3">
-					<LinkContainer to="/projects/add">
+					<Link to="/projects/add">
 						<Button className="primary">Add Project</Button>
-					</LinkContainer>
+					</Link>
 				</div>
 			</PageHeader>
 

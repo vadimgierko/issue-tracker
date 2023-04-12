@@ -51,9 +51,7 @@ The database is structured as follows: ...
 - [ ] add cancel buttons
 
 - enable
-  - auto adding date of opening an issue
   - markdown editor for issue description
-  - editing an issue
   - closing an issue
   - storing issues history
   - filter issues by project, priority, type etc.
