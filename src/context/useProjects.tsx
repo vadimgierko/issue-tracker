@@ -71,17 +71,13 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				// add newProjectId to /user-projects:
 				// (add newProjectId to doc's "projects" array)
 				const userProjectsRef = doc(firestore, "user-projects", user.uid);
+				batch.update(userProjectsRef, {
+					projectsIds: arrayUnion(newProjectId),
+				});
 
-				if (projects && projects.length) {
-					batch.update(userProjectsRef, {
-						projectsIds: arrayUnion(newProjectId),
-					});
-				} else {
-					// if there are no user projects,
-					// that means we need to create user-projects collection
-					// and set it then:
-					batch.set(userProjectsRef, { projectsIds: [newProjectId] });
-				}
+				// init a doc with project issues ids in /project-issues collection:
+				const projectIssuesRef = doc(firestore, "project-issues", newProjectId);
+				batch.set(projectIssuesRef, { issuesIds: [] });
 
 				// Commit the batch
 				await batch.commit();
