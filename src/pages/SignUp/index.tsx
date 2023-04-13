@@ -5,9 +5,10 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { signUp } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignUp() {
-	const theme = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [userData, setUserData] = useState({
 		firstName: "",
@@ -29,13 +30,13 @@ export default function SignUp() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Sign Up!</h1>
+			<PageHeader pageTitle="Create account" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -53,9 +54,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -72,9 +72,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -92,9 +91,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -112,9 +110,8 @@ export default function SignUp() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

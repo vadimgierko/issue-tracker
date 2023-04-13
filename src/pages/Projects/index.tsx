@@ -1,37 +1,68 @@
-import { Outlet, useLocation } from "react-router-dom";
-import Nav from "react-bootstrap/Nav";
-import { LinkContainer } from "react-router-bootstrap";
-import { useState } from "react";
+import { Link } from "react-router-dom";
+import useProjects from "../../context/useProjects";
+import { Button, Spinner } from "react-bootstrap";
+import PageHeader from "../../components/Layout/PageHeader";
+import { BsPencilSquare, BsTrash } from "react-icons/bs";
 
 export default function Projects() {
-	const { pathname } = useLocation();
-	const [activeTab, setActiveTab] = useState(() =>
-		pathname.includes("list") ? "list" : "add"
-	);
+	const { projects, loading, deleteProject } = useProjects();
+
+	function Loading() {
+		return (
+			<div className="text-center">
+				<Spinner />
+			</div>
+		);
+	}
+
+	async function handleDeleteProject(projectId: string) {
+		if (!projectId)
+			return alert("No project id was provided... Cannot delete project.");
+
+		await deleteProject(projectId);
+		alert(`Your project with the id ${projectId} was successfully deleted.`);
+	}
+
+	function ProjectsList() {
+		return (
+			<ul className="mt-3">
+				{projects.map((project) => (
+					<li key={project.id}>
+						<Link to={"/projects/" + project.id}>{project.title}</Link>{" "}
+						<Link to={"/projects/" + project.id + "/edit"}>
+							<BsPencilSquare />
+						</Link>{" "}
+						<BsTrash
+							style={{ color: "red", cursor: "pointer" }}
+							onClick={() => handleDeleteProject(project.id)}
+						/>
+					</li>
+				))}
+			</ul>
+		);
+	}
+
+	function NoProjects() {
+		return <p className="text-center">There are no projects... Add one!</p>;
+	}
 
 	return (
-		<div className="projects">
-			<header className="text-center">
-				<h1>Projects</h1>
-				<Nav
-					variant="tabs"
-					defaultActiveKey={activeTab}
-					onSelect={(eventKey) => (eventKey ? setActiveTab(eventKey) : null)}
-					className="justify-content-center"
-				>
-					<Nav.Item>
-						<LinkContainer to="list">
-							<Nav.Link eventKey="list">List</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-					<Nav.Item>
-						<LinkContainer to="add">
-							<Nav.Link eventKey="add">Add</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-				</Nav>
-			</header>
-			<Outlet />
-		</div>
+		<>
+			<PageHeader pageTitle="Projects">
+				<div className="text-center my-3">
+					<Link to="/projects/add">
+						<Button className="primary">Add Project</Button>
+					</Link>
+				</div>
+			</PageHeader>
+
+			{loading ? (
+				<Loading />
+			) : projects && projects.length ? (
+				<ProjectsList />
+			) : (
+				<NoProjects />
+			)}
+		</>
 	);
 }

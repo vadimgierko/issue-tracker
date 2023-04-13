@@ -1,6 +1,6 @@
-# Issue Tracker
+## Description
 
-This app allows you to manage issues across your dev projects. You can view & manage issues in every particular project.
+Issue Tracker app allows you to manage issues across your dev projects. You can view & manage issues in every particular project.
 
 You can also view all issues from all projects in one place (in the table at the moment) to have an overview of all issues regardless of the project, to be able to focus on the most important issues or to filter them by status, priority or project.
 

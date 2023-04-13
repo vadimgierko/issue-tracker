@@ -8,15 +8,15 @@ import ScrollToTop from "./ScrollToTop";
 
 export default function Layout() {
 	const maxWidth = useMaxWidth();
-	const theme = useTheme();
+	const { theme } = useTheme();
 
 	return (
 		<div
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				minHeight: "100vh",
 			}}
 		>
@@ -27,9 +27,8 @@ export default function Layout() {
 					paddingTop: 70,
 					maxWidth: maxWidth,
 					flexGrow: 1,
-					backgroundColor:
-						theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-					color: theme?.value === "light" ? "black" : "white",
+					backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+					color: theme === "light" ? "black" : "white",
 				}}
 			>
 				<Outlet />

@@ -1,15 +1,22 @@
-# Issue Tracker
+# Issue Tracker (under development)
 
-This app allows you to manage issues across your dev projects. You can view & manage issues in every particular project.
+This app allows you to track & manage issues across your dev projects.
 
-You can also view all issues from all projects in one place (in the table at the moment) to have an overview of all issues regardless of the project, to be able to focus on the most important issues or to filter them by status, priority or project.
+## Why this Issue Tracker is special?
+
+Because:
+
+- you can not only view & manage issues in every particular project,
+- but also **you can have an overview of all issues regardless of the project, placed in one table** to focus on the most important things
+- & **filter them by status, priority or project** (not implemented yet)
 
 ## Motivation
 
 I'm working on this custom tracker, because:
 
 1. I dont't want to use GitHub Issues Features, because:
-  - that kind of activity has impact on GitHub stats,
+  - adding issues has impact on GitHub stats,
+  - GitHub Issues is free for public repositories, but there is a cost for using it with private repositories (I'm using free version),
   - the lack of features I want
 1. I also dont't want to use any existing tracker.
 1. I dont't want to integrate/ connect the tracker to GitHub & my projects (for example I want to be able adding issues like common todos, which may not be done in the future & I don't want them to be on GitHub)
@@ -33,23 +40,20 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 - Firebase
 - React Bootstrap
 - Bootstrap
-- Local Storage
 - React Icons
 - React Markdown
 
 ## Todo
 
-- [ ] is current license in Footer (borrowed from teplate) accurate for this project?
-- [ ] design Firestore database
-- [ ] create Project & Issue types
-- [ ] rewrite projects & issues CRUD
+- [ ] choose appropriate license
+- [ ] maybe control resetting the state via App component?
+- [ ] add bootstrap alerts for user, not the alerts which are blocking the browser
+- [ ] add cancel buttons
+- [ ] replace most of buttons with icons with tooltips
 
-- enable
-  - auto adding date of opening an issue
-  - markdown editor for issue description
-  - editing an issue
-  - closing an issue
-  - storing issues history
-  - filter issues by project, priority, type etc.
+- [ ] enable markdown editor for issue description
+- [ ] ~~storing issues history~~ issues are stored, just add additional tab to table to show closed issues
+- [ ] filter issues by project, priority, type etc.
 
-- [ ] when the app will be complete & all features will be checked, create a ts react template app
+- [ ] consider using importance & urgency instead of priority in issues
+- [ ] consider enabling adding topics to issues, for example "documentation", "state management", "UI" etc

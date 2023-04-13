@@ -1,37 +1,42 @@
-import { Outlet, useLocation } from "react-router-dom";
-import Nav from "react-bootstrap/Nav";
-import { LinkContainer } from "react-router-bootstrap";
-import { useState } from "react";
+import useIssues from "../../context/useIssues";
+import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
+import { Link } from "react-router-dom";
+import PageHeader from "../../components/Layout/PageHeader";
+import IssuesTable from "./IssuesTable";
 
 export default function Issues() {
-	const { pathname } = useLocation();
-	const [activeTab, setActiveTab] = useState(() =>
-		pathname.includes("list") ? "list" : "add"
-	);
+	const { issues, loading } = useIssues();
+
+	function Loading() {
+		return (
+			<div className="text-center">
+				<Spinner />
+			</div>
+		);
+	}
+
+	function NoIssues() {
+		return <p className="text-center">There are no issues... Add one!</p>;
+	}
 
 	return (
-		<div className="issues">
-			<header className="text-center">
-				<h1>Issues</h1>
-				<Nav
-					variant="tabs"
-					defaultActiveKey={activeTab}
-					onSelect={(eventKey) => (eventKey ? setActiveTab(eventKey) : null)}
-					className="justify-content-center"
-				>
-					<Nav.Item>
-						<LinkContainer to="list">
-							<Nav.Link eventKey="list">List</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-					<Nav.Item>
-						<LinkContainer to="add">
-							<Nav.Link eventKey="add">Add</Nav.Link>
-						</LinkContainer>
-					</Nav.Item>
-				</Nav>
-			</header>
-			<Outlet />
-		</div>
+		<>
+			<PageHeader pageTitle="Issues">
+				<div className="text-center my-3">
+					<Link to="/issues/add">
+						<Button className="primary">Add Issue</Button>
+					</Link>
+				</div>
+			</PageHeader>
+
+			{loading ? (
+				<Loading />
+			) : issues && issues.length ? (
+				<IssuesTable issues={issues} />
+			) : (
+				<NoIssues />
+			)}
+		</>
 	);
 }

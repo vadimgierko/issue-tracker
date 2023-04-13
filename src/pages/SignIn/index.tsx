@@ -5,9 +5,10 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { signIn } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignIn() {
-	const theme = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [userData, setUserData] = useState({
 		email: "",
@@ -31,13 +32,13 @@ export default function SignIn() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
+				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Sign In!</h1>
+			<PageHeader pageTitle="Sign in" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -56,9 +57,8 @@ export default function SignIn() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -76,9 +76,8 @@ export default function SignIn() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

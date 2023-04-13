@@ -6,9 +6,10 @@ import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebaseConfig";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PasswordReset() {
-	const theme = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [email, setEmail] = useState("");
 	const navigate = useNavigate();
@@ -38,13 +39,11 @@ export default function PasswordReset() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Reset your password!</h1>
+			<PageHeader pageTitle="Reset your password" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -58,9 +57,8 @@ export default function PasswordReset() {
 						required
 						onChange={(e) => setEmail(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>

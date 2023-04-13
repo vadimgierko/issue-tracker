@@ -5,9 +5,10 @@ import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { changeEmail } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function EmailChange() {
-	const theme = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 	const [newEmail, setNewEmail] = useState("");
 	const navigate = useNavigate();
@@ -30,19 +31,14 @@ export default function EmailChange() {
 		}
 	}
 
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
-
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Change your email!</h1>
+			<PageHeader pageTitle="Change your email address" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -57,9 +53,8 @@ export default function EmailChange() {
 						onChange={(e) => setNewEmail(e.target.value)}
 						className="mb-2"
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text className="text-danger">

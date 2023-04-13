@@ -4,10 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { updateDocument } from "../../services/firestore-crud";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PersonalDataEdit() {
-	const theme = useTheme();
-	const { firebaseUser, user } = useUser();
+	const { theme } = useTheme();
+	const { user } = useUser();
 	const navigate = useNavigate();
 
 	const [userData, setUserData] = useState({
@@ -27,15 +28,10 @@ export default function PersonalDataEdit() {
 		}
 	}
 
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
-
 	return (
 		<>
-			<header>
-				<h4 className="text-center">Edit your personal data</h4>
-				<hr />
-			</header>
+			<PageHeader pageTitle="Edit your personal data" />
+
 			<Form onSubmit={handleSubmit}>
 				<Form.Group className="mb-3">
 					<Form.Label>First name</Form.Label>
@@ -50,9 +46,8 @@ export default function PersonalDataEdit() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -70,9 +65,8 @@ export default function PersonalDataEdit() {
 							})
 						}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -92,9 +86,8 @@ export default function PersonalDataEdit() {
 						}
 						className="mb-2"
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text className="text-danger">

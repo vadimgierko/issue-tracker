@@ -11,7 +11,7 @@ import {
 } from "react-icons/ai";
 
 export default function Dashboard() {
-	const { firebaseUser, user } = useUser();
+	const { user } = useUser();
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	async function handleDeleteAccount() {
@@ -32,16 +32,6 @@ export default function Dashboard() {
 		}
 	}
 
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
-
-	if (!user)
-		return (
-			<p className="text-center">
-				You're logged, but the app cannot fetch your data...
-			</p>
-		);
-
 	return (
 		<>
 			<header className="text-center">
@@ -56,17 +46,17 @@ export default function Dashboard() {
 			</h2>
 			<p>
 				<span className="fw-bold">First name:</span>{" "}
-				{user.firstName ? user.firstName : ""}
+				{user?.firstName ? user?.firstName : ""}
 			</p>
 			<p>
 				<span className="fw-bold">Last name:</span>{" "}
-				{user.lastName ? user.lastName : ""}
+				{user?.lastName ? user?.lastName : ""}
 			</p>
 			<p>
-				<span className="fw-bold">Email:</span> {user.email}
+				<span className="fw-bold">Email:</span> {user?.email}
 			</p>
 			<p>
-				<span className="fw-bold">UID:</span> {user.uid}
+				<span className="fw-bold">UID:</span> {user?.uid}
 			</p>
 			<LinkContainer to="/personal-data-edit">
 				<Button variant="primary">Edit data</Button>

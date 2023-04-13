@@ -1,4 +1,4 @@
-import { auth } from "../../firebaseConfig";
+import { auth, firestore } from "../../firebaseConfig";
 import {
 	signOut,
 	signInWithEmailAndPassword,
@@ -12,11 +12,11 @@ import {
 	UserCredential,
 } from "firebase/auth";
 import {
-	addDocumentWithCustomId,
 	deleteDocument,
 	updateDocument,
 } from "../firestore-crud";
-import { User } from "../../types/User";
+import { User } from "../../interfaces/User";
+import { doc, writeBatch } from "firebase/firestore";
 
 async function signIn(email: string, password: string): Promise<void> {
   try {
@@ -28,7 +28,8 @@ async function signIn(email: string, password: string): Promise<void> {
 
 /**
  * Creates a new user in Firebase Auth &
- * adds his data to /users collection in Firestore under user's uid.
+ * adds his data to /users collection in Firestore under user's uid,
+ * init user-projects & user-issues docs with empty [] for project/issues ids.
  * Returns updated user data object with the uid.
  */
 async function signUp(
@@ -41,14 +42,30 @@ async function signUp(
     // create a new user:
     const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
 
-    // add user data to Firestore:
+    // init batch to update multiply docs:
+    const batch = writeBatch(firestore);
+
+        // add user data to Firestore:
     const updatedUserDataWithUid: User = {
       uid: newUser.uid,
       email,
       firstName,
       lastName,
     };
-    await addDocumentWithCustomId(updatedUserDataWithUid, "users", updatedUserDataWithUid.uid);
+
+    const userRef = doc(firestore, "users", newUser.uid)
+    batch.set(userRef, updatedUserDataWithUid)
+
+    // init user project ids doc in /user-projects collection:
+    const userProjectsRef = doc(firestore, "user-projects", newUser.uid)
+    batch.set(userProjectsRef, {projectsIds: []})
+
+    // init user issues ids doc in /user-issues collection:
+    const userIssuesRef = doc(firestore, "user-issues", newUser.uid)
+    batch.set(userIssuesRef, {issuesIds: []})
+
+    // Commit the batch
+    await batch.commit();
 
     return updatedUserDataWithUid;
   } catch (error: any) {

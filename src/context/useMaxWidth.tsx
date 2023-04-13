@@ -1,14 +1,22 @@
 import { createContext, useContext } from "react";
 
-const MaxWidthContext = createContext<number | undefined>(undefined);
+const MaxWidthContext = createContext<number>(940);
 
 export default function useMaxWidth() {
-	return useContext(MaxWidthContext);
+	const context = useContext(MaxWidthContext);
+
+	if (!context) {
+		throw new Error(
+			"useMaxWidth has to be used within <MaxWidthContext.Provider>"
+		);
+	}
+
+	return context;
 }
 
-interface MaxWidthProviderProps {
+type MaxWidthProviderProps = {
 	children: React.ReactNode;
-}
+};
 
 export function MaxWidthProvider({ children }: MaxWidthProviderProps) {
 	const maxWidth = 940; // here you can define max width for layout, Navbar & Footer container

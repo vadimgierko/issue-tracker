@@ -5,9 +5,10 @@ import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
 import { changePassword } from "../../services/auth";
+import PageHeader from "../../components/Layout/PageHeader";
 
 export default function PasswordChange() {
-	const theme = useTheme();
+	const { theme } = useTheme();
 	const { firebaseUser } = useUser();
 
 	const [oldPassword, setOldPassword] = useState("");
@@ -46,19 +47,14 @@ export default function PasswordChange() {
 		}
 	}
 
-	if (!firebaseUser)
-		return <p className="text-center">You need to be logged!</p>;
-
 	return (
 		<div
 			style={{
-				backgroundColor: theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme?.value === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
 		>
-			<h1 className="text-center mb-3">Change your password!</h1>
+			<PageHeader pageTitle="Change your password" />
 
 			<Form
 				className="border border-secondary rounded p-3 shadow"
@@ -72,9 +68,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setOldPassword(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
@@ -87,9 +82,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setNewPassword(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 					<Form.Text muted>At least 6 characters</Form.Text>
@@ -103,9 +97,8 @@ export default function PasswordChange() {
 						required
 						onChange={(e) => setNewPasswordConfirmed(e.target.value)}
 						style={{
-							backgroundColor:
-								theme?.value === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme?.value === "light" ? "black" : "white",
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
 						}}
 					/>
 				</Form.Group>
