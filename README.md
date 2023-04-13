@@ -4,7 +4,11 @@ This app allows you to track & manage issues across your dev projects.
 
 ## Why this Issue Tracker is special?
 
-Because you can not only view & manage issues in every particular project, but also **you can have an overview of all issues regardless of the project, placed in one table** to focus on the most important things & **filter them by status, priority or project**.
+Because:
+
+- you can not only view & manage issues in every particular project,
+- but also **you can have an overview of all issues regardless of the project, placed in one table** to focus on the most important things
+- & **filter them by status, priority or project** (not implemented yet)
 
 ## Motivation
 
@@ -27,12 +31,6 @@ I'm working on this custom tracker, because:
 1. Continuing the previous thread, this project may eventually become the main extended system to manage all my projects.
 
 And also I want to exercise in TypeScript and... try out my new template app ;-)
-
-## Database structure
-
-The app's data is stored in Firebase Firestore database.
-
-The database is structured as follows: ...
 
 ## Tech Stack
 

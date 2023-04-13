@@ -31,7 +31,9 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 			<tbody>
 				{issues.map((issue) => (
 					<tr key={issue.id}>
-						<td>{issue.title}</td>
+						<td>
+							<Link to={"/issues/" + issue.id}>{issue.title}</Link>
+						</td>
 						{!projectId && (
 							<td>
 								<Link to={"/projects/" + issue.projectId}>

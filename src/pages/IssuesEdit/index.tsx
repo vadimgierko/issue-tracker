@@ -7,8 +7,10 @@ import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
 	Issue,
 	IssuePriority,
+	IssueStatus,
 	IssueType,
 	issuePriorities,
+	issueStatuses,
 	issueTypes,
 } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
@@ -152,6 +154,28 @@ export default function IssuesEdit() {
 						{issuePriorities.map((priority) => (
 							<option value={priority} key={priority}>
 								{priority}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue status" className="mb-3">
+					<Form.Select
+						value={updatedIssue.status}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setUpdatedIssue({
+								...updatedIssue,
+								status: e.target.value as IssueStatus,
+							})
+						}
+					>
+						{issueStatuses.map((status) => (
+							<option value={status} key={status}>
+								{status}
 							</option>
 						))}
 					</Form.Select>

@@ -21,6 +21,7 @@ import ProjectsEdit from "./pages/ProjectsEdit";
 import Issues from "./pages/Issues";
 import IssuesAdd from "./pages/IssuesAdd";
 import IssuesEdit from "./pages/IssuesEdit";
+import Issue from "./pages/Issue";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -72,6 +73,10 @@ const privateRoutes: RouteObject[] = [
 	{
 		path: "issues/add",
 		element: <IssuesAdd />,
+	},
+	{
+		path: "issues/:issueId",
+		element: <Issue />,
 	},
 	{
 		path: "issues/:issueId/edit",
