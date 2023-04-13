@@ -33,7 +33,7 @@ export default function Projects() {
 							<BsPencilSquare />
 						</Link>{" "}
 						<BsTrash
-							style={{ color: "red" }}
+							style={{ color: "red", cursor: "pointer" }}
 							onClick={() => handleDeleteProject(project.id)}
 						/>
 					</li>

@@ -44,7 +44,7 @@ export default function IssuesAdd() {
 		const addedIssueId = await addIssue(issueData, issueData.projectId);
 		alert(`Your issue was successfully added with the id ${addedIssueId}.`);
 		clearForm();
-		navigate("/issues");
+		navigate(-1);
 	}
 
 	function clearForm() {

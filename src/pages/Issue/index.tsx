@@ -3,26 +3,27 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
-import IssuesTable from "../Issues/IssuesTable";
-import { AiOutlinePlusSquare } from "react-icons/ai";
 import getDate from "../../lib/getDate";
 
 export default function Issue() {
 	const { issueId } = useParams<string>();
 	const { projects } = useProjects();
-	const { issues } = useIssues();
+	const { issues, deleteIssue } = useIssues();
 	const issue = issues.find((i) => i.id === issueId);
 	const project = projects.find((p) => p.id === issue?.projectId);
 	const navigate = useNavigate();
 
-	// async function handleDeleteProject(projectId: string) {
-	// 	if (!projectId)
-	// 		return alert("No project id was provided... Cannot delete project.");
+	async function handleDeleteIssue() {
+		if (!issueId)
+			return alert("No issue id was provided... Cannot delete issue.");
 
-	// 	await deleteProject(projectId);
-	// 	alert(`Your project with the id ${projectId} was successfully deleted.`);
-	// 	navigate("/projects");
-	// }
+		if (!issue || !issue.projectId)
+			return alert("No project id was provided... Cannot delete issue.");
+
+		await deleteIssue(issue.id, issue.projectId);
+		alert(`Your issue with the id ${issueId} was successfully deleted.`);
+		navigate(-1); // maybe add checking if there is prev page
+	}
 
 	if (!issue || !issueId)
 		return <p className="text-center text-danger">There is no such issue...</p>;
@@ -43,13 +44,13 @@ export default function Issue() {
 						<Link to={"/issues/" + issueId + "/edit"}>
 							<Button variant="primary">edit issue</Button>
 						</Link>
-						{/* <Button
-						variant="danger"
-						onClick={() => handleDeleteProject(projectId)}
-						className="ms-2"
-					>
-						delete project
-					</Button> */}
+						<Button
+							variant="danger"
+							onClick={handleDeleteIssue}
+							className="ms-2"
+						>
+							delete issue
+						</Button>
 					</div>
 				</div>
 			</PageHeader>
