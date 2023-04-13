@@ -1,6 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import useProjects from "../../context/useProjects";
-import { Project as ProjectType } from "../../interfaces/Project";
 import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
@@ -11,9 +10,7 @@ export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
 	const { issues } = useIssues();
-	const project: ProjectType | undefined = projects.find(
-		(p) => p.id === projectId
-	);
+	const project = projects.find((p) => p.id === projectId);
 	const projectIssues = issues.filter((i) => i.projectId === projectId);
 	const navigate = useNavigate();
 

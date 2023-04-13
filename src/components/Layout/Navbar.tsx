@@ -14,7 +14,9 @@ import {
 	AiOutlineSetting,
 	AiOutlineLogout,
 	AiOutlineLogin,
+	AiOutlinePlusSquare,
 } from "react-icons/ai";
+
 //import useUser from "../../context/useUser"; // TODO: IMPLEMENT useUser features
 import useMaxWidth from "../../context/useMaxWidth";
 import { logOut } from "../../services/auth";
@@ -50,11 +52,23 @@ export default function NavigationBar() {
 						{user && (
 							<>
 								<hr />
+
 								<LinkContainer to="/projects">
 									<Nav.Link>Projects</Nav.Link>
 								</LinkContainer>
+								<LinkContainer to="/projects/add">
+									<Nav.Link>
+										<AiOutlinePlusSquare />
+									</Nav.Link>
+								</LinkContainer>
+
 								<LinkContainer to="/issues">
 									<Nav.Link>Issues</Nav.Link>
+								</LinkContainer>
+								<LinkContainer to="/issues/add">
+									<Nav.Link>
+										<AiOutlinePlusSquare />
+									</Nav.Link>
 								</LinkContainer>
 							</>
 						)}

@@ -1,77 +1,71 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useIssues from "../../context/useIssues";
 import PageHeader from "../../components/Layout/PageHeader";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
-	IssueData,
+	Issue,
 	IssuePriority,
 	IssueType,
 	issuePriorities,
 	issueTypes,
 } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logError from "../../lib/logError";
 import useProjects from "../../context/useProjects";
 
-const emptyIssue: IssueData = {
-	title: "",
-	description: "",
-	projectId: "",
-	type: "bug",
-	priority: "high",
-	status: "open",
-};
-
-export default function IssuesAdd() {
+export default function IssuesEdit() {
 	const { theme } = useTheme();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<IssueData>(emptyIssue);
+	const { issueId } = useParams();
+	const { issues, updateIssue } = useIssues();
+	const issueToUpdate = issues.find((i) => i.id === issueId);
+	const [updatedIssue, setUpdatedIssue] = useState<Issue | null>(null);
 	const { projects } = useProjects();
-	const { addIssue } = useIssues();
 
-	async function handleAddIssue(e: React.FormEvent<HTMLFormElement>) {
+	async function handleIssueUpdate(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		if (!issueData)
-			return logError("No issue data provided... Cannot add issue.");
+		if (!issueToUpdate || !updatedIssue || !issueId)
+			return logError(
+				"No issue or issue data provided... Cannot update issue."
+			);
 
-		if (!issueData.projectId)
-			return logError("No project selected... Cannot add issue.");
+		if (!updatedIssue.projectId)
+			return logError("No project selected... Cannot update issue.");
 
-		const addedIssueId = await addIssue(issueData, issueData.projectId);
-		alert(`Your issue was successfully added with the id ${addedIssueId}.`);
-		clearForm();
-		navigate("/issues");
+		await updateIssue(updatedIssue);
+		alert(`Your issue with the id ${issueId} was successfully updated.`);
+		navigate(-1);
 	}
 
-	function clearForm() {
-		setIssueData(emptyIssue);
-	}
+	useEffect(() => {
+		if (issueToUpdate) {
+			setUpdatedIssue(issueToUpdate);
+		} else {
+			setUpdatedIssue(null);
+		}
+	}, [issueToUpdate]);
 
-	if (!projects || !projects.length)
+	if (!issueToUpdate || !updatedIssue || !issueId)
 		return (
-			<>
-				<PageHeader pageTitle="Add issue" />
-				<p className="text-center">
-					There are no project to add issue to... Add some project first, then
-					add an issue!
-				</p>
-			</>
+			<p className="text-center">
+				No issue or issue data provided... Cannot update issue.
+			</p>
 		);
 
 	return (
 		<>
-			<PageHeader pageTitle="Add issue" />
+			<PageHeader pageTitle="Update issue" />
 
-			<Form className="my-3" onSubmit={handleAddIssue}>
+			<Form className="my-3" onSubmit={handleIssueUpdate}>
 				<FloatingLabel label="Project" className="mb-3">
 					<Form.Select
-						value={issueData.projectId}
+						value={updatedIssue.projectId}
 						onChange={(e) =>
-							setIssueData({ ...issueData, projectId: e.target.value })
+							setUpdatedIssue({ ...updatedIssue, projectId: e.target.value })
 						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
@@ -90,10 +84,10 @@ export default function IssuesAdd() {
 
 				<FloatingLabel label="Issue short title" className="mb-3">
 					<Form.Control
-						value={issueData.title}
+						value={updatedIssue.title}
 						placeholder="Type issue title here"
 						onChange={(e) =>
-							setIssueData({ ...issueData, title: e.target.value })
+							setUpdatedIssue({ ...updatedIssue, title: e.target.value })
 						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
@@ -106,7 +100,7 @@ export default function IssuesAdd() {
 				<FloatingLabel label="Issue description" className="mb-3">
 					<Form.Control
 						as="textarea"
-						value={issueData.description}
+						value={updatedIssue.description}
 						placeholder="Type issue description here"
 						style={{
 							height: "100px",
@@ -114,16 +108,19 @@ export default function IssuesAdd() {
 							color: theme === "light" ? "black" : "white",
 						}}
 						onChange={(e) =>
-							setIssueData({ ...issueData, description: e.target.value })
+							setUpdatedIssue({ ...updatedIssue, description: e.target.value })
 						}
 					/>
 				</FloatingLabel>
 
 				<FloatingLabel label="Issue type" className="mb-3">
 					<Form.Select
-						value={issueData.type}
+						value={updatedIssue.type}
 						onChange={(e) =>
-							setIssueData({ ...issueData, type: e.target.value as IssueType })
+							setUpdatedIssue({
+								...updatedIssue,
+								type: e.target.value as IssueType,
+							})
 						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
@@ -140,14 +137,14 @@ export default function IssuesAdd() {
 
 				<FloatingLabel label="Issue priority" className="mb-3">
 					<Form.Select
-						value={issueData.priority}
+						value={updatedIssue.priority}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
 						onChange={(e) =>
-							setIssueData({
-								...issueData,
+							setUpdatedIssue({
+								...updatedIssue,
 								priority: e.target.value as IssuePriority,
 							})
 						}
@@ -162,7 +159,7 @@ export default function IssuesAdd() {
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">
-						add issue
+						update issue
 					</Button>
 				</div>
 			</Form>

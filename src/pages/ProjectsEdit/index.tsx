@@ -63,7 +63,7 @@ export default function ProjectsEdit() {
 
 	return (
 		<>
-			<PageHeader pageTitle="Edit your project" />
+			<PageHeader pageTitle="Update your project" />
 
 			<Form
 				onSubmit={(e) => {
@@ -102,7 +102,7 @@ export default function ProjectsEdit() {
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">
-						edit project
+						update project
 					</Button>
 				</div>
 			</Form>

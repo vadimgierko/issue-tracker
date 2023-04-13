@@ -20,6 +20,7 @@ import ProtectedRoute from "./components/Layout/ProtectedRoute";
 import ProjectsEdit from "./pages/ProjectsEdit";
 import Issues from "./pages/Issues";
 import IssuesAdd from "./pages/IssuesAdd";
+import IssuesEdit from "./pages/IssuesEdit";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -71,6 +72,10 @@ const privateRoutes: RouteObject[] = [
 	{
 		path: "issues/add",
 		element: <IssuesAdd />,
+	},
+	{
+		path: "issues/:issueId/edit",
+		element: <IssuesEdit />,
 	},
 ];
 

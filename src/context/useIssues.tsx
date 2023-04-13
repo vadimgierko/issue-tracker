@@ -104,6 +104,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
+	/**
+	 * Updates issue and adds update time automatically.
+	 */
 	async function updateIssue(updatedIssue: Issue) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
