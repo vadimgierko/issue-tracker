@@ -1,7 +1,6 @@
 import { Container } from "react-bootstrap";
 import { AiOutlineGithub } from "react-icons/ai";
 import { BsGlobe } from "react-icons/bs";
-import MarkdownRenderer from "../MarkdownRenderer";
 import useMaxWidth from "../../context/useMaxWidth";
 
 interface FooterProps {
@@ -78,13 +77,6 @@ export default function Footer({
 					</a>
 				)}
 			</p>
-			<License />
 		</Container>
 	);
-}
-
-function License() {
-	const licenseContent = `[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)`;
-
-	return <MarkdownRenderer markdown={licenseContent} />;
 }
