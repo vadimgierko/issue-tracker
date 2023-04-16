@@ -1,11 +1,11 @@
 import Table from "react-bootstrap/Table";
 import { Link, useParams } from "react-router-dom";
-import useProjects from "../../context/useProjects";
-import useTheme from "../../context/useTheme";
-import { Issue } from "../../interfaces/Issue";
+import useProjects from "../../../context/useProjects";
+import useTheme from "../../../context/useTheme";
+import { Issue } from "../../../interfaces/Issue";
 import { BsTrash, BsPencilSquare } from "react-icons/bs";
-import getDate from "../../lib/getDate";
-import useIssues from "../../context/useIssues";
+import getDate from "../../../lib/getDate";
+import useIssues from "../../../context/useIssues";
 
 type IssuesTableProps = {
 	issues: Issue[];

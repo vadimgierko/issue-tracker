@@ -7,9 +7,9 @@ import {
 	issuePriorities,
 	issueStatuses,
 	issueTypes,
-} from "../../interfaces/Issue";
+} from "../../../interfaces/Issue";
 import { useState } from "react";
-import useTheme from "../../context/useTheme";
+import useTheme from "../../../context/useTheme";
 import { AiOutlineSearch } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
 

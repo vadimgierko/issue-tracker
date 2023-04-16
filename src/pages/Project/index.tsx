@@ -3,7 +3,7 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
-import IssuesTable from "../Issues/IssuesTable";
+import IssuesTable from "../Issues/IssuesFilterableTable/IssuesTable";
 import { AiOutlinePlusSquare } from "react-icons/ai";
 
 export default function Project() {
