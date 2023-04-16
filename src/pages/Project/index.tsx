@@ -3,8 +3,8 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
-import IssuesTable from "../Issues/IssuesTable";
 import { AiOutlinePlusSquare } from "react-icons/ai";
+import IssuesFilterableTable from "../Issues/IssuesFilterableTable";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
@@ -55,7 +55,7 @@ export default function Project() {
 				</h2>
 
 				{projectIssues.length ? (
-					<IssuesTable issues={projectIssues} />
+					<IssuesFilterableTable issues={projectIssues} />
 				) : (
 					<p className="text-center">
 						There are no issues in the project.{" "}

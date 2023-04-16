@@ -45,15 +45,23 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 ## Todo
 
-- [ ] choose appropriate license
+- [ ] update about page
+  - [ ] in future design about page same as linky notes about
+- [ ] **enable closing & in progress issue system**
+  - [ ] so there will be open/ in progress/ closed (remaining issues)
+  - [ ] detect time of updating to "in progress" & closing
+  - [ ] unable to delete issue => user has to close an issue
 - [ ] maybe control resetting the state via App component?
 - [ ] add bootstrap alerts for user, not the alerts which are blocking the browser
 - [ ] add cancel buttons
+- [ ] add confirm before delete anything
 - [ ] replace most of buttons with icons with tooltips
-
-- [ ] enable markdown editor for issue description
-- [ ] ~~storing issues history~~ issues are stored, just add additional tab to table to show closed issues
-- [ ] filter issues by project, priority, type etc.
-
+- [ ] **enable markdown editor for issue description**
 - [ ] consider using importance & urgency instead of priority in issues
 - [ ] consider enabling adding topics to issues, for example "documentation", "state management", "UI" etc
+- [ ] consider **rebuilding routing system** to nested /users/:userId/projects/:projectId/issues/:issueId etc.
+  - [ ] use children routes & outlet
+    - [ ] apply tabs in projects, issues, user page
+  - [ ] add breadcrumbs
+  - [ ] only /users/:userId route will be private
+    - [ ] redirect to protected page after sign in

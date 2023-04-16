@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/Layout/PageHeader";
-import IssuesTable from "./IssuesTable";
+import IssuesFilterableTable from "./IssuesFilterableTable";
 
 export default function Issues() {
 	const { issues, loading } = useIssues();
@@ -33,7 +33,7 @@ export default function Issues() {
 			{loading ? (
 				<Loading />
 			) : issues && issues.length ? (
-				<IssuesTable issues={issues} />
+				<IssuesFilterableTable issues={issues} />
 			) : (
 				<NoIssues />
 			)}
