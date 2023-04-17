@@ -11,6 +11,7 @@ type MarkdownTextAreaFieldProps = {
 	formControlClassName?: string;
 	formCheckboxClassName?: string;
 	onChange: (value: string) => void;
+	required?: boolean;
 };
 
 export default function MarkdownTextAreaField({
@@ -21,6 +22,7 @@ export default function MarkdownTextAreaField({
 	formControlClassName = "",
 	formCheckboxClassName = "",
 	onChange,
+	required = true,
 }: MarkdownTextAreaFieldProps) {
 	const { theme } = useTheme();
 	const [showMarkdown, setShowMarkdown] = useState(false);
@@ -42,6 +44,7 @@ export default function MarkdownTextAreaField({
 							color: theme === "light" ? "black" : "white",
 						}}
 						onChange={(e) => onChange(e.target.value)}
+						required={required}
 					/>
 				</FloatingLabel>
 			)}

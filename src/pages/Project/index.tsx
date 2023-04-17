@@ -5,6 +5,7 @@ import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
 import { AiOutlinePlusSquare } from "react-icons/ai";
 import IssuesFilterableTable from "../Issues/IssuesFilterableTable";
+import MarkdownRenderer from "../../components/MarkdownRenderer";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
@@ -31,11 +32,13 @@ export default function Project() {
 	return (
 		<>
 			<PageHeader pageTitle={project.title}>
-				{project.description}
+				<MarkdownRenderer markdown={project.description} />
+
 				<div className="text-center mt-3">
 					<Link to={"/projects/" + projectId + "/edit"}>
 						<Button variant="primary">edit project</Button>
 					</Link>
+
 					<Button
 						variant="danger"
 						onClick={() => handleDeleteProject(projectId)}
