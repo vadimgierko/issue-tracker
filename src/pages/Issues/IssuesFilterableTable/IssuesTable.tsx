@@ -30,7 +30,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 				<tr>
 					<th>Title</th>
 					{!projectId && <th>Project</th>}
-					<th>Description</th>
+					{/* <th>Description</th> */}
 					<th>Type</th>
 					<th>Priority</th>
 					<th>Status</th>
@@ -53,7 +53,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								</Link>
 							</td>
 						)}
-						<td>{issue.description}</td>
+						{/* <td>{issue.description}</td> */}
 						<td className={issue.type === "bug" ? "text-danger" : ""}>
 							{issue.type}
 						</td>
