@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import useTheme from "../../context/useTheme";
 import PageHeader from "../../components/Layout/PageHeader";
+import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 
 export default function ProjectsEdit() {
 	const { theme } = useTheme();
@@ -85,20 +86,15 @@ export default function ProjectsEdit() {
 					/>
 				</FloatingLabel>
 
-				<FloatingLabel label="Description" className="mb-3">
-					<Form.Control
-						value={projectData.description}
-						placeholder="type project title here"
-						onChange={(e) =>
-							setProjectData({ ...projectData, description: e.target.value })
-						}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						required
-					/>
-				</FloatingLabel>
+				<MarkdownTextAreaField
+					label="Description"
+					value={projectData.description}
+					placeholder="type project description here"
+					onChange={(value: string) =>
+						setProjectData({ ...projectData, description: value })
+					}
+					formGroupClassName="mb-3"
+				/>
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">

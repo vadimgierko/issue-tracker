@@ -15,6 +15,7 @@ import useTheme from "../../context/useTheme";
 import { useState } from "react";
 import logError from "../../lib/logError";
 import useProjects from "../../context/useProjects";
+import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 
 const emptyIssue: IssueData = {
 	title: "",
@@ -103,21 +104,16 @@ export default function IssuesAdd() {
 					/>
 				</FloatingLabel>
 
-				<FloatingLabel label="Issue description" className="mb-3">
-					<Form.Control
-						as="textarea"
-						value={issueData.description}
-						placeholder="Type issue description here"
-						style={{
-							height: "100px",
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setIssueData({ ...issueData, description: e.target.value })
-						}
-					/>
-				</FloatingLabel>
+				<MarkdownTextAreaField
+					label="Issue description"
+					value={issueData.description}
+					placeholder="Type issue description here"
+					formGroupClassName="mb-3"
+					formControlClassName="mb-3"
+					onChange={(value: string) =>
+						setIssueData({ ...issueData, description: value })
+					}
+				/>
 
 				<FloatingLabel label="Issue type" className="mb-3">
 					<Form.Select

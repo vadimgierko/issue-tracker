@@ -4,6 +4,7 @@ import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
 import getDate from "../../lib/getDate";
+import MarkdownRenderer from "../../components/MarkdownRenderer";
 
 export default function Issue() {
 	const { issueId } = useParams<string>();
@@ -64,7 +65,8 @@ export default function Issue() {
 				<p>Status: {issue.status}</p>
 
 				<h2>Description</h2>
-				<div>{issue.description}</div>
+				<hr />
+				<MarkdownRenderer markdown={issue.description} />
 			</section>
 		</>
 	);

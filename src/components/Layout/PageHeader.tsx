@@ -11,8 +11,8 @@ type PageHeaderProps = {
  */
 export default function PageHeader({ pageTitle, children }: PageHeaderProps) {
 	return (
-		<header className="text-center">
-			<h1>{pageTitle}</h1>
+		<header>
+			<h1 className="text-center">{pageTitle}</h1>
 			{children && children}
 			<hr />
 		</header>
