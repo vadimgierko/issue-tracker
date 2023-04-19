@@ -1,8 +1,14 @@
-export type IssueType = "bug" | "feature request" | "improvement";
-export const issueTypes: IssueType[] = ["bug", "feature request", "improvement"];
+export type IssueType = "bug" | "feature request" | "improvement" | "question" | "idea" | "documentation" | "other"
+export const issueTypes: IssueType[] = ["bug", "feature request", "improvement", "question", "idea", "documentation", "other"];
 
-export type IssuePriority = "high" | "medium" | "low";
-export const issuePriorities: IssuePriority[] = ["high", "medium", "low"];
+// export type IssuePriority = "high" | "medium" | "low";
+// export const issuePriorities: IssuePriority[] = ["high", "medium", "low"];
+
+export type IssueImportance = "high" | "medium" | "low";
+export const issueImportance: IssueImportance[] = ["high", "medium", "low"];
+
+export type IssueUrgency = "high" | "medium" | "low";
+export const issueUrgency: IssueUrgency[] = ["high", "medium", "low"];
 
 // NOTE:
 // I will not use "closed" status, because it doesn't provide specific info;
@@ -17,12 +23,13 @@ export const issueStatuses: IssueStatus[] = ["open", "in progress", "resolved", 
 export type IssueTableTabStatus = "open" | "in progress" | "closed" | "all"
 
 export interface IssueData {
+  projectId: string
 	title: string
 	description: string
 	type: IssueType
-  priority: IssuePriority
+  urgency: IssueUrgency
+  importance: IssueImportance
   status: IssueStatus
-  projectId: string
 }
 
 export interface Issue extends IssueData {
@@ -30,11 +37,15 @@ export interface Issue extends IssueData {
   authorId: string
   created: number
   updated: number
+  inProgressFrom: number | null
+  closedAt: number | null
 }
 
 export interface IssuesFilterFormData {
 	type: IssueType | ""
-	priority: IssuePriority | ""
+	//priority: IssuePriority | ""
+  urgency: IssueUrgency | ""
+  importance: IssueImportance | ""
 };
 
 export interface IssuesFilterData extends IssuesFilterFormData {

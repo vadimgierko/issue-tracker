@@ -1,14 +1,14 @@
 # Issue Tracker (under development)
 
-This app allows you to track & manage issues across your dev projects.
+This app allows you to track, manage & filter issues across your dev projects.
 
 ## Why this Issue Tracker is special?
 
 Because:
 
-- you can not only view & manage issues in every particular project,
+- you can not only **view & manage issues in every particular project**,
 - but also **you can have an overview of all issues regardless of the project, placed in one table** to focus on the most important things
-- & **filter them by status, priority or project** (not implemented yet)
+- & **filter issues by status, type, urgency & importance**
 
 ## Motivation
 
@@ -47,18 +47,7 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 ---
 
-### Enable changing issue status system notifying the date (timestamp) of every operation
-
-so there will be open/ in progress/ closed (remaining issues statuses, like resolved, abandoned, won't fix etc.)
-
-- [X] ~~filter issues table with 3 tabs: open/ in progress/ closed~~
-- [ ] extend Issue interface with props: `inProgressFrom`, `closedAt` & add timestamps
-  - [ ] register timestamp when changing the status to `in progress` & any other => `closed`
-  - [ ] open tab will have created & updated col
-  - [ ] in progress tab will have in progress from & updated col
-  - [ ] close tab will have created & closed col
-- [X] ~~disable filtering by status~~
-- [ ] unable to delete issue => user has to close an issue
+### Enable ordering by timestamps
 
 ### Enable adding tasks/ "issues" to issues
 
@@ -96,14 +85,12 @@ This system also enable checking time, when substatuses was changes => `timeline
 - [ ] add **cancel buttons**
 - [ ] add **confirm before delete** anything
 - [ ] add **icons with tooltips instead buttons**
+- [ ] add **breadcrumbs**
 
 ### Maybe
 
-- [ ] consider using **importance & urgency instead of priority in issues**
-- [ ] consider adding **new issue types: question, idea, documentation, other**
 - [ ] consider **rebuilding routing system** to nested /users/:userId/projects/:projectId/issues/:issueId etc.
   - [ ] use children routes & outlet
     - [ ] apply tabs in projects, issues, user page
   - [ ] only /users/:userId route will be private
     - [ ] redirect to protected page after sign in
-- [ ] add **breadcrumbs**

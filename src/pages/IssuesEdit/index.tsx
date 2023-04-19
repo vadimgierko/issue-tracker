@@ -6,10 +6,11 @@ import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
 	Issue,
-	IssuePriority,
+	IssueImportance,
 	IssueStatus,
 	IssueType,
-	issuePriorities,
+	IssueUrgency,
+	issueImportance,
 	issueStatuses,
 	issueTypes,
 } from "../../interfaces/Issue";
@@ -109,6 +110,7 @@ export default function IssuesEdit() {
 					onChange={(value: string) =>
 						setUpdatedIssue({ ...updatedIssue, description: value })
 					}
+					required={false}
 				/>
 
 				<FloatingLabel label="Issue type" className="mb-3">
@@ -133,9 +135,9 @@ export default function IssuesEdit() {
 					</Form.Select>
 				</FloatingLabel>
 
-				<FloatingLabel label="Issue priority" className="mb-3">
+				<FloatingLabel label="Issue importance" className="mb-3">
 					<Form.Select
-						value={updatedIssue.priority}
+						value={updatedIssue.importance}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
@@ -143,13 +145,35 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								priority: e.target.value as IssuePriority,
+								importance: e.target.value as IssueImportance,
 							})
 						}
 					>
-						{issuePriorities.map((priority) => (
-							<option value={priority} key={priority}>
-								{priority}
+						{issueImportance.map((importance) => (
+							<option value={importance} key={"importance-" + importance}>
+								{importance}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue urgency" className="mb-3">
+					<Form.Select
+						value={updatedIssue.urgency}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setUpdatedIssue({
+								...updatedIssue,
+								urgency: e.target.value as IssueUrgency,
+							})
+						}
+					>
+						{issueImportance.map((urgency) => (
+							<option value={urgency} key={"urgency-" + urgency}>
+								{urgency}
 							</option>
 						))}
 					</Form.Select>

@@ -1,10 +1,12 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
-	IssuePriority,
+	IssueImportance,
 	IssueType,
+	IssueUrgency,
 	IssuesFilterFormData,
-	issuePriorities,
+	issueImportance,
 	issueTypes,
+	issueUrgency,
 } from "../../../interfaces/Issue";
 import { useState } from "react";
 import useTheme from "../../../context/useTheme";
@@ -17,7 +19,8 @@ type IssuesFilterFormProps = {
 
 const initFilterFormData: IssuesFilterFormData = {
 	type: "",
-	priority: "",
+	urgency: "",
+	importance: "",
 };
 
 export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
@@ -55,7 +58,7 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						<option value="">Select type</option>
+						<option value="">Type</option>
 
 						{issueTypes.map((type) => (
 							<option value={type} key={type}>
@@ -67,23 +70,47 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 
 				<Col className="mb-2">
 					<Form.Select
-						value={filterFormData.priority}
+						value={filterFormData.urgency}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								urgency: e.target.value as IssueUrgency,
+							})
+						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
+					>
+						<option value="">Urgency</option>
+
+						{issueUrgency.map((urgency) => (
+							<option value={urgency} key={"urgency-" + urgency}>
+								{urgency}
+							</option>
+						))}
+					</Form.Select>
+				</Col>
+
+				<Col className="mb-2">
+					<Form.Select
+						value={filterFormData.importance}
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								priority: e.target.value as IssuePriority,
+								importance: e.target.value as IssueImportance,
 							})
 						}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
 					>
-						<option value="">Select priority</option>
+						<option value="">Importance</option>
 
-						{issuePriorities.map((priority) => (
-							<option value={priority} key={priority}>
-								{priority}
+						{issueImportance.map((importance) => (
+							<option value={importance} key={"importance-" + importance}>
+								{importance}
 							</option>
 						))}
 					</Form.Select>

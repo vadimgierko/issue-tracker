@@ -10,8 +10,9 @@ type IssuesFilterableTableProps = {
 
 const initFilterData: IssuesFilterData = {
 	type: "",
-	priority: "",
 	status: "open",
+	urgency: "",
+	importance: "",
 };
 
 export default function IssuesFilterableTable({
@@ -33,7 +34,8 @@ export default function IssuesFilterableTable({
 		function filterIssues(filterData: IssuesFilterData) {
 			const filteredItems = issues.filter((i) => {
 				return (
-					(!filterData.priority || i.priority === filterData.priority) &&
+					(!filterData.importance || i.importance === filterData.importance) &&
+					(!filterData.urgency || i.urgency === filterData.urgency) &&
 					(!filterData.type || i.type === filterData.type) &&
 					(filterData.status === "all" ||
 						(i.status === "open" && filterData.status === "open") ||

@@ -68,6 +68,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				id: newIssueId,
 				created: creationTime,
 				updated: creationTime,
+				inProgressFrom: null,
+				closedAt: null,
 			};
 
 			// init batch to update multiply docs:
@@ -117,19 +119,28 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		try {
 			const updateTime = Date.now();
 
-			const updatedIssueWithUpdateTime: Issue = {
+			const updatedIssueWithAdditionalUpdates: Issue = {
 				...updatedIssue,
 				updated: updateTime,
+				inProgressFrom:
+					updatedIssue.status === "in progress"
+						? updateTime
+						: updatedIssue.inProgressFrom,
+				closedAt:
+					updatedIssue.status !== "open" &&
+					updatedIssue.status !== "in progress"
+						? updateTime
+						: updatedIssue.closedAt,
 			};
 
 			await setDoc(
 				doc(firestore, "issues", updatedIssue.id),
-				updatedIssueWithUpdateTime
+				updatedIssueWithAdditionalUpdates
 			);
 
 			// update app's state:
 			const updatedIssues = issues.map((i) =>
-				i.id === updatedIssue.id ? updatedIssueWithUpdateTime : i
+				i.id === updatedIssue.id ? updatedIssueWithAdditionalUpdates : i
 			);
 			setIssues(updatedIssues);
 		} catch (error: any) {

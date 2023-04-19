@@ -41,7 +41,7 @@ export default function MarkdownTextAreaField({
 						value={value}
 						placeholder={placeholder}
 						style={{
-							height: "100px",
+							height: "200px",
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
