@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import useTheme from "../../../context/useTheme";
+import { IssueTableTabStatus } from "../../../interfaces/Issue";
 
-type TableTab = "open" | "in progress" | "closed";
-const tableTabs: TableTab[] = ["open", "in progress", "closed"];
+const tableTabs: IssueTableTabStatus[] = [
+	"open",
+	"in progress",
+	"closed",
+	"all",
+];
 
 type IssuesTableTabsProps = {
-	onTabSelect: (selectedTab: TableTab) => void;
+	onTabSelect: (selectedTab: IssueTableTabStatus) => void;
 };
 
 export default function IssuesTableTabs({ onTabSelect }: IssuesTableTabsProps) {
 	const { theme } = useTheme();
-	const [activeTab, setActiveTab] = useState<TableTab>("open");
+	const [activeTab, setActiveTab] = useState<IssueTableTabStatus>("open");
 
 	return (
 		<Tabs

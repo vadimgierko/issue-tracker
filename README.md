@@ -51,14 +51,13 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 so there will be open/ in progress/ closed (remaining issues statuses, like resolved, abandoned, won't fix etc.)
 
-- [ ] filter issues table with 3 tabs: open/ in progress/ closed
+- [X] ~~filter issues table with 3 tabs: open/ in progress/ closed~~
+- [ ] extend Issue interface with props: `inProgressFrom`, `closedAt` & add timestamps
+  - [ ] register timestamp when changing the status to `in progress` & any other => `closed`
   - [ ] open tab will have created & updated col
   - [ ] in progress tab will have in progress from & updated col
-  - [ ] close tab will have closed col & detailed status
-- [ ] disable filtering by status
-- [ ] extend Issue interface with props: `inProgressFrom`, `closedAt` & add timestamps
-- [ ] register timestamp when changing the status to `in progress` & any other => `closed`
-- [ ] delete `closed` status, because all not open & not in progress issues are closed
+  - [ ] close tab will have created & closed col
+- [X] ~~disable filtering by status~~
 - [ ] unable to delete issue => user has to close an issue
 
 ### Enable adding tasks/ "issues" to issues

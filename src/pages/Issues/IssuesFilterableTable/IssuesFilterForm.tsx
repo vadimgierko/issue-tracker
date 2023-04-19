@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import {
 	IssuePriority,
 	IssueType,
-	IssuesFilterData,
+	IssuesFilterFormData,
 	issuePriorities,
 	issueTypes,
 } from "../../../interfaces/Issue";
@@ -12,27 +12,27 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
 
 type IssuesFilterFormProps = {
-	onSubmit: (filterData: IssuesFilterData) => void;
+	onSubmit: (filterFormData: IssuesFilterFormData) => void;
 };
-const initFilterData: IssuesFilterData = {
+
+const initFilterFormData: IssuesFilterFormData = {
 	type: "",
 	priority: "",
 };
 
 export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 	const { theme } = useTheme();
-	const [filterData, setFilterData] =
-		useState<IssuesFilterData>(initFilterData);
+	const [filterFormData, setFilterFormData] =
+		useState<IssuesFilterFormData>(initFilterFormData);
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log("Filter data:", filterData);
-		onSubmit(filterData);
+		onSubmit(filterFormData);
 	}
 
 	function handleReset() {
-		setFilterData(initFilterData);
-		onSubmit(initFilterData);
+		setFilterFormData(initFilterFormData);
+		onSubmit(initFilterFormData);
 	}
 
 	return (
@@ -43,10 +43,10 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 			>
 				<Col className="mb-2">
 					<Form.Select
-						value={filterData.type}
+						value={filterFormData.type}
 						onChange={(e) =>
-							setFilterData({
-								...filterData,
+							setFilterFormData({
+								...filterFormData,
 								type: e.target.value as IssueType,
 							})
 						}
@@ -67,14 +67,14 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 
 				<Col className="mb-2">
 					<Form.Select
-						value={filterData.priority}
+						value={filterFormData.priority}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
 						onChange={(e) =>
-							setFilterData({
-								...filterData,
+							setFilterFormData({
+								...filterFormData,
 								priority: e.target.value as IssuePriority,
 							})
 						}
@@ -88,30 +88,6 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 						))}
 					</Form.Select>
 				</Col>
-
-				{/* <Col className="mb-2">
-					<Form.Select
-						value={filterData.status}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setFilterData({
-								...filterData,
-								status: e.target.value as IssueStatus,
-							})
-						}
-					>
-						<option value="">Select status</option>
-
-						{issueStatuses.map((status) => (
-							<option value={status} key={status}>
-								{status}
-							</option>
-						))}
-					</Form.Select>
-				</Col> */}
 
 				<Col className="mb-2">
 					<Button variant="primary" type="submit">
