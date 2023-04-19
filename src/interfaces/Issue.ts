@@ -27,7 +27,6 @@ export interface Issue extends IssueData {
 export interface IssuesFilterData {
 	type: IssueType | ""
 	priority: IssuePriority | ""
-	status: IssueStatus | ""
 };
 
 

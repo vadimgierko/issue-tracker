@@ -16,7 +16,6 @@ export default function IssuesFilterableTable({
 		const filteredItems = issues.filter((item) => {
 			return (
 				(!filterData.priority || item.priority === filterData.priority) &&
-				(!filterData.status || item.status === filterData.status) &&
 				(!filterData.type || item.type === filterData.type)
 			);
 		});

@@ -1,11 +1,9 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
 	IssuePriority,
-	IssueStatus,
 	IssueType,
 	IssuesFilterData,
 	issuePriorities,
-	issueStatuses,
 	issueTypes,
 } from "../../../interfaces/Issue";
 import { useState } from "react";
@@ -19,7 +17,6 @@ type IssuesFilterFormProps = {
 const initFilterData: IssuesFilterData = {
 	type: "",
 	priority: "",
-	status: "",
 };
 
 export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
@@ -92,7 +89,7 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 					</Form.Select>
 				</Col>
 
-				<Col className="mb-2">
+				{/* <Col className="mb-2">
 					<Form.Select
 						value={filterData.status}
 						style={{
@@ -114,7 +111,7 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 							</option>
 						))}
 					</Form.Select>
-				</Col>
+				</Col> */}
 
 				<Col className="mb-2">
 					<Button variant="primary" type="submit">
