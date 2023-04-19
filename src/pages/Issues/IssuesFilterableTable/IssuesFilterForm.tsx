@@ -1,12 +1,12 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
-	IssuePriority,
-	IssueStatus,
+	IssueImportance,
 	IssueType,
-	IssuesFilterData,
-	issuePriorities,
-	issueStatuses,
+	IssueUrgency,
+	IssuesFilterFormData,
+	issueImportance,
 	issueTypes,
+	issueUrgency,
 } from "../../../interfaces/Issue";
 import { useState } from "react";
 import useTheme from "../../../context/useTheme";
@@ -14,28 +14,28 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
 
 type IssuesFilterFormProps = {
-	onSubmit: (filterData: IssuesFilterData) => void;
+	onSubmit: (filterFormData: IssuesFilterFormData) => void;
 };
-const initFilterData: IssuesFilterData = {
+
+const initFilterFormData: IssuesFilterFormData = {
 	type: "",
-	priority: "",
-	status: "",
+	urgency: "",
+	importance: "",
 };
 
 export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 	const { theme } = useTheme();
-	const [filterData, setFilterData] =
-		useState<IssuesFilterData>(initFilterData);
+	const [filterFormData, setFilterFormData] =
+		useState<IssuesFilterFormData>(initFilterFormData);
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log("Filter data:", filterData);
-		onSubmit(filterData);
+		onSubmit(filterFormData);
 	}
 
 	function handleReset() {
-		setFilterData(initFilterData);
-		onSubmit(initFilterData);
+		setFilterFormData(initFilterFormData);
+		onSubmit(initFilterFormData);
 	}
 
 	return (
@@ -46,10 +46,10 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 			>
 				<Col className="mb-2">
 					<Form.Select
-						value={filterData.type}
+						value={filterFormData.type}
 						onChange={(e) =>
-							setFilterData({
-								...filterData,
+							setFilterFormData({
+								...filterFormData,
 								type: e.target.value as IssueType,
 							})
 						}
@@ -58,7 +58,7 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						<option value="">Select type</option>
+						<option value="">Type</option>
 
 						{issueTypes.map((type) => (
 							<option value={type} key={type}>
@@ -70,23 +70,23 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 
 				<Col className="mb-2">
 					<Form.Select
-						value={filterData.priority}
+						value={filterFormData.urgency}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								urgency: e.target.value as IssueUrgency,
+							})
+						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
-						onChange={(e) =>
-							setFilterData({
-								...filterData,
-								priority: e.target.value as IssuePriority,
-							})
-						}
 					>
-						<option value="">Select priority</option>
+						<option value="">Urgency</option>
 
-						{issuePriorities.map((priority) => (
-							<option value={priority} key={priority}>
-								{priority}
+						{issueUrgency.map((urgency) => (
+							<option value={urgency} key={"urgency-" + urgency}>
+								{urgency}
 							</option>
 						))}
 					</Form.Select>
@@ -94,23 +94,23 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 
 				<Col className="mb-2">
 					<Form.Select
-						value={filterData.status}
+						value={filterFormData.importance}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								importance: e.target.value as IssueImportance,
+							})
+						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
-						onChange={(e) =>
-							setFilterData({
-								...filterData,
-								status: e.target.value as IssueStatus,
-							})
-						}
 					>
-						<option value="">Select status</option>
+						<option value="">Importance</option>
 
-						{issueStatuses.map((status) => (
-							<option value={status} key={status}>
-								{status}
+						{issueImportance.map((importance) => (
+							<option value={importance} key={"importance-" + importance}>
+								{importance}
 							</option>
 						))}
 					</Form.Select>

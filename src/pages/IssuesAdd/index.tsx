@@ -6,10 +6,12 @@ import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
 	IssueData,
-	IssuePriority,
+	IssueImportance,
 	IssueType,
-	issuePriorities,
+	IssueUrgency,
+	issueImportance,
 	issueTypes,
+	issueUrgency,
 } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
 import { useState } from "react";
@@ -18,11 +20,12 @@ import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 
 const emptyIssue: IssueData = {
+	projectId: "",
 	title: "",
 	description: "",
-	projectId: "",
 	type: "bug",
-	priority: "high",
+	importance: "high",
+	urgency: "high",
 	status: "open",
 };
 
@@ -113,6 +116,7 @@ export default function IssuesAdd() {
 					onChange={(value: string) =>
 						setIssueData({ ...issueData, description: value })
 					}
+					required={false}
 				/>
 
 				<FloatingLabel label="Issue type" className="mb-3">
@@ -134,9 +138,9 @@ export default function IssuesAdd() {
 					</Form.Select>
 				</FloatingLabel>
 
-				<FloatingLabel label="Issue priority" className="mb-3">
+				<FloatingLabel label="Issue importance" className="mb-3">
 					<Form.Select
-						value={issueData.priority}
+						value={issueData.importance}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
@@ -144,13 +148,35 @@ export default function IssuesAdd() {
 						onChange={(e) =>
 							setIssueData({
 								...issueData,
-								priority: e.target.value as IssuePriority,
+								importance: e.target.value as IssueImportance,
 							})
 						}
 					>
-						{issuePriorities.map((priority) => (
-							<option value={priority} key={priority}>
-								{priority}
+						{issueImportance.map((importance) => (
+							<option value={importance} key={"importance-" + importance}>
+								{importance}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue urgency" className="mb-3">
+					<Form.Select
+						value={issueData.urgency}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setIssueData({
+								...issueData,
+								urgency: e.target.value as IssueUrgency,
+							})
+						}
+					>
+						{issueUrgency.map((urgency) => (
+							<option value={urgency} key={"urgency-" + urgency}>
+								{urgency}
 							</option>
 						))}
 					</Form.Select>

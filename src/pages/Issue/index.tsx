@@ -60,7 +60,13 @@ export default function Issue() {
 				<h2>Details</h2>
 				<p>Created: {getDate(issue.created)}</p>
 				<p>Updated: {getDate(issue.updated)}</p>
-				<p>Priority: {issue.priority}</p>
+				<p>
+					In progress from:{" "}
+					{issue.inProgressFrom ? getDate(issue.inProgressFrom) : "-"}
+				</p>
+				<p>Closed: {issue.closedAt ? getDate(issue.closedAt) : "-"}</p>
+				<p>Importance: {issue.importance}</p>
+				<p>Urgency: {issue.urgency}</p>
 				<p>Type: {issue.type}</p>
 				<p>Status: {issue.status}</p>
 

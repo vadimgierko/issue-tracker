@@ -30,7 +30,9 @@ export default function MarkdownTextAreaField({
 	return (
 		<Form.Group className={formGroupClassName}>
 			{showMarkdown ? (
-				<MarkdownRenderer markdown={value} />
+				<div className="border rounded py-2" style={{ paddingLeft: "0.8em" }}>
+					<MarkdownRenderer markdown={value} />
+				</div>
 			) : (
 				<FloatingLabel label={label}>
 					<Form.Control
@@ -39,7 +41,7 @@ export default function MarkdownTextAreaField({
 						value={value}
 						placeholder={placeholder}
 						style={{
-							height: "100px",
+							height: "200px",
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}

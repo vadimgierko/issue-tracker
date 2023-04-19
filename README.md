@@ -1,14 +1,14 @@
 # Issue Tracker (under development)
 
-This app allows you to track & manage issues across your dev projects.
+This app allows you to track, manage & filter issues across your dev projects.
 
 ## Why this Issue Tracker is special?
 
 Because:
 
-- you can not only view & manage issues in every particular project,
+- you can not only **view & manage issues in every particular project**,
 - but also **you can have an overview of all issues regardless of the project, placed in one table** to focus on the most important things
-- & **filter them by status, priority or project** (not implemented yet)
+- & **filter issues by status, type, urgency & importance**
 
 ## Motivation
 
@@ -45,23 +45,52 @@ And also I want to exercise in TypeScript and... try out my new template app ;-)
 
 ## Todo
 
-- [ ] update about page
+---
+
+### Enable ordering by timestamps
+
+### Enable adding tasks/ "issues" to issues
+
+OR/ AND
+
+### Group issues with milestones/ stages/ substatutes = WRAP STATUS SYSTEM INTO MILESTONES FRAMEWORK
+
+Every project, feature & issue can have a sub status:
+
+- initiation
+- requirements gathering
+- design (not only UI, but also logic, structure, data arch
+- development
+- integration (with the rest of the app)
+- testing
+- deployment
+
+All that **substatuses can be used to indicate exact `in progress` status**.
+
+This system also enable checking time, when substatuses was changes => `timeline` *(init at..., req gath at..., des at..., ..., deployed at...)*
+
+### Extend Project data management & features
+
+- [ ] add specified fields for motivation, features, tech stack, how to install, guides, details, readme, etc.
+- [ ] add project status (milestone)
+
+### About
+
+- [ ] **update about page**
   - [ ] in future design about page same as linky notes about
-- [ ] **enable closing & in progress issue system**
-  - [ ] so there will be open/ in progress/ closed (remaining issues)
-  - [ ] detect time of updating to "in progress" & closing
-  - [ ] unable to delete issue => user has to close an issue
-- [ ] maybe control resetting the state via App component?
-- [ ] add bootstrap alerts for user, not the alerts which are blocking the browser
-- [ ] add cancel buttons
-- [ ] add confirm before delete anything
-- [ ] replace most of buttons with icons with tooltips
-- [ ] **enable markdown editor for issue description**
-- [ ] consider using importance & urgency instead of priority in issues
-- [ ] consider enabling adding topics to issues, for example "documentation", "state management", "UI" etc
+
+### Good for UI/UX
+
+- [ ] add **bootstrap alerts** for user, not the alerts which are blocking the browser
+- [ ] add **cancel buttons**
+- [ ] add **confirm before delete** anything
+- [ ] add **icons with tooltips instead buttons**
+- [ ] add **breadcrumbs**
+
+### Maybe
+
 - [ ] consider **rebuilding routing system** to nested /users/:userId/projects/:projectId/issues/:issueId etc.
   - [ ] use children routes & outlet
     - [ ] apply tabs in projects, issues, user page
-  - [ ] add breadcrumbs
   - [ ] only /users/:userId route will be private
     - [ ] redirect to protected page after sign in

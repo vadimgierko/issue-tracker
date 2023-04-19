@@ -30,14 +30,16 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 				<tr>
 					<th>Title</th>
 					{!projectId && <th>Project</th>}
-					{/* <th>Description</th> */}
 					<th>Type</th>
-					<th>Priority</th>
+					<th>Importance</th>
+					<th>Urgency</th>
 					<th>Status</th>
 					<th>Update</th>
 					<th>Delete</th>
 					<th>Created</th>
 					<th>Updated</th>
+					<th>In progress from</th>
+					<th>Closed</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -53,22 +55,34 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								</Link>
 							</td>
 						)}
-						{/* <td>{issue.description}</td> */}
 						<td className={issue.type === "bug" ? "text-danger" : ""}>
 							{issue.type}
 						</td>
 						<td
 							className={
-								issue.priority === "high"
+								issue.importance === "high"
 									? "text-danger"
-									: issue.priority === "medium"
+									: issue.importance === "medium"
 									? "text-warning"
 									: "text-secondary"
 							}
 						>
-							{issue.priority}
+							{issue.importance}
 						</td>
-						<td>{issue.status}</td>
+						<td
+							className={
+								issue.urgency === "high"
+									? "text-danger"
+									: issue.urgency === "medium"
+									? "text-warning"
+									: "text-secondary"
+							}
+						>
+							{issue.urgency}
+						</td>
+						<td className={issue.status === "open" ? "text-danger" : ""}>
+							{issue.status}
+						</td>
 						<td>
 							<Link to={"/issues/" + issue.id + "/edit"}>
 								<BsPencilSquare />
@@ -83,6 +97,10 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 						</td>
 						<td>{getDate(issue.created)}</td>
 						<td>{getDate(issue.updated)}</td>
+						<td>
+							{issue.inProgressFrom ? getDate(issue.inProgressFrom) : "-"}
+						</td>
+						<td>{issue.closedAt ? getDate(issue.closedAt) : "-"}</td>
 					</tr>
 				))}
 			</tbody>
