@@ -19,11 +19,11 @@ root.render(
 		<ThemeProvider>
 			<MaxWidthProvider>
 				<UserProvider>
-					<ProjectsProvider>
-						<IssuesProvider>
+					<IssuesProvider>
+						<ProjectsProvider>
 							<App />
-						</IssuesProvider>
-					</ProjectsProvider>
+						</ProjectsProvider>
+					</IssuesProvider>
 				</UserProvider>
 			</MaxWidthProvider>
 		</ThemeProvider>

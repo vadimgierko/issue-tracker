@@ -15,6 +15,7 @@ import logError from "../lib/logError";
 
 const IsuesContext = createContext<{
 	issues: Issue[];
+	setIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
 	loading: boolean;
 	addIssue: (issueData: IssueData, projectId: string) => Promise<string>;
 	updateIssue: (updatedIssue: Issue) => Promise<void>;
@@ -275,6 +276,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 	const value = {
 		issues,
+		setIssues,
 		loading,
 		addIssue,
 		updateIssue,
