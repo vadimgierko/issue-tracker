@@ -1,5 +1,5 @@
-export type IssueType = "bug" | "feature request" | "improvement" | "question" | "idea" | "documentation" | "other"
-export const issueTypes: IssueType[] = ["bug", "feature request", "improvement", "question", "idea", "documentation", "other"];
+export type IssueType = "bug" | "feature request" | "improvement" | "question" | "idea" | "documentation" | "suggestion" | "test" | "other"
+export const issueTypes: IssueType[] = ["bug", "feature request", "improvement", "question", "idea", "documentation", "suggestion", "test", "other"];
 
 // export type IssuePriority = "high" | "medium" | "low";
 // export const issuePriorities: IssuePriority[] = ["high", "medium", "low"];

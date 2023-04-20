@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { Project, ProjectData } from "../interfaces/Project";
 import useUser from "./useUser";
+import useIssues from "./useIssues";
 
 const ProjectsContext = createContext<{
 	projects: Project[];
@@ -40,6 +41,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
+	const { issues, setIssues } = useIssues();
 
 	console.log("user projects:", projects);
 
@@ -48,8 +50,13 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	 * @returns The new project ID.
 	 */
 	async function addProject(projectData: ProjectData): Promise<string> {
+		// =======================================================================
+		// 1. add project to /projects
+		// 2. add project id to /user-projects
+		// 3. add project id to /project-issues
 		if (user && user.uid) {
 			try {
+				// 1. add project to /projects
 				// get the id for new project (create an empty doc):
 				const { id: newProjectId } = doc(collection(firestore, "projects"));
 
@@ -68,13 +75,14 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				const newProjectRef = doc(firestore, "projects", newProjectId);
 				batch.set(newProjectRef, newProject);
 
-				// add newProjectId to /user-projects:
+				// 2. add project id to /user-projects
 				// (add newProjectId to doc's "projects" array)
 				const userProjectsRef = doc(firestore, "user-projects", user.uid);
 				batch.update(userProjectsRef, {
 					projectsIds: arrayUnion(newProjectId),
 				});
 
+				// 3. add project id to /project-issues
 				// init a doc with project issues ids in /project-issues collection:
 				const projectIssuesRef = doc(firestore, "project-issues", newProjectId);
 				batch.set(projectIssuesRef, { issuesIds: [] });
@@ -120,16 +128,19 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	}
 
 	async function deleteProject(projectId: string) {
-		// NOTE:
-		// we need to delete project from /projects collection
-		// & also from /user-projects doc array
-		// so we use batch
+		// ===============================================================================
+		// 1. delete project from /projects collection
+		// 2. delete project from /user-projects doc array
+		// 3. iterate through all project's issues ids in issues array in /project-issues
+		//    & delete all these issues from /issues && /user-issues
+		// 4. delete project from /project-issues
 
 		try {
 			if (!projectId)
 				return console.error(
 					"No project id provided... Cannot delete project."
 				);
+
 			if (!user || (user && !user.uid))
 				return console.log("You need to be logged to delete project. Log in!");
 
@@ -137,22 +148,55 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 			// Get a new write batch
 			const batch = writeBatch(firestore);
 
-			// delete project:
+			// get project's issues ids before deleting the project:
+			const projectIssuesIds = issues
+				.filter((i) => i.projectId === projectId)
+				.map((i) => i.id);
+
+			// 1. delete project from /projects collection
 			const deletedProjectRef = doc(firestore, "projects", projectId);
 			batch.delete(deletedProjectRef);
 
-			// delete project id from /user-projects doc's "projects" array:
+			// 2. delete project from /user-projects doc array
 			const userProjectsRef = doc(firestore, "user-projects", user.uid);
 			batch.update(userProjectsRef, {
 				projectsIds: arrayRemove(projectId),
 			});
 
+			// 3. iterate through all project's issues ids in issues array in /project-issues
+			//    & delete all these issues from /issues && /user-issues
+			if (projectIssuesIds && projectIssuesIds.length) {
+				projectIssuesIds.forEach((issueId) => {
+					// delete all issues from /issues:
+					const issueToDeleteRef = doc(firestore, "issues", issueId);
+					batch.delete(issueToDeleteRef);
+
+					// delete all issues ids from /user-issues:
+					const userIssuesRef = doc(firestore, "user-issues", user.uid);
+					batch.update(userIssuesRef, {
+						issuesIds: arrayRemove(issueId),
+					});
+				});
+			} else {
+				console.warn(
+					`Project with the id ${projectId} has no issues to delete.`
+				);
+			}
+
+			// 4. delete project from /project-issues
+			const projectIssuesRef = doc(firestore, "project-issues", projectId);
+			batch.delete(projectIssuesRef);
+
 			// Commit the batch
 			await batch.commit();
 
-			// update app's state:
+			// update projects in app's state:
 			const updatedProjects = projects.filter((p) => p.id !== projectId);
 			setProjects(updatedProjects);
+
+			// update issues in app's state:
+			const updatedIssues = issues.filter((i) => i.projectId !== projectId);
+			setIssues(updatedIssues);
 		} catch (error: any) {
 			const errorMessage = `An error occurred while deleting the project: ${error.message}. Cannot delete project.`;
 			console.error(errorMessage);
