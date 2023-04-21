@@ -1,8 +1,9 @@
 import Table from "react-bootstrap/Table";
+import Badge from "react-bootstrap/Badge";
 import { Link, useParams } from "react-router-dom";
 import useProjects from "../../../context/useProjects";
 import useTheme from "../../../context/useTheme";
-import { Issue } from "../../../interfaces/Issue";
+import { Issue, IssueStatus } from "../../../interfaces/Issue";
 import { BsTrash, BsPencilSquare } from "react-icons/bs";
 import getDate from "../../../lib/getDate";
 import useIssues from "../../../context/useIssues";
@@ -16,6 +17,9 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 	const { projects } = useProjects();
 	const { projectId } = useParams();
 	const { deleteIssue } = useIssues();
+	// all issues have same status,
+	// because they are filtered by status via issue table tabs:
+	const issuesStatus: IssueStatus = issues[0].status; // needed for conditional rendering
 
 	async function handleDeleteIssue(issue: Issue) {
 		if (!issue) return alert("No issue was provided... Cannot delete issue.");
@@ -33,13 +37,22 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<th>Type</th>
 					<th>Importance</th>
 					<th>Urgency</th>
-					<th>Status</th>
-					<th>Update</th>
-					<th>Delete</th>
-					<th>Created</th>
-					<th>Updated</th>
-					<th>In progress from</th>
-					<th>Closed</th>
+					{issuesStatus === "open" && <th>Opened</th>}
+					{issuesStatus === "in progress" && <th>In progress from</th>}
+					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
+						<th>Closed</th>
+					)}
+					{(issuesStatus === "open" || issuesStatus === "in progress") && (
+						<th>Updated</th>
+					)}
+					<th>
+						<BsPencilSquare />
+					</th>
+					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
+						<th>
+							<BsTrash className="text-danger" />
+						</th>
+					)}
 				</tr>
 			</thead>
 			<tbody>
@@ -58,49 +71,54 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 						<td className={issue.type === "bug" ? "text-danger" : ""}>
 							{issue.type}
 						</td>
-						<td
-							className={
-								issue.importance === "high"
-									? "text-danger"
-									: issue.importance === "medium"
-									? "text-warning"
-									: "text-secondary"
-							}
-						>
-							{issue.importance}
+						<td>
+							<Badge
+								bg={
+									issue.importance === "high"
+										? "danger"
+										: issue.importance === "medium"
+										? "warning"
+										: "secondary"
+								}
+								text={issue.importance === "medium" ? "dark" : "light"}
+							>
+								{issue.importance}
+							</Badge>
 						</td>
-						<td
-							className={
-								issue.urgency === "high"
-									? "text-danger"
-									: issue.urgency === "medium"
-									? "text-warning"
-									: "text-secondary"
-							}
-						>
-							{issue.urgency}
+						<td>
+							<Badge
+								bg={
+									issue.urgency === "high"
+										? "danger"
+										: issue.urgency === "medium"
+										? "warning"
+										: "secondary"
+								}
+								text={issue.urgency === "medium" ? "dark" : "light"}
+							>
+								{issue.urgency}
+							</Badge>
 						</td>
-						<td className={issue.status === "open" ? "text-danger" : ""}>
-							{issue.status}
-						</td>
+						{issuesStatus === "open" && <td>{getDate(issue.created)}</td>}
+						{issue.inProgressFrom && issuesStatus === "in progress" && (
+							<td>{getDate(issue.inProgressFrom)}</td>
+						)}
+						{issue.closedAt && <td>{getDate(issue.closedAt)}</td>}
+						{!issue.closedAt && <td>{getDate(issue.updated)}</td>}
 						<td>
 							<Link to={"/issues/" + issue.id + "/edit"}>
 								<BsPencilSquare />
 							</Link>
 						</td>
-						<td>
-							<BsTrash
-								className="text-danger"
-								onClick={() => handleDeleteIssue(issue)}
-								style={{ cursor: "pointer" }}
-							/>
-						</td>
-						<td>{getDate(issue.created)}</td>
-						<td>{getDate(issue.updated)}</td>
-						<td>
-							{issue.inProgressFrom ? getDate(issue.inProgressFrom) : "-"}
-						</td>
-						<td>{issue.closedAt ? getDate(issue.closedAt) : "-"}</td>
+						{issue.closedAt && (
+							<td>
+								<BsTrash
+									className="text-danger"
+									onClick={() => handleDeleteIssue(issue)}
+									style={{ cursor: "pointer" }}
+								/>
+							</td>
+						)}
 					</tr>
 				))}
 			</tbody>
