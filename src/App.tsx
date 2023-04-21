@@ -64,6 +64,10 @@ const privateRoutes: RouteObject[] = [
 		path: "projects/:projectId/edit",
 		element: <ProjectsEdit />,
 	},
+	{
+		path: "projects/:projectId/add-issue",
+		element: <IssuesAdd />,
+	},
 
 	//====================== ISSUES ==========================//
 	{

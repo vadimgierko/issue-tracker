@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useIssues from "../../context/useIssues";
 import PageHeader from "../../components/Layout/PageHeader";
 import Form from "react-bootstrap/Form";
@@ -31,8 +31,14 @@ const emptyIssue: IssueData = {
 
 export default function IssuesAdd() {
 	const { theme } = useTheme();
+	// we need to check, if there is projectId in the link
+	// (check if we were redirected from project page to add an issue)
+	// to set projectId in new issue:
+	const { projectId } = useParams();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<IssueData>(emptyIssue);
+	const [issueData, setIssueData] = useState<IssueData>(
+		projectId ? { ...emptyIssue, projectId } : emptyIssue
+	);
 	const { projects } = useProjects();
 	const { addIssue } = useIssues();
 

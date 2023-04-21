@@ -52,7 +52,7 @@ export default function Project() {
 			<section className="project-issues">
 				<h2 className="text-center">
 					Issues{" "}
-					<Link to="/issues/add">
+					<Link to="add-issue">
 						<AiOutlinePlusSquare />
 					</Link>
 				</h2>

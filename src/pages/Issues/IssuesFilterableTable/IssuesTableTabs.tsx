@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import useTheme from "../../../context/useTheme";
 import { IssueTableTabStatus } from "../../../interfaces/Issue";
+import { BsThreeDots, BsExclamationSquare } from "react-icons/bs";
+import { AiOutlineCheck } from "react-icons/ai";
 
 const tableTabs: IssueTableTabStatus[] = [
 	"open",
 	"in progress",
 	"closed",
-	"all",
+	//"all",
 ];
 
 type IssuesTableTabsProps = {
@@ -27,13 +29,28 @@ export default function IssuesTableTabs({ onTabSelect }: IssuesTableTabsProps) {
 			}}
 			className="justify-content-center"
 			//fill
-			style={{
-				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme === "light" ? "black" : "white",
-			}}
+			// style={{
+			// 	backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+			// 	color: theme === "light" ? "black" : "white",
+			// }}
 		>
-			{tableTabs.map((t) => (
-				<Tab eventKey={t} title={t} key={t} />
+			{tableTabs.map((status) => (
+				<Tab
+					eventKey={status}
+					title={
+						<>
+							{status === "closed" ? (
+								<AiOutlineCheck className="text-secondary" />
+							) : status === "in progress" ? (
+								<BsThreeDots className="text-warning" />
+							) : (
+								<BsExclamationSquare className="text-danger" />
+							)}{" "}
+							{status}
+						</>
+					}
+					key={status}
+				/>
 			))}
 		</Tabs>
 	);
