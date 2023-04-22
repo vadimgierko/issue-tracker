@@ -4,6 +4,7 @@ import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/Layout/PageHeader";
 import IssuesFilterableTable from "./IssuesFilterableTable";
+import { AiOutlinePlusSquare } from "react-icons/ai";
 
 export default function Issues() {
 	const { issues, loading } = useIssues();
@@ -22,13 +23,16 @@ export default function Issues() {
 
 	return (
 		<>
-			<PageHeader pageTitle="Issues">
-				<div className="text-center my-3">
-					<Link to="/issues/add">
-						<Button className="primary">Add Issue</Button>
-					</Link>
-				</div>
-			</PageHeader>
+			<PageHeader
+				pageTitle={
+					<span>
+						Issues ({issues.length}){" "}
+						<Link to="/issues/add">
+							<AiOutlinePlusSquare />
+						</Link>
+					</span>
+				}
+			></PageHeader>
 
 			{loading ? (
 				<Loading />

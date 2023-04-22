@@ -66,6 +66,7 @@ export default function IssuesFilterableTable({
 				onTabSelect={(selectedTab) =>
 					setFilterData({ ...filterData, status: selectedTab })
 				}
+				filteredIssuesNumber={filteredIssues.length}
 			/>
 
 			{filteredIssues && filteredIssues.length ? (

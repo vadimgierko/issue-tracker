@@ -14,9 +14,13 @@ const tableTabs: IssueTableTabStatus[] = [
 
 type IssuesTableTabsProps = {
 	onTabSelect: (selectedTab: IssueTableTabStatus) => void;
+	filteredIssuesNumber: number;
 };
 
-export default function IssuesTableTabs({ onTabSelect }: IssuesTableTabsProps) {
+export default function IssuesTableTabs({
+	onTabSelect,
+	filteredIssuesNumber,
+}: IssuesTableTabsProps) {
 	const { theme } = useTheme();
 	const [activeTab, setActiveTab] = useState<IssueTableTabStatus>("open");
 
@@ -46,7 +50,9 @@ export default function IssuesTableTabs({ onTabSelect }: IssuesTableTabsProps) {
 							) : (
 								<BsExclamationSquare className="text-danger" />
 							)}{" "}
-							{status}
+							{status === activeTab
+								? status + ` (${filteredIssuesNumber})`
+								: status}
 						</>
 					}
 					key={status}

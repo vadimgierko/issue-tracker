@@ -32,7 +32,7 @@ export default function Project() {
 	return (
 		<>
 			<PageHeader pageTitle={project.title}>
-				<MarkdownRenderer markdown={project.description} />
+				{/* <MarkdownRenderer markdown={project.description} /> */}
 
 				<div className="text-center mt-3">
 					<Link to={"/projects/" + projectId + "/edit"}>
@@ -51,7 +51,7 @@ export default function Project() {
 
 			<section className="project-issues">
 				<h2 className="text-center">
-					Issues{" "}
+					Issues ({issues.length}){" "}
 					<Link to="add-issue">
 						<AiOutlinePlusSquare />
 					</Link>

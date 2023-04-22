@@ -21,11 +21,15 @@ import {
 import useMaxWidth from "../../context/useMaxWidth";
 import { logOut } from "../../services/auth";
 import useUser from "../../context/useUser";
+import useIssues from "../../context/useIssues";
+import useProjects from "../../context/useProjects";
 
 export default function NavigationBar() {
 	const maxWidth = useMaxWidth();
 	const { theme, switchTheme } = useTheme();
 	const { user } = useUser();
+	const { issues } = useIssues();
+	const { projects } = useProjects();
 
 	return (
 		<Navbar
@@ -54,7 +58,7 @@ export default function NavigationBar() {
 								<hr />
 
 								<LinkContainer to="/projects">
-									<Nav.Link>Projects</Nav.Link>
+									<Nav.Link>Projects ({projects.length})</Nav.Link>
 								</LinkContainer>
 								<LinkContainer to="/projects/add">
 									<Nav.Link>
@@ -63,7 +67,7 @@ export default function NavigationBar() {
 								</LinkContainer>
 
 								<LinkContainer to="/issues">
-									<Nav.Link>Issues</Nav.Link>
+									<Nav.Link>Issues ({issues.length})</Nav.Link>
 								</LinkContainer>
 								<LinkContainer to="/issues/add">
 									<Nav.Link>
