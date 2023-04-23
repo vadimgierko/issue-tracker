@@ -48,11 +48,9 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<th>
 						<BsPencilSquare />
 					</th>
-					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
-						<th>
-							<BsTrash className="text-danger" />
-						</th>
-					)}
+					<th>
+						<BsTrash className="text-danger" />
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -110,15 +108,13 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								<BsPencilSquare />
 							</Link>
 						</td>
-						{issue.closedAt && (
-							<td>
-								<BsTrash
-									className="text-danger"
-									onClick={() => handleDeleteIssue(issue)}
-									style={{ cursor: "pointer" }}
-								/>
-							</td>
-						)}
+						<td>
+							<BsTrash
+								className="text-danger"
+								onClick={() => handleDeleteIssue(issue)}
+								style={{ cursor: "pointer" }}
+							/>
+						</td>
 					</tr>
 				))}
 			</tbody>

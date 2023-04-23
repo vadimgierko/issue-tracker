@@ -3,8 +3,8 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { Button } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
-import getDate from "../../lib/getDate";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
+import IssueTable from "./IssueTable";
 
 export default function Issue() {
 	const { issueId } = useParams<string>();
@@ -57,18 +57,7 @@ export default function Issue() {
 			</PageHeader>
 
 			<section className="issue-details">
-				<h2>Details</h2>
-				<p>Created: {getDate(issue.created)}</p>
-				<p>Updated: {getDate(issue.updated)}</p>
-				<p>
-					In progress from:{" "}
-					{issue.inProgressFrom ? getDate(issue.inProgressFrom) : "-"}
-				</p>
-				<p>Closed: {issue.closedAt ? getDate(issue.closedAt) : "-"}</p>
-				<p>Importance: {issue.importance}</p>
-				<p>Urgency: {issue.urgency}</p>
-				<p>Type: {issue.type}</p>
-				<p>Status: {issue.status}</p>
+				<IssueTable issue={issue} />
 
 				<h2>Description</h2>
 				<hr />

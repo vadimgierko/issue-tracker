@@ -75,7 +75,7 @@ export default function IssuesEdit() {
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
-						required
+						disabled
 					>
 						<option value="">Select project</option>
 						{projects.map((project) => (

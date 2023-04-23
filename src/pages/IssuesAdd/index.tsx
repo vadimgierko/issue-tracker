@@ -23,7 +23,7 @@ const emptyIssue: IssueData = {
 	projectId: "",
 	title: "",
 	description: "",
-	type: "bug",
+	type: "improvement",
 	importance: "high",
 	urgency: "high",
 	status: "open",
