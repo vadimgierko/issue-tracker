@@ -6,10 +6,14 @@ import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
 	Issue,
+	IssueDifficulty,
+	IssueEstimatedTime,
 	IssueImportance,
 	IssueStatus,
 	IssueType,
 	IssueUrgency,
+	issueDifficulty,
+	issueEstimatedTime,
 	issueImportance,
 	issueStatuses,
 	issueTypes,
@@ -174,6 +178,55 @@ export default function IssuesEdit() {
 						{issueImportance.map((urgency) => (
 							<option value={urgency} key={"urgency-" + urgency}>
 								{urgency}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue estimated time" className="mb-3">
+					<Form.Select
+						value={updatedIssue.estimatedTime ? updatedIssue.estimatedTime : ""}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setUpdatedIssue({
+								...updatedIssue,
+								estimatedTime: e.target.value as IssueEstimatedTime,
+							})
+						}
+					>
+						<option value="">Estimated time</option>
+						{issueEstimatedTime.map((estimatedTime) => (
+							<option
+								value={estimatedTime}
+								key={"estimated-time-" + estimatedTime}
+							>
+								{estimatedTime}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue difficulty" className="mb-3">
+					<Form.Select
+						value={updatedIssue.difficulty ? updatedIssue.difficulty : ""}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setUpdatedIssue({
+								...updatedIssue,
+								difficulty: e.target.value as IssueDifficulty,
+							})
+						}
+					>
+						<option value="">Difficulty</option>
+						{issueDifficulty.map((difficulty) => (
+							<option value={difficulty} key={"difficulty-" + difficulty}>
+								{difficulty}
 							</option>
 						))}
 					</Form.Select>

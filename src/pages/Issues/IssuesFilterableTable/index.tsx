@@ -3,6 +3,7 @@ import { Issue, IssuesFilterData } from "../../../interfaces/Issue";
 import IssuesFilterForm from "./IssuesFilterForm";
 import IssuesTable from "./IssuesTable";
 import IssuesTableTabs from "./IssuesTableTabs";
+import IssuesSortForm, { SortValue } from "./IssuesSortForm";
 
 type IssuesFilterableTableProps = {
 	issues: Issue[];
@@ -13,6 +14,8 @@ const initFilterData: IssuesFilterData = {
 	status: "open",
 	urgency: "",
 	importance: "",
+	estimatedTime: "",
+	difficulty: "",
 };
 
 export default function IssuesFilterableTable({
@@ -21,6 +24,7 @@ export default function IssuesFilterableTable({
 	const [filterData, setFilterData] =
 		useState<IssuesFilterData>(initFilterData);
 	const [filteredIssues, setFilteredIssues] = useState<Issue[] | []>([]);
+	const [sortValue, setSortValue] = useState<SortValue>("recently updated");
 
 	function NoFilteredIssues() {
 		return (
@@ -34,6 +38,9 @@ export default function IssuesFilterableTable({
 		function filterIssues(filterData: IssuesFilterData) {
 			const filteredItems = issues.filter((i) => {
 				return (
+					(!filterData.estimatedTime ||
+						i.estimatedTime === filterData.estimatedTime) &&
+					(!filterData.difficulty || i.difficulty === filterData.difficulty) &&
 					(!filterData.importance || i.importance === filterData.importance) &&
 					(!filterData.urgency || i.urgency === filterData.urgency) &&
 					(!filterData.type || i.type === filterData.type) &&
@@ -48,11 +55,22 @@ export default function IssuesFilterableTable({
 				);
 			});
 
+			// sort issues:
+			if (sortValue === "recently updated") {
+				filteredItems.sort((a, b) => b.updated - a.updated);
+			} else if (sortValue === "least recently updated") {
+				filteredItems.sort((a, b) => a.updated - b.updated);
+			} else if (sortValue === "newest") {
+				filteredItems.sort((a, b) => b.created - a.created);
+			} else if (sortValue === "oldest") {
+				filteredItems.sort((a, b) => a.updated - b.updated);
+			}
+
 			setFilteredIssues(filteredItems);
 		}
 
 		filterIssues(filterData);
-	}, [filterData, issues]);
+	}, [filterData, issues, sortValue]);
 
 	return (
 		<>
@@ -61,6 +79,8 @@ export default function IssuesFilterableTable({
 					setFilterData({ ...filterData, ...filterFormData })
 				}
 			/>
+
+			<IssuesSortForm onChange={setSortValue} />
 
 			<IssuesTableTabs
 				onTabSelect={(selectedTab) =>

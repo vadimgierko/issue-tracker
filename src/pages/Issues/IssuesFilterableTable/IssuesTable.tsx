@@ -37,6 +37,8 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<th>Type</th>
 					<th>Importance</th>
 					<th>Urgency</th>
+					<th>Estimated time</th>
+					<th>Difficulty</th>
 					{issuesStatus === "open" && <th>Opened</th>}
 					{issuesStatus === "in progress" && <th>In progress from</th>}
 					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
@@ -95,6 +97,34 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								text={issue.urgency === "medium" ? "dark" : "light"}
 							>
 								{issue.urgency}
+							</Badge>
+						</td>
+						<td>
+							<Badge
+								bg={
+									issue.estimatedTime === "high"
+										? "danger"
+										: issue.estimatedTime === "medium"
+										? "warning"
+										: "success"
+								}
+								text={issue.estimatedTime === "medium" ? "dark" : "light"}
+							>
+								{issue.estimatedTime}
+							</Badge>
+						</td>
+						<td>
+							<Badge
+								bg={
+									issue.difficulty === "high"
+										? "danger"
+										: issue.difficulty === "medium"
+										? "warning"
+										: "success"
+								}
+								text={issue.difficulty === "medium" ? "dark" : "light"}
+							>
+								{issue.difficulty}
 							</Badge>
 						</td>
 						{issuesStatus === "open" && <td>{getDate(issue.created)}</td>}

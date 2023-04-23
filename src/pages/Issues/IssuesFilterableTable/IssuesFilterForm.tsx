@@ -1,9 +1,13 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
+	IssueDifficulty,
+	IssueEstimatedTime,
 	IssueImportance,
 	IssueType,
 	IssueUrgency,
 	IssuesFilterFormData,
+	issueDifficulty,
+	issueEstimatedTime,
 	issueImportance,
 	issueTypes,
 	issueUrgency,
@@ -21,6 +25,8 @@ const initFilterFormData: IssuesFilterFormData = {
 	type: "",
 	urgency: "",
 	importance: "",
+	estimatedTime: "",
+	difficulty: "",
 };
 
 export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
@@ -111,6 +117,60 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 						{issueImportance.map((importance) => (
 							<option value={importance} key={"importance-" + importance}>
 								{importance}
+							</option>
+						))}
+					</Form.Select>
+				</Col>
+
+				<Col className="mb-2">
+					<Form.Select
+						value={filterFormData.estimatedTime}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								estimatedTime: e.target.value as IssueEstimatedTime,
+							})
+						}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
+						<option value="">Estimated time</option>
+
+						{issueEstimatedTime.map((estimatedTime) => (
+							<option
+								value={estimatedTime}
+								key={"estimated-time-" + estimatedTime}
+							>
+								{estimatedTime}
+							</option>
+						))}
+					</Form.Select>
+				</Col>
+
+				<Col className="mb-2">
+					<Form.Select
+						value={filterFormData.difficulty}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								difficulty: e.target.value as IssueDifficulty,
+							})
+						}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
+						<option value="">Difficulty</option>
+
+						{issueDifficulty.map((issueDifficulty) => (
+							<option
+								value={issueDifficulty}
+								key={"difficulty-" + issueDifficulty}
+							>
+								{issueDifficulty}
 							</option>
 						))}
 					</Form.Select>

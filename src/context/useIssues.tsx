@@ -118,20 +118,23 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			return logError("No updated issue data provided... Cannot update issue.");
 
 		try {
+			const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id);
 			const updateTime = Date.now();
 
 			const updatedIssueWithAdditionalUpdates: Issue = {
 				...updatedIssue,
 				updated: updateTime,
-				inProgressFrom:
-					updatedIssue.status === "in progress"
-						? updateTime
-						: updatedIssue.inProgressFrom,
-				closedAt:
-					updatedIssue.status !== "open" &&
-					updatedIssue.status !== "in progress"
-						? updateTime
-						: updatedIssue.closedAt,
+				inProgressFrom: issueBeforeUpdates?.inProgressFrom
+					? issueBeforeUpdates?.inProgressFrom
+					: updatedIssue.status === "in progress"
+					? updateTime
+					: updatedIssue.inProgressFrom,
+				closedAt: issueBeforeUpdates?.closedAt
+					? issueBeforeUpdates?.closedAt
+					: updatedIssue.status !== "open" &&
+					  updatedIssue.status !== "in progress"
+					? updateTime
+					: updatedIssue.closedAt,
 			};
 
 			await setDoc(

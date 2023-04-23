@@ -18,6 +18,8 @@ export default function IssueTable({ issue }: IssueTableProps) {
 					<th>Type</th>
 					<th>Importance</th>
 					<th>Urgency</th>
+					<th>Estimated time</th>
+					<th>Difficulty</th>
 					<th>Opened</th>
 					<th>In progress from</th>
 					<th>Closed</th>
@@ -55,6 +57,34 @@ export default function IssueTable({ issue }: IssueTableProps) {
 							text={issue.urgency === "medium" ? "dark" : "light"}
 						>
 							{issue.urgency}
+						</Badge>
+					</td>
+					<td>
+						<Badge
+							bg={
+								issue.estimatedTime === "high"
+									? "danger"
+									: issue.estimatedTime === "medium"
+									? "warning"
+									: "success"
+							}
+							text={issue.estimatedTime === "medium" ? "dark" : "light"}
+						>
+							{issue.estimatedTime}
+						</Badge>
+					</td>
+					<td>
+						<Badge
+							bg={
+								issue.difficulty === "high"
+									? "danger"
+									: issue.difficulty === "medium"
+									? "warning"
+									: "success"
+							}
+							text={issue.difficulty === "medium" ? "dark" : "light"}
+						>
+							{issue.difficulty}
 						</Badge>
 					</td>
 					<td>{getDate(issue.created)}</td>

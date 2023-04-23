@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Tab, Tabs } from "react-bootstrap";
-import useTheme from "../../../context/useTheme";
 import { IssueTableTabStatus } from "../../../interfaces/Issue";
 import { BsThreeDots, BsExclamationSquare } from "react-icons/bs";
 import { AiOutlineCheck } from "react-icons/ai";
@@ -21,7 +20,6 @@ export default function IssuesTableTabs({
 	onTabSelect,
 	filteredIssuesNumber,
 }: IssuesTableTabsProps) {
-	const { theme } = useTheme();
 	const [activeTab, setActiveTab] = useState<IssueTableTabStatus>("open");
 
 	return (
@@ -32,11 +30,6 @@ export default function IssuesTableTabs({
 				onTabSelect(k);
 			}}
 			className="justify-content-center"
-			//fill
-			// style={{
-			// 	backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-			// 	color: theme === "light" ? "black" : "white",
-			// }}
 		>
 			{tableTabs.map((status) => (
 				<Tab

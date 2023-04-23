@@ -6,15 +6,19 @@ import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import {
 	IssueData,
+	IssueDifficulty,
+	IssueEstimatedTime,
 	IssueImportance,
 	IssueType,
 	IssueUrgency,
+	issueDifficulty,
+	issueEstimatedTime,
 	issueImportance,
 	issueTypes,
 	issueUrgency,
 } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logError from "../../lib/logError";
 import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
@@ -26,6 +30,8 @@ const emptyIssue: IssueData = {
 	type: "improvement",
 	importance: "high",
 	urgency: "high",
+	estimatedTime: "medium",
+	difficulty: "medium",
 	status: "open",
 };
 
@@ -36,9 +42,7 @@ export default function IssuesAdd() {
 	// to set projectId in new issue:
 	const { projectId } = useParams();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<IssueData>(
-		projectId ? { ...emptyIssue, projectId } : emptyIssue
-	);
+	const [issueData, setIssueData] = useState<IssueData>(emptyIssue);
 	const { projects } = useProjects();
 	const { addIssue } = useIssues();
 
@@ -60,6 +64,12 @@ export default function IssuesAdd() {
 	function clearForm() {
 		setIssueData(emptyIssue);
 	}
+
+	useEffect(() => {
+		if (projectId) {
+			setIssueData({ ...emptyIssue, projectId });
+		}
+	}, [projectId]);
 
 	if (!projects || !projects.length)
 		return (
@@ -88,6 +98,7 @@ export default function IssuesAdd() {
 							color: theme === "light" ? "black" : "white",
 						}}
 						required
+						disabled={projectId ? true : false}
 					>
 						<option value="">Select project</option>
 						{projects.map((project) => (
@@ -183,6 +194,53 @@ export default function IssuesAdd() {
 						{issueUrgency.map((urgency) => (
 							<option value={urgency} key={"urgency-" + urgency}>
 								{urgency}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue estimated time" className="mb-3">
+					<Form.Select
+						value={issueData.estimatedTime}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setIssueData({
+								...issueData,
+								estimatedTime: e.target.value as IssueEstimatedTime,
+							})
+						}
+					>
+						{issueEstimatedTime.map((estimatedTime) => (
+							<option
+								value={estimatedTime}
+								key={"estimated-time-" + estimatedTime}
+							>
+								{estimatedTime}
+							</option>
+						))}
+					</Form.Select>
+				</FloatingLabel>
+
+				<FloatingLabel label="Issue difficulty" className="mb-3">
+					<Form.Select
+						value={issueData.difficulty}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+						onChange={(e) =>
+							setIssueData({
+								...issueData,
+								difficulty: e.target.value as IssueDifficulty,
+							})
+						}
+					>
+						{issueDifficulty.map((difficulty) => (
+							<option value={difficulty} key={"difficulty-" + difficulty}>
+								{difficulty}
 							</option>
 						))}
 					</Form.Select>
