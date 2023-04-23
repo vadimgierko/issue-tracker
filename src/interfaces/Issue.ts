@@ -1,11 +1,17 @@
-export type IssueType = "bug" | "feature request" | "improvement" | "question" | "idea" | "documentation" | "suggestion" | "test" | "security" | "dependencies" | "other"
-export const issueTypes: IssueType[] = ["bug", "feature request", "improvement", "question", "idea", "documentation", "suggestion", "test", "security", "dependencies", "other"];
+export type IssueType = "bug" | "feature request" | "improvement" | "question" | "idea" | "documentation" | "suggestion" | "test" | "security" | "dependencies" | "refactor" | "other"
+export const issueTypes: IssueType[] = ["bug", "feature request", "improvement", "question", "idea", "documentation", "suggestion", "test", "security", "dependencies", "refactor", "other"];
 
 export type IssueImportance = "high" | "medium" | "low";
 export const issueImportance: IssueImportance[] = ["high", "medium", "low"];
 
 export type IssueUrgency = "high" | "medium" | "low";
 export const issueUrgency: IssueUrgency[] = ["high", "medium", "low"];
+
+export type IssueEstimatedTime = "high" | "medium" | "low";
+export const issueEstimatedTime: IssueEstimatedTime[] = ["high", "medium", "low"];
+
+export type IssueDifficulty = "high" | "medium" | "low";
+export const issueDifficulty: IssueDifficulty[] = ["high", "medium", "low"];
 
 // NOTE:
 // I will not use "closed" status, because it doesn't provide specific info;
@@ -26,6 +32,8 @@ export interface IssueData {
 	type: IssueType
   urgency: IssueUrgency
   importance: IssueImportance
+  estimatedTime: IssueEstimatedTime
+  difficulty: IssueDifficulty
   status: IssueStatus
 }
 
@@ -40,9 +48,10 @@ export interface Issue extends IssueData {
 
 export interface IssuesFilterFormData {
 	type: IssueType | ""
-	//priority: IssuePriority | ""
   urgency: IssueUrgency | ""
   importance: IssueImportance | ""
+  estimatedTime: IssueEstimatedTime | ""
+  difficulty: IssueDifficulty | ""
 };
 
 export interface IssuesFilterData extends IssuesFilterFormData {

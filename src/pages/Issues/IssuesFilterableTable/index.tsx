@@ -13,6 +13,8 @@ const initFilterData: IssuesFilterData = {
 	status: "open",
 	urgency: "",
 	importance: "",
+	estimatedTime: "",
+	difficulty: "",
 };
 
 export default function IssuesFilterableTable({
@@ -34,6 +36,9 @@ export default function IssuesFilterableTable({
 		function filterIssues(filterData: IssuesFilterData) {
 			const filteredItems = issues.filter((i) => {
 				return (
+					(!filterData.estimatedTime ||
+						i.estimatedTime === filterData.estimatedTime) &&
+					(!filterData.difficulty || i.difficulty === filterData.difficulty) &&
 					(!filterData.importance || i.importance === filterData.importance) &&
 					(!filterData.urgency || i.urgency === filterData.urgency) &&
 					(!filterData.type || i.type === filterData.type) &&
