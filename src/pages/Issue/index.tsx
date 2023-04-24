@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
-import { Button } from "react-bootstrap";
+import { Button, Badge } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
 import IssueTable from "./IssueTable";
@@ -36,9 +36,21 @@ export default function Issue() {
 
 	return (
 		<>
-			<PageHeader pageTitle={issue.title}>
+			<PageHeader
+				pageTitle={
+					<>
+						{issue.title}{" "}
+						<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
+							{issue.type}
+						</Badge>
+					</>
+				}
+			>
 				<div className="text-center">
 					<p>
+						<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
+							{issue.type}
+						</Badge>{" "}
 						in <Link to={"/projects/" + project.id}>{project.title}</Link>
 					</p>
 					<div className="mt-3">

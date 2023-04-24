@@ -34,7 +34,6 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 				<tr>
 					<th>Title</th>
 					{!projectId && <th>Project</th>}
-					<th>Type</th>
 					<th>Importance</th>
 					<th>Urgency</th>
 					<th>Estimated time</th>
@@ -59,7 +58,10 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 				{issues.map((issue) => (
 					<tr key={issue.id}>
 						<td>
-							<Link to={"/issues/" + issue.id}>{issue.title}</Link>
+							<Link to={"/issues/" + issue.id}>{issue.title}</Link>{" "}
+							<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
+								{issue.type}
+							</Badge>
 						</td>
 						{!projectId && (
 							<td>
@@ -68,9 +70,6 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								</Link>
 							</td>
 						)}
-						<td className={issue.type === "bug" ? "text-danger" : ""}>
-							{issue.type}
-						</td>
 						<td>
 							<Badge
 								bg={

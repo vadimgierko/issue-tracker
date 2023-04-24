@@ -15,7 +15,6 @@ export default function IssueTable({ issue }: IssueTableProps) {
 		<Table striped bordered hover responsive className="mt-3" variant={theme}>
 			<thead>
 				<tr>
-					<th>Type</th>
 					<th>Importance</th>
 					<th>Urgency</th>
 					<th>Estimated time</th>
@@ -28,9 +27,6 @@ export default function IssueTable({ issue }: IssueTableProps) {
 			</thead>
 			<tbody>
 				<tr key={issue.id}>
-					<td className={issue.type === "bug" ? "text-danger" : ""}>
-						{issue.type}
-					</td>
 					<td>
 						<Badge
 							bg={
