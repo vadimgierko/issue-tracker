@@ -9,9 +9,13 @@ import {
 	AiOutlineWarning,
 	AiOutlineSetting,
 } from "react-icons/ai";
+import useProjects from "../../context/useProjects";
+import useIssues from "../../context/useIssues";
 
 export default function Dashboard() {
-	const { user } = useUser();
+	const { user, firebaseUser } = useUser();
+	const { projects } = useProjects();
+	const { issues } = useIssues();
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	async function handleDeleteAccount() {
@@ -20,7 +24,7 @@ export default function Dashboard() {
 				"Are you sure you want to delete your account and all your data forever? This action can't be undone!"
 			);
 			if (agreeToDeleteAccount) {
-				await deleteUserAccount();
+				await deleteUserAccount(firebaseUser, projects, issues);
 			}
 		} catch (error: any) {
 			console.error(

@@ -51,7 +51,7 @@ export default function Project() {
 
 			<section className="project-issues">
 				<h2 className="text-center">
-					Issues ({issues.length}){" "}
+					Issues ({projectIssues.length}){" "}
 					<Link to="add-issue">
 						<AiOutlinePlusSquare />
 					</Link>
