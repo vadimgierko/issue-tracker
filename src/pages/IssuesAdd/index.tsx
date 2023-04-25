@@ -135,7 +135,7 @@ export default function IssuesAdd() {
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						{Issue.allowedTypes.map((type) => (
+						{Issue.allowedTypeValues.map((type) => (
 							<option value={type} key={type}>
 								{type}
 							</option>

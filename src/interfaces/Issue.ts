@@ -13,7 +13,7 @@ export namespace Issue {
 		| "refactor"
 		| "other";
 
-	export const allowedTypes: Type[] = [
+	export const allowedTypeValues: Type[] = [
 		"bug",
 		"feature request",
 		"improvement",
@@ -28,14 +28,24 @@ export namespace Issue {
 		"other",
 	];
 
-	// helper type:
+	//===================== helper type: ============================//
+
 	export type Level = "high" | "medium" | "low";
 	export const allowedLevels: Level[] = ["high", "medium", "low"];
 
+	//===============================================================//
+
 	export type Importance = Level;
+	export const allowedImportanceValues = allowedLevels;
+
 	export type Urgency = Level;
+	export const allowedUrgencyValues = allowedLevels;
+
 	export type EstimatedTime = Level;
+	export const allowedEstimatedTimeValues = allowedLevels;
+
 	export type Difficulty = Level;
+	export const allowedDifficultyValues = allowedLevels;
 
 	// NOTE:
 	// I will not use "closed" status, because it doesn't provide specific info;
@@ -88,7 +98,7 @@ export namespace Issue {
 		| "recently updated"
 		| "least recently updated";
 
-	export const allowedSortValues: SortValue[] = [
+	export const allowedSortValueValues: SortValue[] = [
 		"newest",
 		"oldest",
 		"recently updated",
@@ -102,9 +112,5 @@ export namespace Issue {
 		estimatedTime: EstimatedTime | "";
 		difficulty: Difficulty | "";
 		sortValue: SortValue;
-	}
-
-	export interface FilterData extends FilterFormData {
-		status: TableTabStatus | "";
 	}
 }
