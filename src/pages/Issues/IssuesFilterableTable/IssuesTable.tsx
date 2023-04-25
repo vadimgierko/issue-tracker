@@ -3,13 +3,13 @@ import Badge from "react-bootstrap/Badge";
 import { Link, useParams } from "react-router-dom";
 import useProjects from "../../../context/useProjects";
 import useTheme from "../../../context/useTheme";
-import { Issue, IssueStatus } from "../../../interfaces/Issue";
+import { Issue } from "../../../interfaces/Issue";
 import { BsTrash, BsPencilSquare } from "react-icons/bs";
 import getDate from "../../../lib/getDate";
 import useIssues from "../../../context/useIssues";
 
 type IssuesTableProps = {
-	issues: Issue[];
+	issues: Issue.Issue[];
 };
 
 export default function IssuesTable({ issues }: IssuesTableProps) {
@@ -19,9 +19,9 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 	const { deleteIssue } = useIssues();
 	// all issues have same status,
 	// because they are filtered by status via issue table tabs:
-	const issuesStatus: IssueStatus = issues[0].status; // needed for conditional rendering
+	const issuesStatus: Issue.Status = issues[0].status; // needed for conditional rendering
 
-	async function handleDeleteIssue(issue: Issue) {
+	async function handleDeleteIssue(issue: Issue.Issue) {
 		if (!issue) return alert("No issue was provided... Cannot delete issue.");
 
 		await deleteIssue(issue.id, issue.projectId);

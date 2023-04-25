@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Tab, Tabs } from "react-bootstrap";
-import { IssueTableTabStatus } from "../../../interfaces/Issue";
+import { Issue } from "../../../interfaces/Issue";
 import { BsThreeDots, BsExclamationSquare } from "react-icons/bs";
 import { AiOutlineCheck } from "react-icons/ai";
 
-const tableTabs: IssueTableTabStatus[] = [
+const tableTabs: Issue.TableTabStatus[] = [
 	"open",
 	"in progress",
 	"closed",
@@ -12,7 +12,7 @@ const tableTabs: IssueTableTabStatus[] = [
 ];
 
 type IssuesTableTabsProps = {
-	onTabSelect: React.Dispatch<React.SetStateAction<IssueTableTabStatus>>;
+	onTabSelect: React.Dispatch<React.SetStateAction<Issue.TableTabStatus>>;
 	filteredIssuesNumber: number;
 };
 
@@ -20,7 +20,7 @@ export default function IssuesTableTabs({
 	onTabSelect,
 	filteredIssuesNumber,
 }: IssuesTableTabsProps) {
-	const [activeTab, setActiveTab] = useState<IssueTableTabStatus>("open");
+	const [activeTab, setActiveTab] = useState<Issue.TableTabStatus>("open");
 
 	return (
 		<Tabs

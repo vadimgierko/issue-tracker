@@ -1,115 +1,110 @@
-export type IssueType =
-	| "bug"
-	| "feature request"
-	| "improvement"
-	| "question"
-	| "idea"
-	| "documentation"
-	| "suggestion"
-	| "test"
-	| "security"
-	| "dependencies"
-	| "refactor"
-	| "other";
+export namespace Issue {
+	export type Type =
+		| "bug"
+		| "feature request"
+		| "improvement"
+		| "question"
+		| "idea"
+		| "documentation"
+		| "suggestion"
+		| "test"
+		| "security"
+		| "dependencies"
+		| "refactor"
+		| "other";
 
-export const issueTypes: IssueType[] = [
-	"bug",
-	"feature request",
-	"improvement",
-	"question",
-	"idea",
-	"documentation",
-	"suggestion",
-	"test",
-	"security",
-	"dependencies",
-	"refactor",
-	"other",
-];
+	export const allowedTypes: Type[] = [
+		"bug",
+		"feature request",
+		"improvement",
+		"question",
+		"idea",
+		"documentation",
+		"suggestion",
+		"test",
+		"security",
+		"dependencies",
+		"refactor",
+		"other",
+	];
 
-export type IssueImportance = "high" | "medium" | "low";
-export const issueImportance: IssueImportance[] = ["high", "medium", "low"];
+	// helper type:
+	export type Level = "high" | "medium" | "low";
+	export const allowedLevels: Level[] = ["high", "medium", "low"];
 
-export type IssueUrgency = "high" | "medium" | "low";
-export const issueUrgency: IssueUrgency[] = ["high", "medium", "low"];
+	export type Importance = Level;
+	export type Urgency = Level;
+	export type EstimatedTime = Level;
+	export type Difficulty = Level;
 
-export type IssueEstimatedTime = "high" | "medium" | "low";
-export const issueEstimatedTime: IssueEstimatedTime[] = [
-	"high",
-	"medium",
-	"low",
-];
+	// NOTE:
+	// I will not use "closed" status, because it doesn't provide specific info;
+	// Instead all not "open" & not "in progress" issues are closed
+	// if we select "closed" tab in issue table (see IssueTableTabStatus type below)
+	export type Status =
+		| "open"
+		| "in progress"
+		| "resolved"
+		| "abandoned"
+		| "won't fix";
 
-export type IssueDifficulty = "high" | "medium" | "low";
-export const issueDifficulty: IssueDifficulty[] = ["high", "medium", "low"];
+	export const allowedStatuses: Status[] = [
+		"open",
+		"in progress",
+		"resolved",
+		"abandoned",
+		"won't fix",
+	];
 
-// NOTE:
-// I will not use "closed" status, because it doesn't provide specific info;
-// Instead all not "open" & not "in progress" issues are closed
-// if we select "closed" tab in issue table (see IssueTableTabStatus type below)
-export type IssueStatus =
-	| "open"
-	| "in progress"
-	| "resolved"
-	| "abandoned"
-	| "won't fix";
+	// IssueTableTabStatus is used to filter issues after selecting a tab in issue table,
+	// so IssueTableTabStatus is the name of each possible tab,
+	// where "closed" means all not "open" & not "in progress" issues:
+	export type TableTabStatus = "open" | "in progress" | "closed" | "all";
 
-export const issueStatuses: IssueStatus[] = [
-	"open",
-	"in progress",
-	"resolved",
-	"abandoned",
-	"won't fix",
-];
+	export interface Data {
+		projectId: string;
+		title: string;
+		description: string;
+		type: Type;
+		urgency: Urgency;
+		importance: Importance;
+		estimatedTime: EstimatedTime;
+		difficulty: Difficulty;
+		status: Status;
+	}
 
-// IssueTableTabStatus is used to filter issues after selecting a tab in issue table,
-// so IssueTableTabStatus is the name of each possible tab,
-// where "closed" means all not "open" & not "in progress" issues:
-export type IssueTableTabStatus = "open" | "in progress" | "closed" | "all";
+	export interface Issue extends Data {
+		id: string;
+		authorId: string;
+		created: number;
+		updated: number;
+		inProgressFrom: number | null;
+		closedAt: number | null;
+	}
 
-export interface IssueData {
-	projectId: string;
-	title: string;
-	description: string;
-	type: IssueType;
-	urgency: IssueUrgency;
-	importance: IssueImportance;
-	estimatedTime: IssueEstimatedTime;
-	difficulty: IssueDifficulty;
-	status: IssueStatus;
-}
+	export type SortValue =
+		| "newest"
+		| "oldest"
+		| "recently updated"
+		| "least recently updated";
 
-export interface Issue extends IssueData {
-	id: string;
-	authorId: string;
-	created: number;
-	updated: number;
-	inProgressFrom: number | null;
-	closedAt: number | null;
-}
+	export const allowedSortValues: SortValue[] = [
+		"newest",
+		"oldest",
+		"recently updated",
+		"least recently updated",
+	];
 
-export type SortValue =
-	| "newest"
-	| "oldest"
-	| "recently updated"
-	| "least recently updated";
+	export interface FilterFormData {
+		type: Type | "";
+		urgency: Urgency | "";
+		importance: Importance | "";
+		estimatedTime: EstimatedTime | "";
+		difficulty: Difficulty | "";
+		sortValue: SortValue;
+	}
 
-export const allowedSortValues: SortValue[] = [
-	"newest",
-	"oldest",
-	"recently updated",
-	"least recently updated",
-];
-
-export interface IssuesFilterFormData {
-	type: IssueType | "";
-	urgency: IssueUrgency | "";
-	importance: IssueImportance | "";
-	estimatedTime: IssueEstimatedTime | "";
-	difficulty: IssueDifficulty | "";
-	sortValue: SortValue;
-}
-
-export interface IssuesFilterData extends IssuesFilterFormData {
-	status: IssueTableTabStatus | "";
+	export interface FilterData extends FilterFormData {
+		status: TableTabStatus | "";
+	}
 }

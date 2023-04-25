@@ -4,20 +4,7 @@ import PageHeader from "../../components/Layout/PageHeader";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
-import {
-	Issue,
-	IssueDifficulty,
-	IssueEstimatedTime,
-	IssueImportance,
-	IssueStatus,
-	IssueType,
-	IssueUrgency,
-	issueDifficulty,
-	issueEstimatedTime,
-	issueImportance,
-	issueStatuses,
-	issueTypes,
-} from "../../interfaces/Issue";
+import { Issue } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
 import { useState, useEffect } from "react";
 import logError from "../../lib/logError";
@@ -30,7 +17,7 @@ export default function IssuesEdit() {
 	const { issueId } = useParams();
 	const { issues, updateIssue } = useIssues();
 	const issueToUpdate = issues.find((i) => i.id === issueId);
-	const [updatedIssue, setUpdatedIssue] = useState<Issue | null>(null);
+	const [updatedIssue, setUpdatedIssue] = useState<Issue.Issue | null>(null);
 	const { projects } = useProjects();
 
 	async function handleIssueUpdate(e: React.FormEvent<HTMLFormElement>) {
@@ -123,7 +110,7 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								type: e.target.value as IssueType,
+								type: e.target.value as Issue.Type,
 							})
 						}
 						style={{
@@ -131,7 +118,7 @@ export default function IssuesEdit() {
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						{issueTypes.map((type) => (
+						{Issue.allowedTypes.map((type) => (
 							<option value={type} key={type}>
 								{type}
 							</option>
@@ -149,13 +136,13 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								importance: e.target.value as IssueImportance,
+								importance: e.target.value as Issue.Importance,
 							})
 						}
 					>
-						{issueImportance.map((importance) => (
-							<option value={importance} key={"importance-" + importance}>
-								{importance}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"importance-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -171,13 +158,13 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								urgency: e.target.value as IssueUrgency,
+								urgency: e.target.value as Issue.Urgency,
 							})
 						}
 					>
-						{issueImportance.map((urgency) => (
-							<option value={urgency} key={"urgency-" + urgency}>
-								{urgency}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"urgency-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -193,17 +180,14 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								estimatedTime: e.target.value as IssueEstimatedTime,
+								estimatedTime: e.target.value as Issue.EstimatedTime,
 							})
 						}
 					>
 						<option value="">Estimated time</option>
-						{issueEstimatedTime.map((estimatedTime) => (
-							<option
-								value={estimatedTime}
-								key={"estimated-time-" + estimatedTime}
-							>
-								{estimatedTime}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"estimated-time-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -219,14 +203,14 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								difficulty: e.target.value as IssueDifficulty,
+								difficulty: e.target.value as Issue.Difficulty,
 							})
 						}
 					>
 						<option value="">Difficulty</option>
-						{issueDifficulty.map((difficulty) => (
-							<option value={difficulty} key={"difficulty-" + difficulty}>
-								{difficulty}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"difficulty-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -242,13 +226,13 @@ export default function IssuesEdit() {
 						onChange={(e) =>
 							setUpdatedIssue({
 								...updatedIssue,
-								status: e.target.value as IssueStatus,
+								status: e.target.value as Issue.Status,
 							})
 						}
 					>
-						{issueStatuses.map((status) => (
-							<option value={status} key={status}>
-								{status}
+						{Issue.allowedStatuses.map((level) => (
+							<option value={level} key={"status-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>

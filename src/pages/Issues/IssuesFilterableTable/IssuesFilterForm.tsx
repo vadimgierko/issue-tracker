@@ -1,25 +1,11 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
-import {
-	IssueDifficulty,
-	IssueEstimatedTime,
-	IssueImportance,
-	IssueType,
-	IssueUrgency,
-	IssuesFilterFormData,
-	SortValue,
-	allowedSortValues,
-	issueDifficulty,
-	issueEstimatedTime,
-	issueImportance,
-	issueTypes,
-	issueUrgency,
-} from "../../../interfaces/Issue";
+import { Issue } from "../../../interfaces/Issue";
 import useTheme from "../../../context/useTheme";
 import { MdOutlineCancel } from "react-icons/md";
 
 type IssuesFilterFormProps = {
-	filterFormData: IssuesFilterFormData;
-	setFilterFormData: React.Dispatch<React.SetStateAction<IssuesFilterFormData>>;
+	filterFormData: Issue.FilterFormData;
+	setFilterFormData: React.Dispatch<React.SetStateAction<Issue.FilterFormData>>;
 	resetFilterFormData: () => void;
 };
 
@@ -42,7 +28,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								type: e.target.value as IssueType,
+								type: e.target.value as Issue.Type,
 							})
 						}
 						style={{
@@ -52,7 +38,7 @@ export default function IssuesFilterForm({
 					>
 						<option value="">Type</option>
 
-						{issueTypes.map((type) => (
+						{Issue.allowedTypes.map((type) => (
 							<option value={type} key={type}>
 								{type}
 							</option>
@@ -66,7 +52,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								urgency: e.target.value as IssueUrgency,
+								urgency: e.target.value as Issue.Urgency,
 							})
 						}
 						style={{
@@ -76,9 +62,9 @@ export default function IssuesFilterForm({
 					>
 						<option value="">Urgency</option>
 
-						{issueUrgency.map((urgency) => (
-							<option value={urgency} key={"urgency-" + urgency}>
-								{urgency}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"urgency-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -90,7 +76,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								importance: e.target.value as IssueImportance,
+								importance: e.target.value as Issue.Importance,
 							})
 						}
 						style={{
@@ -100,9 +86,9 @@ export default function IssuesFilterForm({
 					>
 						<option value="">Importance</option>
 
-						{issueImportance.map((importance) => (
-							<option value={importance} key={"importance-" + importance}>
-								{importance}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"importance-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -114,7 +100,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								estimatedTime: e.target.value as IssueEstimatedTime,
+								estimatedTime: e.target.value as Issue.EstimatedTime,
 							})
 						}
 						style={{
@@ -124,12 +110,9 @@ export default function IssuesFilterForm({
 					>
 						<option value="">Estimated time</option>
 
-						{issueEstimatedTime.map((estimatedTime) => (
-							<option
-								value={estimatedTime}
-								key={"estimated-time-" + estimatedTime}
-							>
-								{estimatedTime}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"estimated-time-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -141,7 +124,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								difficulty: e.target.value as IssueDifficulty,
+								difficulty: e.target.value as Issue.Difficulty,
 							})
 						}
 						style={{
@@ -151,12 +134,9 @@ export default function IssuesFilterForm({
 					>
 						<option value="">Difficulty</option>
 
-						{issueDifficulty.map((issueDifficulty) => (
-							<option
-								value={issueDifficulty}
-								key={"difficulty-" + issueDifficulty}
-							>
-								{issueDifficulty}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"difficulty-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -168,7 +148,7 @@ export default function IssuesFilterForm({
 						onChange={(e) =>
 							setFilterFormData({
 								...filterFormData,
-								sortValue: e.target.value as SortValue,
+								sortValue: e.target.value as Issue.SortValue,
 							})
 						}
 						style={{
@@ -176,7 +156,7 @@ export default function IssuesFilterForm({
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						{allowedSortValues.map((sortValue) => (
+						{Issue.allowedSortValues.map((sortValue) => (
 							<option value={sortValue} key={"sort-value-" + sortValue}>
 								{sortValue}
 							</option>

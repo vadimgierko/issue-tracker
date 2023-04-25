@@ -11,7 +11,7 @@ import {
 	User as FirebaseUser,
 	UserCredential,
 } from "firebase/auth";
-import { deleteDocument, updateDocument } from "../firestore-crud";
+import { updateDocument } from "../firestore-crud";
 import { User } from "../../interfaces/User";
 import { doc, writeBatch } from "firebase/firestore";
 import logError from "../../lib/logError";
@@ -227,7 +227,7 @@ async function changeEmail(
 async function deleteUserAccount(
 	authUser: FirebaseUser | null = auth.currentUser,
 	deletedUserProjects: Project[],
-	deletedUserIssues: Issue[]
+	deletedUserIssues: Issue.Issue[]
 ): Promise<void> {
 	try {
 		if (!authUser) {

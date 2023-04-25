@@ -5,7 +5,7 @@ import useTheme from "../../context/useTheme";
 import getDate from "../../lib/getDate";
 
 type IssueTableProps = {
-	issue: Issue;
+	issue: Issue.Issue;
 };
 
 export default function IssueTable({ issue }: IssueTableProps) {

@@ -4,26 +4,14 @@ import PageHeader from "../../components/Layout/PageHeader";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
-import {
-	IssueData,
-	IssueDifficulty,
-	IssueEstimatedTime,
-	IssueImportance,
-	IssueType,
-	IssueUrgency,
-	issueDifficulty,
-	issueEstimatedTime,
-	issueImportance,
-	issueTypes,
-	issueUrgency,
-} from "../../interfaces/Issue";
+import { Issue } from "../../interfaces/Issue";
 import useTheme from "../../context/useTheme";
 import { useState, useEffect } from "react";
 import logError from "../../lib/logError";
 import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 
-const emptyIssue: IssueData = {
+const emptyIssue: Issue.Data = {
 	projectId: "",
 	title: "",
 	description: "",
@@ -42,7 +30,7 @@ export default function IssuesAdd() {
 	// to set projectId in new issue:
 	const { projectId } = useParams();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<IssueData>(emptyIssue);
+	const [issueData, setIssueData] = useState<Issue.Data>(emptyIssue);
 	const { projects } = useProjects();
 	const { addIssue } = useIssues();
 
@@ -140,14 +128,14 @@ export default function IssuesAdd() {
 					<Form.Select
 						value={issueData.type}
 						onChange={(e) =>
-							setIssueData({ ...issueData, type: e.target.value as IssueType })
+							setIssueData({ ...issueData, type: e.target.value as Issue.Type })
 						}
 						style={{
 							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
 							color: theme === "light" ? "black" : "white",
 						}}
 					>
-						{issueTypes.map((type) => (
+						{Issue.allowedTypes.map((type) => (
 							<option value={type} key={type}>
 								{type}
 							</option>
@@ -165,13 +153,13 @@ export default function IssuesAdd() {
 						onChange={(e) =>
 							setIssueData({
 								...issueData,
-								importance: e.target.value as IssueImportance,
+								importance: e.target.value as Issue.Importance,
 							})
 						}
 					>
-						{issueImportance.map((importance) => (
-							<option value={importance} key={"importance-" + importance}>
-								{importance}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"importance-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -187,13 +175,13 @@ export default function IssuesAdd() {
 						onChange={(e) =>
 							setIssueData({
 								...issueData,
-								urgency: e.target.value as IssueUrgency,
+								urgency: e.target.value as Issue.Urgency,
 							})
 						}
 					>
-						{issueUrgency.map((urgency) => (
-							<option value={urgency} key={"urgency-" + urgency}>
-								{urgency}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"urgency-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -209,16 +197,13 @@ export default function IssuesAdd() {
 						onChange={(e) =>
 							setIssueData({
 								...issueData,
-								estimatedTime: e.target.value as IssueEstimatedTime,
+								estimatedTime: e.target.value as Issue.EstimatedTime,
 							})
 						}
 					>
-						{issueEstimatedTime.map((estimatedTime) => (
-							<option
-								value={estimatedTime}
-								key={"estimated-time-" + estimatedTime}
-							>
-								{estimatedTime}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"estimated-time-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>
@@ -234,13 +219,13 @@ export default function IssuesAdd() {
 						onChange={(e) =>
 							setIssueData({
 								...issueData,
-								difficulty: e.target.value as IssueDifficulty,
+								difficulty: e.target.value as Issue.Difficulty,
 							})
 						}
 					>
-						{issueDifficulty.map((difficulty) => (
-							<option value={difficulty} key={"difficulty-" + difficulty}>
-								{difficulty}
+						{Issue.allowedLevels.map((level) => (
+							<option value={level} key={"difficulty-" + level}>
+								{level}
 							</option>
 						))}
 					</Form.Select>

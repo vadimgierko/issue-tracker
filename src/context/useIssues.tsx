@@ -10,15 +10,15 @@ import {
 	arrayRemove,
 } from "firebase/firestore";
 import useUser from "./useUser";
-import { Issue, IssueData } from "../interfaces/Issue";
+import { Issue } from "../interfaces/Issue";
 import logError from "../lib/logError";
 
 const IsuesContext = createContext<{
-	issues: Issue[];
-	setIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
+	issues: Issue.Issue[];
+	setIssues: React.Dispatch<React.SetStateAction<Issue.Issue[]>>;
 	loading: boolean;
-	addIssue: (issueData: IssueData, projectId: string) => Promise<string>;
-	updateIssue: (updatedIssue: Issue) => Promise<void>;
+	addIssue: (issueData: Issue.Data, projectId: string) => Promise<string>;
+	updateIssue: (updatedIssue: Issue.Issue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
 } | null>(null);
 
@@ -37,7 +37,7 @@ type IssuesProviderProps = {
 };
 
 export function IssuesProvider({ children }: IssuesProviderProps) {
-	const [issues, setIssues] = useState<Issue[]>([]);
+	const [issues, setIssues] = useState<Issue.Issue[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
 
@@ -48,7 +48,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	 * @returns The new issue ID.
 	 */
 	async function addIssue(
-		issueData: IssueData,
+		issueData: Issue.Data,
 		projectId: string
 	): Promise<string> {
 		if (!user || !user.uid) {
@@ -62,7 +62,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 			const creationTime = Date.now();
 			// complete issue document object with authorId & project id:
-			const newIssue: Issue = {
+			const newIssue: Issue.Issue = {
 				...issueData,
 				authorId: user.uid,
 				projectId,
@@ -110,7 +110,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	/**
 	 * Updates issue and adds update time automatically.
 	 */
-	async function updateIssue(updatedIssue: Issue) {
+	async function updateIssue(updatedIssue: Issue.Issue) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
 		// we need to update it only there
@@ -121,7 +121,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id);
 			const updateTime = Date.now();
 
-			const updatedIssueWithAdditionalUpdates: Issue = {
+			const updatedIssueWithAdditionalUpdates: Issue.Issue = {
 				...updatedIssue,
 				updated: updateTime,
 				inProgressFrom: issueBeforeUpdates?.inProgressFrom
@@ -234,7 +234,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 							const docRef = doc(firestore, "issues", issueId);
 							const docSnap = await getDoc(docRef);
 							if (docSnap.exists()) {
-								return docSnap.data() as Issue;
+								return docSnap.data() as Issue.Issue;
 							}
 						})
 					);
@@ -242,7 +242,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 					if (fetchedUserIssues) {
 						const filteredIssues = fetchedUserIssues.filter(
 							(issue) => issue !== undefined
-						) as Issue[];
+						) as Issue.Issue[];
 						setIssues(filteredIssues);
 					}
 				} else {

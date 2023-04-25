@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
-import {
-	Issue,
-	IssueTableTabStatus,
-	IssuesFilterFormData,
-} from "../../../interfaces/Issue";
+import { Issue } from "../../../interfaces/Issue";
 import IssuesFilterForm from "./IssuesFilterForm";
 import IssuesTable from "./IssuesTable";
 import IssuesTableTabs from "./IssuesTableTabs";
 
 type IssuesFilterableTableProps = {
-	issues: Issue[];
+	issues: Issue.Issue[];
 };
 
-const initFilterFormData: IssuesFilterFormData = {
+const initFilterFormData: Issue.FilterFormData = {
 	type: "",
 	urgency: "",
 	importance: "",
@@ -25,10 +21,10 @@ export default function IssuesFilterableTable({
 	issues,
 }: IssuesFilterableTableProps) {
 	const [filterFormData, setFilterFormData] =
-		useState<IssuesFilterFormData>(initFilterFormData);
-	const [status, setStatus] = useState<IssueTableTabStatus>("open");
+		useState<Issue.FilterFormData>(initFilterFormData);
+	const [status, setStatus] = useState<Issue.TableTabStatus>("open");
 
-	const [filteredIssues, setFilteredIssues] = useState<Issue[] | []>([]);
+	const [filteredIssues, setFilteredIssues] = useState<Issue.Issue[] | []>([]);
 
 	function NoFilteredIssues() {
 		return (
@@ -40,8 +36,8 @@ export default function IssuesFilterableTable({
 
 	useEffect(() => {
 		function filterAndSortIssues(
-			filterFormData: IssuesFilterFormData,
-			status: IssueTableTabStatus
+			filterFormData: Issue.FilterFormData,
+			status: Issue.TableTabStatus
 		) {
 			// filter issues:
 			const filteredItems = issues.filter((i) => {
