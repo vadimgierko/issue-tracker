@@ -12,7 +12,7 @@ const tableTabs: IssueTableTabStatus[] = [
 ];
 
 type IssuesTableTabsProps = {
-	onTabSelect: (selectedTab: IssueTableTabStatus) => void;
+	onTabSelect: React.Dispatch<React.SetStateAction<IssueTableTabStatus>>;
 	filteredIssuesNumber: number;
 };
 

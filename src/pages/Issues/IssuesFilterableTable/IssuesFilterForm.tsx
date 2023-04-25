@@ -6,46 +6,32 @@ import {
 	IssueType,
 	IssueUrgency,
 	IssuesFilterFormData,
+	SortValue,
+	allowedSortValues,
 	issueDifficulty,
 	issueEstimatedTime,
 	issueImportance,
 	issueTypes,
 	issueUrgency,
 } from "../../../interfaces/Issue";
-import { useState } from "react";
 import useTheme from "../../../context/useTheme";
-import { AiOutlineSearch } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
 
 type IssuesFilterFormProps = {
-	onSubmit: (filterFormData: IssuesFilterFormData) => void;
+	filterFormData: IssuesFilterFormData;
+	setFilterFormData: React.Dispatch<React.SetStateAction<IssuesFilterFormData>>;
+	resetFilterFormData: () => void;
 };
 
-const initFilterFormData: IssuesFilterFormData = {
-	type: "",
-	urgency: "",
-	importance: "",
-	estimatedTime: "",
-	difficulty: "",
-};
-
-export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
+export default function IssuesFilterForm({
+	filterFormData,
+	setFilterFormData,
+	resetFilterFormData,
+}: IssuesFilterFormProps) {
 	const { theme } = useTheme();
-	const [filterFormData, setFilterFormData] =
-		useState<IssuesFilterFormData>(initFilterFormData);
-
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		onSubmit(filterFormData);
-	}
-
-	function handleReset() {
-		setFilterFormData(initFilterFormData);
-		onSubmit(initFilterFormData);
-	}
 
 	return (
-		<Form onSubmit={handleSubmit}>
+		<Form>
 			<Row
 				className="justify-content-md-center justify-content-xs-start"
 				xs="auto"
@@ -177,13 +163,33 @@ export default function IssuesFilterForm({ onSubmit }: IssuesFilterFormProps) {
 				</Col>
 
 				<Col className="mb-2">
-					<Button variant="primary" type="submit">
-						<AiOutlineSearch />
-					</Button>
+					<Form.Select
+						value={filterFormData.sortValue}
+						onChange={(e) =>
+							setFilterFormData({
+								...filterFormData,
+								sortValue: e.target.value as SortValue,
+							})
+						}
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
+						{allowedSortValues.map((sortValue) => (
+							<option value={sortValue} key={"sort-value-" + sortValue}>
+								{sortValue}
+							</option>
+						))}
+					</Form.Select>
 				</Col>
 
 				<Col className="mb-2">
-					<Button variant="secondary" type="button" onClick={handleReset}>
+					<Button
+						variant="secondary"
+						type="button"
+						onClick={resetFilterFormData}
+					>
 						<MdOutlineCancel />
 					</Button>
 				</Col>

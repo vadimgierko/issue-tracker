@@ -1,30 +1,34 @@
 import { useEffect, useState } from "react";
-import { Issue, IssuesFilterData } from "../../../interfaces/Issue";
+import {
+	Issue,
+	IssueTableTabStatus,
+	IssuesFilterFormData,
+} from "../../../interfaces/Issue";
 import IssuesFilterForm from "./IssuesFilterForm";
 import IssuesTable from "./IssuesTable";
 import IssuesTableTabs from "./IssuesTableTabs";
-import IssuesSortForm, { SortValue } from "./IssuesSortForm";
 
 type IssuesFilterableTableProps = {
 	issues: Issue[];
 };
 
-const initFilterData: IssuesFilterData = {
+const initFilterFormData: IssuesFilterFormData = {
 	type: "",
-	status: "open",
 	urgency: "",
 	importance: "",
 	estimatedTime: "",
 	difficulty: "",
+	sortValue: "recently updated",
 };
 
 export default function IssuesFilterableTable({
 	issues,
 }: IssuesFilterableTableProps) {
-	const [filterData, setFilterData] =
-		useState<IssuesFilterData>(initFilterData);
+	const [filterFormData, setFilterFormData] =
+		useState<IssuesFilterFormData>(initFilterFormData);
+	const [status, setStatus] = useState<IssueTableTabStatus>("open");
+
 	const [filteredIssues, setFilteredIssues] = useState<Issue[] | []>([]);
-	const [sortValue, setSortValue] = useState<SortValue>("recently updated");
 
 	function NoFilteredIssues() {
 		return (
@@ -35,57 +39,58 @@ export default function IssuesFilterableTable({
 	}
 
 	useEffect(() => {
-		function filterIssues(filterData: IssuesFilterData) {
+		function filterAndSortIssues(
+			filterFormData: IssuesFilterFormData,
+			status: IssueTableTabStatus
+		) {
+			// filter issues:
 			const filteredItems = issues.filter((i) => {
 				return (
-					(!filterData.estimatedTime ||
-						i.estimatedTime === filterData.estimatedTime) &&
-					(!filterData.difficulty || i.difficulty === filterData.difficulty) &&
-					(!filterData.importance || i.importance === filterData.importance) &&
-					(!filterData.urgency || i.urgency === filterData.urgency) &&
-					(!filterData.type || i.type === filterData.type) &&
-					(filterData.status === "all" ||
-						(i.status === "open" && filterData.status === "open") ||
-						(i.status === "in progress" &&
-							filterData.status === "in progress") ||
+					(!filterFormData.estimatedTime ||
+						i.estimatedTime === filterFormData.estimatedTime) &&
+					(!filterFormData.difficulty ||
+						i.difficulty === filterFormData.difficulty) &&
+					(!filterFormData.importance ||
+						i.importance === filterFormData.importance) &&
+					(!filterFormData.urgency || i.urgency === filterFormData.urgency) &&
+					(!filterFormData.type || i.type === filterFormData.type) &&
+					(status === "all" ||
+						(i.status === "open" && status === "open") ||
+						(i.status === "in progress" && status === "in progress") ||
 						((i.status === "abandoned" ||
 							i.status === "resolved" ||
 							i.status === "won't fix") &&
-							filterData.status === "closed"))
+							status === "closed"))
 				);
 			});
 
 			// sort issues:
-			if (sortValue === "recently updated") {
+			if (filterFormData.sortValue === "recently updated") {
 				filteredItems.sort((a, b) => b.updated - a.updated);
-			} else if (sortValue === "least recently updated") {
+			} else if (filterFormData.sortValue === "least recently updated") {
 				filteredItems.sort((a, b) => a.updated - b.updated);
-			} else if (sortValue === "newest") {
+			} else if (filterFormData.sortValue === "newest") {
 				filteredItems.sort((a, b) => b.created - a.created);
-			} else if (sortValue === "oldest") {
+			} else if (filterFormData.sortValue === "oldest") {
 				filteredItems.sort((a, b) => a.updated - b.updated);
 			}
 
 			setFilteredIssues(filteredItems);
 		}
 
-		filterIssues(filterData);
-	}, [filterData, issues, sortValue]);
+		filterAndSortIssues(filterFormData, status);
+	}, [filterFormData, issues, status]);
 
 	return (
 		<>
 			<IssuesFilterForm
-				onSubmit={(filterFormData) =>
-					setFilterData({ ...filterData, ...filterFormData })
-				}
+				filterFormData={filterFormData}
+				setFilterFormData={setFilterFormData}
+				resetFilterFormData={() => setFilterFormData(initFilterFormData)}
 			/>
 
-			<IssuesSortForm onChange={setSortValue} />
-
 			<IssuesTableTabs
-				onTabSelect={(selectedTab) =>
-					setFilterData({ ...filterData, status: selectedTab })
-				}
+				onTabSelect={setStatus}
 				filteredIssuesNumber={filteredIssues.length}
 			/>
 
