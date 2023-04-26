@@ -23,7 +23,7 @@ export default function IssuesFilterForm({
 				xs="auto"
 			>
 				{Object.keys(filterFormData).map((key) => (
-					<Col className="mb-2">
+					<Col className="mb-2" key={key}>
 						<Form.Select
 							value={filterFormData[key as keyof Issue.FilterFormData]}
 							onChange={(e) =>

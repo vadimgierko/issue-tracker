@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import logError from "../../lib/logError";
 import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
+import { Col, Row } from "react-bootstrap";
 
 export default function IssuesEdit() {
 	const { theme } = useTheme();
@@ -104,139 +105,161 @@ export default function IssuesEdit() {
 					required={false}
 				/>
 
-				<FloatingLabel label="Issue type" className="mb-3">
-					<Form.Select
-						value={updatedIssue.type}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								type: e.target.value as Issue.Type,
-							})
-						}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-					>
-						{Issue.allowedTypeValues.map((type) => (
-							<option value={type} key={type}>
-								{type}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+				<Row>
+					<Col xs={12} md="auto" className="mb-2">
+						<FloatingLabel label="type" className="mb-3">
+							<Form.Select
+								value={updatedIssue.type}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										type: e.target.value as Issue.Type,
+									})
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+							>
+								{Issue.allowedTypeValues.map((type) => (
+									<option value={type} key={type}>
+										{type}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
 
-				<FloatingLabel label="Issue importance" className="mb-3">
-					<Form.Select
-						value={updatedIssue.importance}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								importance: e.target.value as Issue.Importance,
-							})
-						}
-					>
-						{Issue.allowedLevels.map((level) => (
-							<option value={level} key={"importance-" + level}>
-								{level}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="importance" className="mb-3">
+							<Form.Select
+								value={updatedIssue.importance}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										importance: e.target.value as Issue.Importance,
+									})
+								}
+							>
+								{Issue.allowedLevels.map((level) => (
+									<option value={level} key={"importance-" + level}>
+										{level}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
 
-				<FloatingLabel label="Issue urgency" className="mb-3">
-					<Form.Select
-						value={updatedIssue.urgency}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								urgency: e.target.value as Issue.Urgency,
-							})
-						}
-					>
-						{Issue.allowedLevels.map((level) => (
-							<option value={level} key={"urgency-" + level}>
-								{level}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="urgency" className="mb-3">
+							<Form.Select
+								value={updatedIssue.urgency}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										urgency: e.target.value as Issue.Urgency,
+									})
+								}
+							>
+								{Issue.allowedLevels.map((level) => (
+									<option value={level} key={"urgency-" + level}>
+										{level}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
 
-				<FloatingLabel label="Issue estimated time" className="mb-3">
-					<Form.Select
-						value={updatedIssue.estimatedTime ? updatedIssue.estimatedTime : ""}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								estimatedTime: e.target.value as Issue.EstimatedTime,
-							})
-						}
-					>
-						<option value="">Estimated time</option>
-						{Issue.allowedLevels.map((level) => (
-							<option value={level} key={"estimated-time-" + level}>
-								{level}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="estimated time" className="mb-3">
+							<Form.Select
+								value={
+									updatedIssue.estimatedTime ? updatedIssue.estimatedTime : ""
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										estimatedTime: e.target.value as Issue.EstimatedTime,
+									})
+								}
+							>
+								<option value="">Estimated time</option>
+								{Issue.allowedLevels.map((level) => (
+									<option value={level} key={"estimated-time-" + level}>
+										{level}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
 
-				<FloatingLabel label="Issue difficulty" className="mb-3">
-					<Form.Select
-						value={updatedIssue.difficulty ? updatedIssue.difficulty : ""}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								difficulty: e.target.value as Issue.Difficulty,
-							})
-						}
-					>
-						<option value="">Difficulty</option>
-						{Issue.allowedLevels.map((level) => (
-							<option value={level} key={"difficulty-" + level}>
-								{level}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="difficulty" className="mb-3">
+							<Form.Select
+								value={updatedIssue.difficulty ? updatedIssue.difficulty : ""}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										difficulty: e.target.value as Issue.Difficulty,
+									})
+								}
+							>
+								<option value="">Difficulty</option>
+								{Issue.allowedLevels.map((level) => (
+									<option value={level} key={"difficulty-" + level}>
+										{level}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
 
-				<FloatingLabel label="Issue status" className="mb-3">
-					<Form.Select
-						value={updatedIssue.status}
-						style={{
-							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-							color: theme === "light" ? "black" : "white",
-						}}
-						onChange={(e) =>
-							setUpdatedIssue({
-								...updatedIssue,
-								status: e.target.value as Issue.Status,
-							})
-						}
-					>
-						{Issue.allowedStatuses.map((level) => (
-							<option value={level} key={"status-" + level}>
-								{level}
-							</option>
-						))}
-					</Form.Select>
-				</FloatingLabel>
+					<Col xs={12} md="auto" className="mb-2">
+						<FloatingLabel label="status" className="mb-3">
+							<Form.Select
+								value={updatedIssue.status}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										status: e.target.value as Issue.Status,
+									})
+								}
+							>
+								{Issue.allowedStatuses.map((level) => (
+									<option value={level} key={"status-" + level}>
+										{level}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
+				</Row>
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">

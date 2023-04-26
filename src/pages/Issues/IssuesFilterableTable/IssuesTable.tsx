@@ -38,14 +38,14 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<th>Urgency</th>
 					<th>Estimated time</th>
 					<th>Difficulty</th>
-					{issuesStatus === "open" && <th>Opened</th>}
+					{/* {issuesStatus === "open" && <th>Opened</th>}
 					{issuesStatus === "in progress" && <th>In progress from</th>}
 					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
 						<th>Closed</th>
 					)}
 					{(issuesStatus === "open" || issuesStatus === "in progress") && (
 						<th>Updated</th>
-					)}
+					)} */}
 					<th>
 						<BsPencilSquare />
 					</th>
@@ -62,6 +62,16 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 							<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
 								{issue.type}
 							</Badge>
+							<br />
+							<span className="text-muted">
+								{issuesStatus === "open"
+									? "opened at " + getDate(issue.created)
+									: issue.inProgressFrom && issuesStatus === "in progress"
+									? "in progress from " + getDate(issue.inProgressFrom)
+									: issue.closedAt
+									? "closed at " + getDate(issue.closedAt)
+									: ""}
+							</span>
 						</td>
 						{!projectId && (
 							<td>
@@ -126,12 +136,12 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								{issue.difficulty}
 							</Badge>
 						</td>
-						{issuesStatus === "open" && <td>{getDate(issue.created)}</td>}
+						{/* {issuesStatus === "open" && <td>{getDate(issue.created)}</td>}
 						{issue.inProgressFrom && issuesStatus === "in progress" && (
 							<td>{getDate(issue.inProgressFrom)}</td>
 						)}
 						{issue.closedAt && <td>{getDate(issue.closedAt)}</td>}
-						{!issue.closedAt && <td>{getDate(issue.updated)}</td>}
+						{!issue.closedAt && <td>{getDate(issue.updated)}</td>} */}
 						<td>
 							<Link to={"/issues/" + issue.id + "/edit"}>
 								<BsPencilSquare />
