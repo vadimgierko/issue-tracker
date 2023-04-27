@@ -3,6 +3,7 @@ import { Issue } from "../../../interfaces/Issue";
 import IssuesFilterForm from "./IssuesFilterForm";
 import IssuesTable from "./IssuesTable";
 import IssuesTableTabs from "./IssuesTableTabs";
+import IssuesSortForm from "./IssuesSortForm";
 
 type IssuesFilterableTableProps = {
 	issues: Issue.Issue[];
@@ -14,7 +15,6 @@ const initFilterFormData: Issue.FilterFormData = {
 	importance: "",
 	estimatedTime: "",
 	difficulty: "",
-	sortValue: "recently updated",
 };
 
 export default function IssuesFilterableTable({
@@ -22,6 +22,8 @@ export default function IssuesFilterableTable({
 }: IssuesFilterableTableProps) {
 	const [filterFormData, setFilterFormData] =
 		useState<Issue.FilterFormData>(initFilterFormData);
+	const [sortValue, setSortValue] =
+		useState<Issue.SortValue>("recently updated");
 	const [status, setStatus] = useState<Issue.TableTabStatus>("open");
 
 	const [filteredIssues, setFilteredIssues] = useState<Issue.Issue[] | []>([]);
@@ -61,21 +63,82 @@ export default function IssuesFilterableTable({
 			});
 
 			// sort issues:
-			if (filterFormData.sortValue === "recently updated") {
-				filteredItems.sort((a, b) => b.updated - a.updated);
-			} else if (filterFormData.sortValue === "least recently updated") {
-				filteredItems.sort((a, b) => a.updated - b.updated);
-			} else if (filterFormData.sortValue === "newest") {
-				filteredItems.sort((a, b) => b.created - a.created);
-			} else if (filterFormData.sortValue === "oldest") {
-				filteredItems.sort((a, b) => a.updated - b.updated);
+			const levelsOrder: Issue.Level[] = ["high", "medium", "low"];
+
+			function sortIssuesByValue(
+				issues: Issue.Issue[],
+				sortValue: Issue.SortValue
+			): Issue.Issue[] {
+				switch (sortValue) {
+					case "newest":
+						return issues.sort((a, b) => b.created - a.created);
+					case "oldest":
+						return issues.sort((a, b) => a.created - b.created);
+					case "recently updated":
+						return issues.sort((a, b) => b.updated - a.updated);
+					case "least recently updated":
+						return issues.sort((a, b) => a.updated - b.updated);
+					case "most urgent":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(a.urgency) - levelsOrder.indexOf(b.urgency)
+						);
+					case "least urgent":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(b.urgency) - levelsOrder.indexOf(a.urgency)
+						);
+					case "most important":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(a.importance) -
+								levelsOrder.indexOf(b.importance)
+						);
+					case "least important":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(b.importance) -
+								levelsOrder.indexOf(a.importance)
+						);
+					case "need more time":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(a.estimatedTime) -
+								levelsOrder.indexOf(b.estimatedTime)
+						);
+					case "need less time":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(b.estimatedTime) -
+								levelsOrder.indexOf(a.estimatedTime)
+						);
+					case "most difficult":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(a.difficulty) -
+								levelsOrder.indexOf(b.difficulty)
+						);
+					case "less difficult":
+						return issues.sort(
+							(a, b) =>
+								levelsOrder.indexOf(b.difficulty) -
+								levelsOrder.indexOf(a.difficulty)
+						);
+					default:
+						throw new Error(`Invalid sort value: ${sortValue}`);
+				}
 			}
 
-			setFilteredIssues(filteredItems);
+			const filteredAndSortedIssues = sortIssuesByValue(
+				filteredItems,
+				sortValue
+			);
+
+			setFilteredIssues(filteredAndSortedIssues);
 		}
 
 		filterAndSortIssues(filterFormData, status);
-	}, [filterFormData, issues, status]);
+	}, [filterFormData, issues, status, sortValue]);
 
 	return (
 		<>
@@ -83,6 +146,14 @@ export default function IssuesFilterableTable({
 				filterFormData={filterFormData}
 				setFilterFormData={setFilterFormData}
 				resetFilterFormData={() => setFilterFormData(initFilterFormData)}
+			/>
+
+			<hr />
+
+			<IssuesSortForm
+				sortValue={sortValue}
+				setSortValue={setSortValue}
+				resetSortValue={() => setSortValue("recently updated")}
 			/>
 
 			<IssuesTableTabs
