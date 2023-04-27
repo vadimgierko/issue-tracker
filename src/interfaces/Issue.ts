@@ -96,13 +96,29 @@ export namespace Issue {
 		| "newest"
 		| "oldest"
 		| "recently updated"
-		| "least recently updated";
+		| "least recently updated"
+		| "most urgent"
+		| "least urgent"
+		| "most important"
+		| "least important"
+		| "need more time"
+		| "need less time"
+		| "most difficult"
+		| "less difficult";
 
 	export const allowedSortValueValues: SortValue[] = [
 		"newest",
 		"oldest",
 		"recently updated",
 		"least recently updated",
+		"most urgent",
+		"least urgent",
+		"most important",
+		"least important",
+		"need more time",
+		"need less time",
+		"most difficult",
+		"less difficult",
 	];
 
 	export interface FilterFormData {
@@ -111,6 +127,5 @@ export namespace Issue {
 		importance: Importance | "";
 		estimatedTime: EstimatedTime | "";
 		difficulty: Difficulty | "";
-		sortValue: SortValue;
 	}
 }
