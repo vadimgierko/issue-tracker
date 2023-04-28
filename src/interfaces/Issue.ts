@@ -15,16 +15,16 @@ export namespace Issue {
 
 	export const allowedTypeValues: Type[] = [
 		"bug",
+		"security",
+		"dependencies",
 		"feature request",
 		"improvement",
-		"question",
-		"idea",
+		"refactor",
 		"documentation",
 		"suggestion",
 		"test",
-		"security",
-		"dependencies",
-		"refactor",
+		"question",
+		"idea",
 		"other",
 	];
 
@@ -92,33 +92,41 @@ export namespace Issue {
 		closedAt: number | null;
 	}
 
+	export interface RankedIssue extends Issue {
+		rank: number;
+	}
+
 	export type SortValue =
 		| "newest"
 		| "oldest"
 		| "recently updated"
 		| "least recently updated"
-		| "most urgent"
-		| "least urgent"
+		| "highest ranked"
+		| "lowest ranked"
 		| "most important"
 		| "least important"
-		| "need more time"
-		| "need less time"
+		| "most urgent"
+		| "least urgent"
 		| "most difficult"
-		| "less difficult";
+		| "less difficult"
+		| "need more time"
+		| "need less time";
 
 	export const allowedSortValueValues: SortValue[] = [
 		"newest",
 		"oldest",
 		"recently updated",
 		"least recently updated",
-		"most urgent",
-		"least urgent",
+		"highest ranked",
+		"lowest ranked",
 		"most important",
 		"least important",
-		"need more time",
-		"need less time",
+		"most urgent",
+		"least urgent",
 		"most difficult",
 		"less difficult",
+		"need more time",
+		"need less time",
 	];
 
 	export interface FilterFormData {

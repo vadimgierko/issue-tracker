@@ -22,11 +22,12 @@ export default function IssuesFilterableTable({
 }: IssuesFilterableTableProps) {
 	const [filterFormData, setFilterFormData] =
 		useState<Issue.FilterFormData>(initFilterFormData);
-	const [sortValue, setSortValue] =
-		useState<Issue.SortValue>("recently updated");
+	const [sortValue, setSortValue] = useState<Issue.SortValue>("highest ranked");
 	const [status, setStatus] = useState<Issue.TableTabStatus>("open");
 
-	const [filteredIssues, setFilteredIssues] = useState<Issue.Issue[] | []>([]);
+	const [filteredIssues, setFilteredIssues] = useState<
+		Issue.RankedIssue[] | []
+	>([]);
 
 	function NoFilteredIssues() {
 		return (
@@ -62,13 +63,37 @@ export default function IssuesFilterableTable({
 				);
 			});
 
+			// rank issues:
+			const rankedIssues: Issue.RankedIssue[] = filteredItems.map((i) => {
+				const typeRank: number =
+					[...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1;
+				const importanceRank: number =
+					[...Issue.allowedImportanceValues].reverse().indexOf(i.importance) +
+					1;
+				const urgencyRank: number =
+					[...Issue.allowedUrgencyValues].reverse().indexOf(i.urgency) + 1;
+				const difficultyRank: number =
+					[...Issue.allowedDifficultyValues].indexOf(i.difficulty) + 1;
+				const estimatedTimeRank: number =
+					[...Issue.allowedEstimatedTimeValues].indexOf(i.estimatedTime) + 1;
+				return {
+					...i,
+					rank:
+						typeRank * 5 +
+						importanceRank * 4 +
+						urgencyRank * 3 +
+						difficultyRank * 2 +
+						estimatedTimeRank,
+				};
+			});
+
 			// sort issues:
 			const levelsOrder: Issue.Level[] = ["high", "medium", "low"];
 
 			function sortIssuesByValue(
-				issues: Issue.Issue[],
+				issues: Issue.RankedIssue[],
 				sortValue: Issue.SortValue
-			): Issue.Issue[] {
+			): Issue.RankedIssue[] {
 				switch (sortValue) {
 					case "newest":
 						return issues.sort((a, b) => b.created - a.created);
@@ -78,6 +103,10 @@ export default function IssuesFilterableTable({
 						return issues.sort((a, b) => b.updated - a.updated);
 					case "least recently updated":
 						return issues.sort((a, b) => a.updated - b.updated);
+					case "highest ranked":
+						return issues.sort((a, b) => b.rank - a.rank);
+					case "lowest ranked":
+						return issues.sort((a, b) => a.rank - b.rank);
 					case "most urgent":
 						return issues.sort(
 							(a, b) =>
@@ -129,12 +158,12 @@ export default function IssuesFilterableTable({
 				}
 			}
 
-			const filteredAndSortedIssues = sortIssuesByValue(
-				filteredItems,
+			const filteredRankedAndSortedIssues = sortIssuesByValue(
+				rankedIssues,
 				sortValue
 			);
 
-			setFilteredIssues(filteredAndSortedIssues);
+			setFilteredIssues(filteredRankedAndSortedIssues);
 		}
 
 		filterAndSortIssues(filterFormData, status);

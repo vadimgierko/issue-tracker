@@ -9,7 +9,7 @@ import getDate from "../../../lib/getDate";
 import useIssues from "../../../context/useIssues";
 
 type IssuesTableProps = {
-	issues: Issue.Issue[];
+	issues: Issue.RankedIssue[];
 };
 
 export default function IssuesTable({ issues }: IssuesTableProps) {
@@ -34,6 +34,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 				<tr>
 					<th>Title</th>
 					{!projectId && <th>Project</th>}
+					<th>Rank</th>
 					<th>Importance</th>
 					<th>Urgency</th>
 					<th>Estimated time</th>
@@ -80,6 +81,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								</Link>
 							</td>
 						)}
+						<td>{issue.rank}/90</td>
 						<td>
 							<Badge
 								bg={
