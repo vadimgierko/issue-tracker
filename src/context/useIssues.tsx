@@ -118,24 +118,46 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			return logError("No updated issue data provided... Cannot update issue.");
 
 		try {
-			const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id);
+			const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id)!;
 			const updateTime = Date.now();
+			const isIssueStatusChanged =
+				issueBeforeUpdates.status !== updatedIssue.status;
 
-			const updatedIssueWithAdditionalUpdates: Issue.Issue = {
+			let updatedIssueWithAdditionalUpdates: Issue.Issue = {
 				...updatedIssue,
 				updated: updateTime,
-				inProgressFrom: issueBeforeUpdates?.inProgressFrom
-					? issueBeforeUpdates?.inProgressFrom
-					: updatedIssue.status === "in progress"
-					? updateTime
-					: updatedIssue.inProgressFrom,
-				closedAt: issueBeforeUpdates?.closedAt
-					? issueBeforeUpdates?.closedAt
-					: updatedIssue.status !== "open" &&
-					  updatedIssue.status !== "in progress"
-					? updateTime
-					: updatedIssue.closedAt,
 			};
+
+			if (isIssueStatusChanged) {
+				const { status: beforeStatus } = issueBeforeUpdates;
+				const { status: currentStatus } = updatedIssue;
+
+				if (beforeStatus === "open" && currentStatus === "in progress") {
+					updatedIssueWithAdditionalUpdates.inProgressFrom = updateTime;
+				} else if (beforeStatus === "in progress" && currentStatus !== "open") {
+					updatedIssueWithAdditionalUpdates.closedAt = updateTime;
+				} else if (beforeStatus === "in progress" && currentStatus === "open") {
+					updatedIssueWithAdditionalUpdates.inProgressFrom = null;
+				} else if (
+					!["open", "in progress"].includes(beforeStatus) &&
+					currentStatus === "in progress"
+				) {
+					updatedIssueWithAdditionalUpdates = {
+						...updatedIssueWithAdditionalUpdates,
+						inProgressFrom: updateTime,
+						closedAt: null,
+					};
+				} else if (
+					!["open", "in progress"].includes(beforeStatus) &&
+					currentStatus === "open"
+				) {
+					updatedIssueWithAdditionalUpdates = {
+						...updatedIssueWithAdditionalUpdates,
+						inProgressFrom: null,
+						closedAt: null,
+					};
+				}
+			}
 
 			await setDoc(
 				doc(firestore, "issues", updatedIssue.id),
