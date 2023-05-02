@@ -60,9 +60,27 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<tr key={issue.id}>
 						<td>
 							<Link to={"/issues/" + issue.id}>{issue.title}</Link>{" "}
-							<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
+							<Badge
+								bg={issue.type === "bug" ? "danger" : "primary"}
+								className="me-1"
+							>
 								{issue.type}
 							</Badge>
+							{issue.feature && (
+								<Badge bg="secondary" className="me-1">
+									{issue.feature}
+								</Badge>
+							)}
+							{issue.page && (
+								<Badge bg="secondary" className="me-1">
+									{"/" + issue.page}
+								</Badge>
+							)}
+							{issue.component && (
+								<Badge bg="secondary" className="me-1">
+									{`<${issue.component} />`}
+								</Badge>
+							)}
 							<br />
 							<span className="text-muted">
 								{issuesStatus === "open"

@@ -36,21 +36,28 @@ export default function Issue() {
 
 	return (
 		<>
-			<PageHeader
-				pageTitle={
-					<>
-						{issue.title}{" "}
-						<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
-							{issue.type}
-						</Badge>
-					</>
-				}
-			>
+			<PageHeader pageTitle={issue.title}>
 				<div className="text-center">
 					<p>
-						<Badge bg={issue.type === "bug" ? "danger" : "primary"}>
+						<Badge
+							bg={issue.type === "bug" ? "danger" : "primary"}
+							className="me-1"
+						>
 							{issue.type}
-						</Badge>{" "}
+						</Badge>
+						{issue.feature && (
+							<Badge bg="secondary" className="me-1">
+								{issue.feature}
+							</Badge>
+						)}
+						{issue.page && (
+							<Badge bg="secondary" className="me-1">
+								{"/" + issue.page}
+							</Badge>
+						)}
+						{issue.component && (
+							<Badge bg="secondary">{`<${issue.component} />`}</Badge>
+						)}{" "}
 						in <Link to={"/projects/" + project.id}>{project.title}</Link>
 					</p>
 					<div className="mt-3">

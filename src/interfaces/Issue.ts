@@ -82,6 +82,9 @@ export namespace Issue {
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
 		status: Status;
+		feature?: string;
+		page?: string;
+		component?: string;
 	}
 
 	export interface Issue extends Data {
