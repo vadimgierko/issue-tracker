@@ -154,7 +154,7 @@ export default function IssuesAdd() {
 						</FloatingLabel>
 					</Col>
 
-					<Col xs={12} md="auto" className="mb-2">
+					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="feature" className="mb-3">
 							<Form.Select
 								value={issueData.feature}
@@ -182,7 +182,7 @@ export default function IssuesAdd() {
 						</FloatingLabel>
 					</Col>
 
-					<Col xs={12} md="auto" className="mb-2">
+					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="page" className="mb-3">
 							<Form.Select
 								value={issueData.page}
@@ -210,7 +210,7 @@ export default function IssuesAdd() {
 						</FloatingLabel>
 					</Col>
 
-					<Col xs={12} md="auto" className="mb-2">
+					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="component" className="mb-3">
 							<Form.Select
 								value={issueData.component}

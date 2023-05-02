@@ -132,6 +132,92 @@ export default function IssuesEdit() {
 					</Col>
 
 					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="feature" className="mb-3">
+							<Form.Select
+								value={updatedIssue.feature}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										feature: e.target.value,
+									})
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+							>
+								<option value="">feature</option>
+								{projects
+									.find((p) => p.id === updatedIssue.projectId)
+									?.features?.map((f) => (
+										<option value={f} key={f}>
+											{f}
+										</option>
+									))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
+
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="page" className="mb-3">
+							<Form.Select
+								value={updatedIssue.page}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										page: e.target.value,
+									})
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+							>
+								<option value="">page</option>
+								{projects
+									.find((p) => p.id === updatedIssue.projectId)
+									?.pages?.map((p) => (
+										<option value={p} key={p}>
+											{p}
+										</option>
+									))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
+
+					<Col xs={12} md={true} className="mb-2">
+						<FloatingLabel label="component" className="mb-3">
+							<Form.Select
+								value={updatedIssue.component}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										component: e.target.value,
+									})
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+							>
+								<option value="">component</option>
+								{projects
+									.find((p) => p.id === updatedIssue.projectId)
+									?.components?.map((c) => (
+										<option value={c} key={c}>
+											{c}
+										</option>
+									))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
+				</Row>
+
+				<Row>
+					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="importance" className="mb-3">
 							<Form.Select
 								value={updatedIssue.importance}
