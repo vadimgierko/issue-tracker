@@ -15,6 +15,9 @@ const initFilterFormData: Issue.FilterFormData = {
 	importance: "",
 	estimatedTime: "",
 	difficulty: "",
+	feature: "",
+	page: "",
+	component: "",
 };
 
 export default function IssuesFilterableTable({
@@ -53,6 +56,10 @@ export default function IssuesFilterableTable({
 						i.importance === filterFormData.importance) &&
 					(!filterFormData.urgency || i.urgency === filterFormData.urgency) &&
 					(!filterFormData.type || i.type === filterFormData.type) &&
+					(!filterFormData.feature || i.feature === filterFormData.feature) &&
+					(!filterFormData.page || i.page === filterFormData.page) &&
+					(!filterFormData.component ||
+						i.component === filterFormData.component) &&
 					(status === "all" ||
 						(i.status === "open" && status === "open") ||
 						(i.status === "in progress" && status === "in progress") ||

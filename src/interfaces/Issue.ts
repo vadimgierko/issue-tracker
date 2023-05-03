@@ -139,5 +139,8 @@ export namespace Issue {
 		importance: Importance | "";
 		estimatedTime: EstimatedTime | "";
 		difficulty: Difficulty | "";
+		feature: string | "";
+		page: string | "";
+		component: string | "";
 	}
 }
