@@ -9,15 +9,15 @@ import {
 	setDoc,
 	arrayRemove,
 } from "firebase/firestore";
-import { Project, ProjectData } from "../interfaces/Project";
+import { Project } from "../interfaces/Project";
 import useUser from "./useUser";
 import useIssues from "./useIssues";
 
 const ProjectsContext = createContext<{
-	projects: Project[];
+	projects: Project.Project[];
 	loading: boolean;
-	addProject: (projectData: ProjectData) => Promise<string>;
-	updateProject: (updatedProject: Project) => Promise<void>;
+	addProject: (projectData: Project.Data) => Promise<string>;
+	updateProject: (updatedProject: Project.Project) => Promise<void>;
 	deleteProject: (projectId: string) => Promise<void>;
 } | null>(null);
 
@@ -38,7 +38,7 @@ type ProjectsProviderProps = {
 };
 
 export function ProjectsProvider({ children }: ProjectsProviderProps) {
-	const [projects, setProjects] = useState<Project[]>([]);
+	const [projects, setProjects] = useState<Project.Project[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
 	const { issues, setIssues } = useIssues();
@@ -49,7 +49,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	 * @param projectData
 	 * @returns The new project ID.
 	 */
-	async function addProject(projectData: ProjectData): Promise<string> {
+	async function addProject(projectData: Project.Data): Promise<string> {
 		// =======================================================================
 		// 1. add project to /projects
 		// 2. add project id to /user-projects
@@ -61,7 +61,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				const { id: newProjectId } = doc(collection(firestore, "projects"));
 
 				// complete project document object with authorId & project id:
-				const newProject: Project = {
+				const newProject: Project.Project = {
 					...projectData,
 					authorId: user.uid,
 					id: newProjectId,
@@ -104,7 +104,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 		return "";
 	}
 
-	async function updateProject(updatedProject: Project) {
+	async function updateProject(updatedProject: Project.Project) {
 		// NOTE:
 		// as we have project data only in /projects collection,
 		// we need to update it only there
@@ -235,7 +235,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 							const docRef = doc(firestore, "projects", projectId);
 							const docSnap = await getDoc(docRef);
 							if (docSnap.exists()) {
-								return docSnap.data() as Project;
+								return docSnap.data() as Project.Project;
 							}
 						})
 					);
@@ -243,7 +243,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 					if (fetchedUserProjects) {
 						const filteredProjects = fetchedUserProjects.filter(
 							(project) => project !== undefined
-						) as Project[];
+						) as Project.Project[];
 						setProjects(filteredProjects);
 					}
 				} else {

@@ -71,6 +71,7 @@ export namespace Issue {
 	// where "closed" means all not "open" & not "in progress" issues:
 	export type TableTabStatus = "open" | "in progress" | "closed" | "all";
 
+	// this is what forms use:
 	export interface Data {
 		projectId: string;
 		title: string;
@@ -81,6 +82,9 @@ export namespace Issue {
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
 		status: Status;
+		feature?: string;
+		page?: string;
+		component?: string;
 	}
 
 	export interface Issue extends Data {
@@ -135,5 +139,8 @@ export namespace Issue {
 		importance: Importance | "";
 		estimatedTime: EstimatedTime | "";
 		difficulty: Difficulty | "";
+		feature: string | "";
+		page: string | "";
+		component: string | "";
 	}
 }

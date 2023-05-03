@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Project, ProjectData } from "../../interfaces/Project";
+import { Project } from "../../interfaces/Project";
 import useProjects from "../../context/useProjects";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
@@ -12,7 +12,7 @@ export default function ProjectsEdit() {
 	const { projectId } = useParams();
 	const { projects, updateProject, deleteProject } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
-	const [projectData, setProjectData] = useState<ProjectData | null>(null);
+	const [projectData, setProjectData] = useState<Project.Data | null>(null);
 	const navigate = useNavigate();
 
 	async function handleProjectUpdate(e: React.FormEvent<HTMLFormElement>) {
@@ -23,7 +23,7 @@ export default function ProjectsEdit() {
 				"No project or project data provided... Cannot update project."
 			);
 
-		const updatedProject: Project = {
+		const updatedProject: Project.Project = {
 			...project,
 			...projectData,
 		};
@@ -49,6 +49,9 @@ export default function ProjectsEdit() {
 			setProjectData({
 				title: project.title,
 				description: project.description,
+				features: project.features,
+				pages: project.pages,
+				components: project.components,
 			});
 		} else {
 			setProjectData(null);
