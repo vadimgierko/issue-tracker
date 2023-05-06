@@ -86,7 +86,21 @@ export default function ProjectsAdd() {
 						{projectData.features.length
 							? projectData.features.map((f) => (
 									<Badge key={f} className="me-1">
-										{f}
+										{f}{" "}
+										<span
+											onClick={() =>
+												setProjectData({
+													...projectData,
+													features: projectData.features.filter(
+														(feature) => feature !== f
+													),
+												})
+											}
+											className="bg-danger px-1"
+											style={{ cursor: "pointer" }}
+										>
+											X
+										</span>
 									</Badge>
 							  ))
 							: "There are no project's features yet... Add some!"}
@@ -127,7 +141,19 @@ export default function ProjectsAdd() {
 						{projectData.pages.length
 							? projectData.pages.map((p) => (
 									<Badge key={p} className="me-1">
-										{p}
+										{p}{" "}
+										<span
+											onClick={() =>
+												setProjectData({
+													...projectData,
+													pages: projectData.pages.filter((page) => page !== p),
+												})
+											}
+											className="bg-danger px-1"
+											style={{ cursor: "pointer" }}
+										>
+											X
+										</span>
 									</Badge>
 							  ))
 							: "There are no project's pages yet... Add some!"}
@@ -168,7 +194,21 @@ export default function ProjectsAdd() {
 						{projectData.components.length
 							? projectData.components.map((c) => (
 									<Badge key={c} className="me-1">
-										{c}
+										{c}{" "}
+										<span
+											onClick={() =>
+												setProjectData({
+													...projectData,
+													components: projectData.components.filter(
+														(component) => component !== c
+													),
+												})
+											}
+											className="bg-danger px-1"
+											style={{ cursor: "pointer" }}
+										>
+											X
+										</span>
 									</Badge>
 							  ))
 							: "There are no project's components yet... Add some!"}
