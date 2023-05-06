@@ -1,4 +1,4 @@
-Track, manage, filter, sort & rank issues in particular dev projects & have an overwiew of all issues regardless of the project in 1 table.
+Track, manage, filter, sort & rank issues in particular dev projects & have an overview of all issues regardless of the project in 1 table.
 
 *NOTE: this app is still under development. New features can be implemented every day. But you can use it from now! If I will see new users, I will inform them about updates via the app.*
 
