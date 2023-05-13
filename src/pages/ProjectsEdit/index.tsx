@@ -49,9 +49,15 @@ export default function ProjectsEdit() {
 				"No project id was provided... Cannot delete project."
 			);
 
-		await deleteProject(projectId);
-		alert(`Your project with the id ${projectId} was successfully deleted.`);
-		navigate("/projects");
+		if (
+			window.confirm(
+				"Are you sure you want to delete this project permanently? This action can not be undone!"
+			)
+		) {
+			await deleteProject(projectId);
+			alert(`Your project with the id ${projectId} was successfully deleted.`);
+			navigate("/projects");
+		}
 	}
 
 	useEffect(() => {
@@ -280,7 +286,32 @@ export default function ProjectsEdit() {
 				</div>
 			</Form>
 			<div className="d-grid gap-2 mt-3">
-				<Button variant="danger" onClick={() => handleDeleteProject(projectId)}>
+				<Button
+					variant="secondary"
+					onClick={() => {
+						// clear edit data:
+						setProjectData({
+							title: project.title,
+							description: project.description,
+							features: project.features,
+							pages: project.pages,
+							components: project.components,
+						});
+
+						setNewFeature("");
+						setNewPage("");
+						setNewComponent("");
+
+						navigate(-1);
+					}}
+				>
+					cancel
+				</Button>
+				<hr />
+				<Button
+					variant="outline-danger"
+					onClick={() => handleDeleteProject(projectId)}
+				>
 					delete project
 				</Button>
 			</div>

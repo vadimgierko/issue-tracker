@@ -104,8 +104,22 @@ export default function PasswordChange() {
 				</Form.Group>
 
 				<div className="d-grid mb-2">
-					<Button variant="success" type="submit">
+					<Button variant="success" type="submit" className="mb-3">
 						Change password
+					</Button>
+					<Button
+						variant="secondary"
+						type="button"
+						onClick={() => {
+							// clear edit data:
+							setOldPassword("");
+							setNewPassword("");
+							setNewPasswordConfirmed("");
+
+							navigate(-1);
+						}}
+					>
+						cancel
 					</Button>
 				</div>
 			</Form>

@@ -16,7 +16,7 @@ export default function IssuesEdit() {
 	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { issueId } = useParams();
-	const { issues, updateIssue } = useIssues();
+	const { issues, updateIssue, deleteIssue } = useIssues();
 	const issueToUpdate = issues.find((i) => i.id === issueId);
 	const [updatedIssue, setUpdatedIssue] = useState<Issue.Issue | null>(null);
 	const { projects } = useProjects();
@@ -35,6 +35,24 @@ export default function IssuesEdit() {
 		await updateIssue(updatedIssue);
 		alert(`Your issue with the id ${issueId} was successfully updated.`);
 		navigate(-1);
+	}
+
+	async function handleDeleteIssue() {
+		if (!issueId)
+			return alert("No issue id was provided... Cannot delete issue.");
+
+		if (!updatedIssue || !updatedIssue.projectId)
+			return alert("No project id was provided... Cannot delete issue.");
+
+		if (
+			window.confirm(
+				"Are you sure you want to delete this issue permanently? This action can not be undone!"
+			)
+		) {
+			await deleteIssue(updatedIssue.id, updatedIssue.projectId);
+			alert(`Your issue with the id ${issueId} was successfully deleted.`);
+			navigate(-1); // maybe add checking if there is prev page
+		}
 	}
 
 	useEffect(() => {
@@ -350,6 +368,27 @@ export default function IssuesEdit() {
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">
 						update issue
+					</Button>
+
+					<Button
+						variant="secondary"
+						type="button"
+						onClick={() => {
+							// clear edit data:
+							setUpdatedIssue(issueToUpdate);
+
+							navigate(-1);
+						}}
+					>
+						cancel
+					</Button>
+					<hr />
+					<Button
+						type="button"
+						variant="outline-danger"
+						onClick={handleDeleteIssue}
+					>
+						delete issue
 					</Button>
 				</div>
 			</Form>
