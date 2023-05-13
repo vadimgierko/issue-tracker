@@ -19,9 +19,15 @@ export default function Project() {
 		if (!projectId)
 			return alert("No project id was provided... Cannot delete project.");
 
-		await deleteProject(projectId);
-		alert(`Your project with the id ${projectId} was successfully deleted.`);
-		navigate("/projects");
+		if (
+			window.confirm(
+				"Are you sure you want to delete this project permanently? This action can not be undone!"
+			)
+		) {
+			await deleteProject(projectId);
+			alert(`Your project with the id ${projectId} was successfully deleted.`);
+			navigate("/projects");
+		}
 	}
 
 	if (!projectId || !project)
@@ -40,7 +46,7 @@ export default function Project() {
 					</Link>
 
 					<Button
-						variant="danger"
+						variant="outline-danger"
 						onClick={() => handleDeleteProject(projectId)}
 						className="ms-2"
 					>

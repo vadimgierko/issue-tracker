@@ -24,8 +24,14 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 	async function handleDeleteIssue(issue: Issue.Issue) {
 		if (!issue) return alert("No issue was provided... Cannot delete issue.");
 
-		await deleteIssue(issue.id, issue.projectId);
-		alert(`Your issue with the id ${issue.id} was successfully deleted.`);
+		if (
+			window.confirm(
+				"Are you sure you want to delete this issue permanently? This action can not be undone!"
+			)
+		) {
+			await deleteIssue(issue.id, issue.projectId);
+			alert(`Your issue with the id ${issue.id} was successfully deleted.`);
+		}
 	}
 
 	return (

@@ -63,8 +63,21 @@ export default function EmailChange() {
 				</Form.Group>
 
 				<div className="d-grid mb-2">
-					<Button variant="success" type="submit">
-						Change email
+					<Button variant="success" type="submit" className="mb-3">
+						change email
+					</Button>
+
+					<Button
+						variant="secondary"
+						type="button"
+						onClick={() => {
+							// clear edit data:
+							setNewEmail("");
+
+							navigate(-1);
+						}}
+					>
+						cancel
 					</Button>
 				</div>
 			</Form>

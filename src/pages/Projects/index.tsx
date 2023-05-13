@@ -19,8 +19,14 @@ export default function Projects() {
 		if (!projectId)
 			return alert("No project id was provided... Cannot delete project.");
 
-		await deleteProject(projectId);
-		alert(`Your project with the id ${projectId} was successfully deleted.`);
+		if (
+			window.confirm(
+				"Are you sure you want to delete this project permanently? This action can not be undone!"
+			)
+		) {
+			await deleteProject(projectId);
+			alert(`Your project with the id ${projectId} was successfully deleted.`);
+		}
 	}
 
 	function ProjectsList() {

@@ -21,9 +21,15 @@ export default function Issue() {
 		if (!issue || !issue.projectId)
 			return alert("No project id was provided... Cannot delete issue.");
 
-		await deleteIssue(issue.id, issue.projectId);
-		alert(`Your issue with the id ${issueId} was successfully deleted.`);
-		navigate(-1); // maybe add checking if there is prev page
+		if (
+			window.confirm(
+				"Are you sure you want to delete this issue permanently? This action can not be undone!"
+			)
+		) {
+			await deleteIssue(issue.id, issue.projectId);
+			alert(`Your issue with the id ${issueId} was successfully deleted.`);
+			navigate(-1); // maybe add checking if there is prev page
+		}
 	}
 
 	if (!issue || !issueId)
@@ -65,7 +71,7 @@ export default function Issue() {
 							<Button variant="primary">edit issue</Button>
 						</Link>
 						<Button
-							variant="danger"
+							variant="outline-danger"
 							onClick={handleDeleteIssue}
 							className="ms-2"
 						>
