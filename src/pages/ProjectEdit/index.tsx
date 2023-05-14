@@ -13,7 +13,7 @@ import useTheme from "../../context/useTheme";
 import PageHeader from "../../components/Layout/PageHeader";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 
-export default function ProjectsEdit() {
+export default function ProjectEdit() {
 	const { theme } = useTheme();
 	const { projectId } = useParams();
 	const { projects, updateProject, deleteProject } = useProjects();

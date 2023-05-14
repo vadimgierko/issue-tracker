@@ -1,18 +1,13 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
-import { Button } from "react-bootstrap";
-import useIssues from "../../context/useIssues";
-import { AiOutlinePlusSquare } from "react-icons/ai";
-import IssuesFilterableTable from "../Issues/IssuesFilterableTable";
-import MarkdownRenderer from "../../components/MarkdownRenderer";
+import { BsPencilSquare, BsTrash } from "react-icons/bs";
+import { useEffect } from "react";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
-	const { issues } = useIssues();
 	const project = projects.find((p) => p.id === projectId);
-	const projectIssues = issues.filter((i) => i.projectId === projectId);
 	const navigate = useNavigate();
 
 	async function handleDeleteProject(projectId: string) {
@@ -30,48 +25,41 @@ export default function Project() {
 		}
 	}
 
-	if (!projectId || !project)
+	// TODO: make "issues view" the root view for project page:
+	useEffect(() => navigate("issues"), []); // this is just a workaround for now
+
+	// TODO: add some error here, but that is made to satisfy ts:
+	if (!projectId) return null;
+
+	if (!project)
 		return (
-			<p className="text-center text-danger">There is no such project...</p>
+			<p className="text-center text-danger">
+				There is no such project with the id {projectId}...
+			</p>
 		);
 
 	return (
 		<>
-			<PageHeader pageTitle={project.title}>
-				{/* <MarkdownRenderer markdown={project.description} /> */}
-
-				<div className="text-center mt-3">
-					<Link to={"/projects/" + projectId + "/edit"}>
-						<Button variant="primary">edit project</Button>
-					</Link>
-
-					<Button
-						variant="outline-danger"
-						onClick={() => handleDeleteProject(projectId)}
-						className="ms-2"
-					>
-						delete project
-					</Button>
-				</div>
+			<PageHeader
+				pageTitle={
+					<>
+						{project.title}{" "}
+						<Link to={"/projects/" + project.id + "/edit"}>
+							<BsPencilSquare />
+						</Link>{" "}
+						<BsTrash
+							style={{ color: "red", cursor: "pointer" }}
+							onClick={() => handleDeleteProject(project.id)}
+						/>
+					</>
+				}
+			>
+				<p className="text-center">
+					<Link to="issues">Issues</Link> | <Link to="details">Details</Link>
+				</p>
 			</PageHeader>
 
-			<section className="project-issues">
-				<h2 className="text-center">
-					Issues ({projectIssues.length}){" "}
-					<Link to="add-issue">
-						<AiOutlinePlusSquare />
-					</Link>
-				</h2>
-
-				{projectIssues.length ? (
-					<IssuesFilterableTable issues={projectIssues} />
-				) : (
-					<p className="text-center">
-						There are no issues in the project.{" "}
-						<Link to="/issues/add">Add one!</Link>
-					</p>
-				)}
-			</section>
+			<Outlet />
 		</>
 	);
 }

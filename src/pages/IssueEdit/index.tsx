@@ -12,7 +12,7 @@ import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 import { Col, Row } from "react-bootstrap";
 
-export default function IssuesEdit() {
+export default function IssueEdit() {
 	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { issueId } = useParams();
