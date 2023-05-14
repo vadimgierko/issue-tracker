@@ -17,11 +17,13 @@ import PasswordChange from "./pages/PasswordChange";
 import PasswordReset from "./pages/PasswordReset";
 import ProjectsAdd from "./pages/ProjectsAdd";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
-import ProjectsEdit from "./pages/ProjectsEdit";
+import ProjectEdit from "./pages/ProjectEdit";
 import Issues from "./pages/Issues";
 import IssuesAdd from "./pages/IssuesAdd";
-import IssuesEdit from "./pages/IssuesEdit";
+import IssueEdit from "./pages/IssueEdit";
 import Issue from "./pages/Issue";
+import ProjectIssues from "./pages/Project/ProjectIssues";
+import ProjectDetails from "./pages/Project/ProjectDetails";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -59,10 +61,20 @@ const privateRoutes: RouteObject[] = [
 	{
 		path: "projects/:projectId",
 		element: <Project />,
+		children: [
+			{
+				path: "issues",
+				element: <ProjectIssues />,
+			},
+			{
+				path: "details",
+				element: <ProjectDetails />,
+			},
+		],
 	},
 	{
 		path: "projects/:projectId/edit",
-		element: <ProjectsEdit />,
+		element: <ProjectEdit />,
 	},
 	{
 		path: "projects/:projectId/add-issue",
@@ -84,7 +96,7 @@ const privateRoutes: RouteObject[] = [
 	},
 	{
 		path: "issues/:issueId/edit",
-		element: <IssuesEdit />,
+		element: <IssueEdit />,
 	},
 ];
 
