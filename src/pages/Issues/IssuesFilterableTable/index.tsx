@@ -4,6 +4,7 @@ import IssuesFilterForm from "./IssuesFilterForm";
 import IssuesTable from "./IssuesTable";
 import IssuesTableTabs from "./IssuesTableTabs";
 import IssuesSortForm from "./IssuesSortForm";
+import rankifyIssues from "../../../lib/rankifyIssues";
 
 type IssuesFilterableTableProps = {
 	issues: Issue.Issue[];
@@ -71,28 +72,7 @@ export default function IssuesFilterableTable({
 			});
 
 			// rank issues:
-			const rankedIssues: Issue.RankedIssue[] = filteredItems.map((i) => {
-				const typeRank: number =
-					[...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1;
-				const importanceRank: number =
-					[...Issue.allowedImportanceValues].reverse().indexOf(i.importance) +
-					1;
-				const urgencyRank: number =
-					[...Issue.allowedUrgencyValues].reverse().indexOf(i.urgency) + 1;
-				const difficultyRank: number =
-					[...Issue.allowedDifficultyValues].indexOf(i.difficulty) + 1;
-				const estimatedTimeRank: number =
-					[...Issue.allowedEstimatedTimeValues].indexOf(i.estimatedTime) + 1;
-				return {
-					...i,
-					rank:
-						typeRank * 5 +
-						importanceRank * 4 +
-						urgencyRank * 3 +
-						difficultyRank * 2 +
-						estimatedTimeRank,
-				};
-			});
+			const rankedIssues = rankifyIssues(filteredItems);
 
 			// sort issues:
 			const levelsOrder: Issue.Level[] = ["high", "medium", "low"];

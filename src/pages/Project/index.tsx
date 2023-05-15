@@ -3,12 +3,21 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 import { useEffect } from "react";
+import useIssues from "../../context/useIssues";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
 	const navigate = useNavigate();
+
+	const { issues } = useIssues();
+	const allProjectIssues = issues.filter((i) => i.projectId === projectId);
+	const orderedProjectIssues = issues.filter(
+		(i) =>
+			i.projectId === projectId &&
+			(i.status === "open" || i.status === "in progress")
+	);
 
 	async function handleDeleteProject(projectId: string) {
 		if (!projectId)
@@ -55,7 +64,11 @@ export default function Project() {
 				}
 			>
 				<p className="text-center">
-					<Link to="issues">Issues</Link> | <Link to="details">Details</Link>
+					<Link to="issues">Issues ({allProjectIssues.length})</Link> |{" "}
+					<Link to="details">Details</Link> |{" "}
+					<Link to="issues-ordered">
+						Issues (ordered) ({orderedProjectIssues.length})
+					</Link>
 				</p>
 			</PageHeader>
 

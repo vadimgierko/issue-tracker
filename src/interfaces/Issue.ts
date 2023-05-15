@@ -82,9 +82,14 @@ export namespace Issue {
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
 		status: Status;
+		// project's props:
 		feature?: string;
 		page?: string;
 		component?: string;
+		// order features props:
+		parent?: string | null; // issue id OR null in case of Project/ root
+		children?: Issue[];
+		ordered?: boolean;
 	}
 
 	export interface Issue extends Data {
