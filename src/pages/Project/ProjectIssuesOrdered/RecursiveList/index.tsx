@@ -2,6 +2,9 @@ import { Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
+import { Link } from "react-router-dom";
+import { doc, writeBatch } from "firebase/firestore";
+import { firestore } from "../../../../firebaseConfig";
 
 export default function RecursiveList({
 	issuesToList,
@@ -16,29 +19,79 @@ export default function RecursiveList({
 	const rootUnorderedIssues = rootIssues.filter((i) => !i.ordered);
 
 	async function transformIntoOrdered(issueId: string) {
+		const updateTime = Date.now();
+
 		const lastOrderedIssue =
 			rootOrderedIssues && rootOrderedIssues.length
 				? rootOrderedIssues[rootOrderedIssues.length - 1]
 				: null;
 
-		const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
-			i.id === issueId
-				? {
-						...i,
-						ordered: true,
-						after: lastOrderedIssue ? lastOrderedIssue.id : null,
-						before: null,
-				  }
-				: lastOrderedIssue && i.id === lastOrderedIssue.id
-				? { ...lastOrderedIssue, before: issueId }
-				: i
-		);
+		const issueToTransform = rootIssues.find((i) => i.id === issueId);
 
-		// TODO:
-		// UNRANKIFY UPDATED ISSUES =>
-		// UPDATE DATABASE
-		// UPDATE APP STATE:
-		setIssues(updatedIssues);
+		if (issueToTransform) {
+			const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
+				i.id === issueToTransform.id
+					? {
+							...issueToTransform,
+							ordered: true,
+							after: lastOrderedIssue ? lastOrderedIssue.id : null,
+							before: null,
+							updated: updateTime,
+					  }
+					: lastOrderedIssue && i.id === lastOrderedIssue.id
+					? { ...lastOrderedIssue, before: issueId, updated: updateTime }
+					: i
+			);
+
+			// UPDATE DATABASE & APP STATE:
+			try {
+				// init batch to update multiply docs:
+				// Get a new write batch
+				const batch = writeBatch(firestore);
+
+				const transformedIssueRef = doc(
+					firestore,
+					"issues",
+					issueToTransform.id
+				);
+				batch.update(transformedIssueRef, {
+					ordered: true,
+					after: lastOrderedIssue ? lastOrderedIssue.id : null,
+					before: null,
+					updated: updateTime,
+				});
+
+				if (lastOrderedIssue) {
+					const lastOrderedIssueRef = doc(
+						firestore,
+						"issues",
+						lastOrderedIssue.id
+					);
+					batch.update(lastOrderedIssueRef, {
+						before: issueId,
+						updated: updateTime,
+					});
+				}
+
+				// Commit the batch
+				await batch.commit();
+
+				console.log("issue to transform was updated succsessfully!");
+				lastOrderedIssue &&
+					console.log("last ordered issue exists & was updated succsessfully!");
+
+				!lastOrderedIssue &&
+					console.log(
+						"there is no last ordered issue to update (there were no ordered issues at all)..."
+					);
+
+				// UPDATE APP STATE:
+				setIssues(updatedIssues);
+			} catch (error: any) {
+				console.error(error);
+				alert(error);
+			}
+		}
 	}
 
 	return (
@@ -47,7 +100,7 @@ export default function RecursiveList({
 				<ol>
 					{rootOrderedIssues.map((i) => (
 						<li key={i.id}>
-							{i.title} ({i.rank}/90)
+							<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
 							{i.children && i.children.length ? (
 								<RecursiveList
 									issuesToList={
@@ -70,7 +123,7 @@ export default function RecursiveList({
 						.map((i) => (
 							<li key={i.id}>
 								<div style={{ display: "flex" }}>
-									{i.title} ({i.rank}/90)
+									<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
 									<Dropdown className="ms-2">
 										<Dropdown.Toggle as="a" variant="outline-secondary" />
 

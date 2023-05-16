@@ -40,6 +40,8 @@ export default function Issue() {
 			<p className="text-center text-danger">There is no issue project...</p>
 		);
 
+	console.log("issue data:", issue);
+
 	return (
 		<>
 			<PageHeader pageTitle={issue.title}>
