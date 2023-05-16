@@ -90,6 +90,8 @@ export namespace Issue {
 		parent?: string | null; // issue id OR null in case of Project/ root
 		children?: Issue[];
 		ordered?: boolean;
+		after?: string | null; //issue id
+		before?: string | null; //issue id
 	}
 
 	export interface Issue extends Data {

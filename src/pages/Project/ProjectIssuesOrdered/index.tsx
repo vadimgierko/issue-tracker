@@ -8,7 +8,7 @@ import rankifyIssues from "../../../lib/rankifyIssues";
 export default function ProjectIssuesOrdered() {
 	const { projectId } = useParams();
 	const { projects } = useProjects();
-	const { issues } = useIssues();
+	const { issues, setIssues } = useIssues();
 	const project = projects.find((p) => p.id === projectId);
 	const projectIssues = issues.filter(
 		(i) =>
@@ -36,7 +36,10 @@ export default function ProjectIssuesOrdered() {
 					<AiOutlinePlusSquare />
 				</Link> */}
 			</h2>
-			<ProjectIssuesOrderedList issues={rankifyIssues(projectIssues)} />
+			<ProjectIssuesOrderedList
+				issues={rankifyIssues(projectIssues)}
+				setIssues={setIssues}
+			/>
 		</>
 	);
 }
