@@ -1,10 +1,10 @@
 import { Issue } from "../interfaces/Issue";
 
 export default function rankifyIssues(
-	issues: Issue.Issue[],
+	issues: Issue.DbIssue[],
 	sort: boolean = false
 ) {
-	const rankifiedIssues: Issue.RankedIssue[] = issues.map((i) => {
+	const rankifiedIssues: Issue.AppIssue[] = issues.map((i) => {
 		const typeRank: number =
 			[...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1;
 		const importanceRank: number =

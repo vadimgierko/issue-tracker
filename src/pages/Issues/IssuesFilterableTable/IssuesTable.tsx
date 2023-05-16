@@ -9,7 +9,7 @@ import getDate from "../../../lib/getDate";
 import useIssues from "../../../context/useIssues";
 
 type IssuesTableProps = {
-	issues: Issue.RankedIssue[];
+	issues: Issue.AppIssue[];
 };
 
 export default function IssuesTable({ issues }: IssuesTableProps) {
@@ -21,7 +21,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 	// because they are filtered by status via issue table tabs:
 	const issuesStatus: Issue.Status = issues[0].status; // needed for conditional rendering
 
-	async function handleDeleteIssue(issue: Issue.Issue) {
+	async function handleDeleteIssue(issue: Issue.AppIssue) {
 		if (!issue) return alert("No issue was provided... Cannot delete issue.");
 
 		if (

@@ -1,14 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import useIssues from "../../../context/useIssues";
 import useProjects from "../../../context/useProjects";
-import ProjectIssuesOrderedList from "./ProjectIssuesOrderedList";
 import { AiOutlinePlusSquare } from "react-icons/ai";
-import rankifyIssues from "../../../lib/rankifyIssues";
+import RecursiveList from "./RecursiveList";
 
 export default function ProjectIssuesOrdered() {
 	const { projectId } = useParams();
 	const { projects } = useProjects();
-	const { issues, setIssues } = useIssues();
+	const { issues } = useIssues();
 	const project = projects.find((p) => p.id === projectId);
 	const projectIssues = issues.filter(
 		(i) =>
@@ -36,10 +35,7 @@ export default function ProjectIssuesOrdered() {
 					<AiOutlinePlusSquare />
 				</Link> */}
 			</h2>
-			<ProjectIssuesOrderedList
-				issues={rankifyIssues(projectIssues)}
-				setIssues={setIssues}
-			/>
+			<RecursiveList issuesToList={projectIssues} root={null} />
 		</>
 	);
 }

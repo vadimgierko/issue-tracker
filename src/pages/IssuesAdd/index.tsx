@@ -12,7 +12,7 @@ import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 import { Col, Row } from "react-bootstrap";
 
-const emptyIssue: Issue.Data = {
+const emptyIssue: Issue.FormData = {
 	projectId: "",
 	title: "",
 	description: "",
@@ -34,7 +34,7 @@ export default function IssuesAdd() {
 	// to set projectId in new issue:
 	const { projectId } = useParams();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<Issue.Data>(emptyIssue);
+	const [issueData, setIssueData] = useState<Issue.FormData>(emptyIssue);
 	const { projects } = useProjects();
 	const { addIssue } = useIssues();
 

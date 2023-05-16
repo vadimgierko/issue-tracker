@@ -1,18 +1,17 @@
 import { Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
-import rankifyIssues from "../../../../lib/rankifyIssues";
+import useIssues from "../../../../context/useIssues";
 
 export default function RecursiveList({
-	issues, // orderedIssues
+	issuesToList,
 	root,
-	setOrderedIssues,
 }: {
-	issues: Issue.RankedIssue[];
+	issuesToList: Issue.AppIssue[];
 	root: string | null;
-	setOrderedIssues: React.Dispatch<React.SetStateAction<Issue.RankedIssue[]>>;
 }) {
-	const rootIssues = issues.filter((i) => !i.parent || i.parent === root);
+	const { setIssues } = useIssues();
+	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootOrderedIssues = listifyIssues(rootIssues.filter((i) => i.ordered));
 	const rootUnorderedIssues = rootIssues.filter((i) => !i.ordered);
 
@@ -22,7 +21,7 @@ export default function RecursiveList({
 				? rootOrderedIssues[rootOrderedIssues.length - 1]
 				: null;
 
-		const updatedIssues: Issue.RankedIssue[] = rootIssues.map((i) =>
+		const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
 			i.id === issueId
 				? {
 						...i,
@@ -34,9 +33,12 @@ export default function RecursiveList({
 				? { ...lastOrderedIssue, before: issueId }
 				: i
 		);
-		setOrderedIssues(updatedIssues);
-		// const issueRef = doc(firestore, "issues", issue.id);
-		// await updateDoc(issueRef, {ordered: true, after: }) // TODO: implement after, before <= list
+
+		// TODO:
+		// UNRANKIFY UPDATED ISSUES =>
+		// UPDATE DATABASE
+		// UPDATE APP STATE:
+		setIssues(updatedIssues);
 	}
 
 	return (
@@ -48,9 +50,12 @@ export default function RecursiveList({
 							{i.title} ({i.rank}/90)
 							{i.children && i.children.length ? (
 								<RecursiveList
-									issues={rankifyIssues(i.children)}
+									issuesToList={
+										i.children
+											.map((id) => issuesToList.find((iss) => iss.id === id))
+											.filter((f) => f !== undefined) as Issue.AppIssue[]
+									}
 									root={i.id}
-									setOrderedIssues={setOrderedIssues}
 								/>
 							) : null}
 						</li>
@@ -78,9 +83,12 @@ export default function RecursiveList({
 								</div>
 								{i.children && i.children.length ? (
 									<RecursiveList
-										issues={rankifyIssues(i.children)}
+										issuesToList={
+											i.children
+												.map((id) => issuesToList.find((iss) => iss.id === id))
+												.filter((f) => f !== undefined) as Issue.AppIssue[]
+										}
 										root={i.id}
-										setOrderedIssues={setOrderedIssues}
 									/>
 								) : null}
 							</li>

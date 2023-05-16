@@ -12,13 +12,16 @@ import {
 import useUser from "./useUser";
 import { Issue } from "../interfaces/Issue";
 import logError from "../lib/logError";
+import rankifyIssue from "../lib/rankifyIssue";
+import unrankifyIssue from "../lib/unrankifyIssue";
+import rankifyIssues from "../lib/rankifyIssues";
 
 const IsuesContext = createContext<{
-	issues: Issue.Issue[];
-	setIssues: React.Dispatch<React.SetStateAction<Issue.Issue[]>>;
+	issues: Issue.AppIssue[];
+	setIssues: React.Dispatch<React.SetStateAction<Issue.AppIssue[]>>;
 	loading: boolean;
-	addIssue: (issueData: Issue.Data, projectId: string) => Promise<string>;
-	updateIssue: (updatedIssue: Issue.Issue) => Promise<void>;
+	addIssue: (issueData: Issue.FormData, projectId: string) => Promise<string>;
+	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
 } | null>(null);
 
@@ -37,7 +40,7 @@ type IssuesProviderProps = {
 };
 
 export function IssuesProvider({ children }: IssuesProviderProps) {
-	const [issues, setIssues] = useState<Issue.Issue[]>([]);
+	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
 
@@ -48,7 +51,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	 * @returns The new issue ID.
 	 */
 	async function addIssue(
-		issueData: Issue.Data,
+		issueData: Issue.FormData,
 		projectId: string
 	): Promise<string> {
 		if (!user || !user.uid) {
@@ -62,7 +65,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 			const creationTime = Date.now();
 			// complete issue document object with authorId & project id:
-			const newIssue: Issue.Issue = {
+			const newIssue: Issue.DbIssue = {
 				...issueData,
 				authorId: user.uid,
 				projectId,
@@ -96,7 +99,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			// Commit the batch
 			await batch.commit();
 
-			setIssues([...issues, newIssue]);
+			// rankify issue & add it to app state:
+			const newIssueRankified: Issue.AppIssue = rankifyIssue(newIssue);
+			setIssues([...issues, newIssueRankified]);
 
 			return newIssueId;
 		} catch (error: any) {
@@ -110,7 +115,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	/**
 	 * Updates issue and adds update time automatically.
 	 */
-	async function updateIssue(updatedIssue: Issue.Issue) {
+	async function updateIssue(updatedIssue: Issue.AppIssue) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
 		// we need to update it only there
@@ -123,7 +128,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			const isIssueStatusChanged =
 				issueBeforeUpdates.status !== updatedIssue.status;
 
-			let updatedIssueWithAdditionalUpdates: Issue.Issue = {
+			let updatedIssueWithAdditionalUpdates: Issue.AppIssue = {
 				...updatedIssue,
 				updated: updateTime,
 			};
@@ -159,9 +164,14 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				}
 			}
 
+			// unrankify updated issue to update it db:
+			const updatedIssueUnrankified = unrankifyIssue(
+				updatedIssueWithAdditionalUpdates
+			);
+
 			await setDoc(
 				doc(firestore, "issues", updatedIssue.id),
-				updatedIssueWithAdditionalUpdates
+				updatedIssueUnrankified
 			);
 
 			// update app's state:
@@ -225,8 +235,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
-	// fetch user issuesIds array from user-issues collection,
-	// then fetch those issues data:
+	// fetch user issuesIds array from /user-issues collection,
+	// then fetch those issues:
 	useEffect(() => {
 		async function fetchIssues(uid: string) {
 			try {
@@ -256,7 +266,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 							const docRef = doc(firestore, "issues", issueId);
 							const docSnap = await getDoc(docRef);
 							if (docSnap.exists()) {
-								return docSnap.data() as Issue.Issue;
+								return docSnap.data() as Issue.DbIssue;
 							}
 						})
 					);
@@ -264,8 +274,10 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 					if (fetchedUserIssues) {
 						const filteredIssues = fetchedUserIssues.filter(
 							(issue) => issue !== undefined
-						) as Issue.Issue[];
-						setIssues(filteredIssues);
+						) as Issue.DbIssue[];
+
+						// rankify issues & add to app state:
+						setIssues(rankifyIssues(filteredIssues));
 					}
 				} else {
 					setIssues([]);

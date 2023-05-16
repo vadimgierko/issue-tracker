@@ -18,7 +18,7 @@ export default function IssueEdit() {
 	const { issueId } = useParams();
 	const { issues, updateIssue, deleteIssue } = useIssues();
 	const issueToUpdate = issues.find((i) => i.id === issueId);
-	const [updatedIssue, setUpdatedIssue] = useState<Issue.Issue | null>(null);
+	const [updatedIssue, setUpdatedIssue] = useState<Issue.AppIssue | null>(null);
 	const { projects } = useProjects();
 
 	async function handleIssueUpdate(e: React.FormEvent<HTMLFormElement>) {

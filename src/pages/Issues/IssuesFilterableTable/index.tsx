@@ -7,7 +7,7 @@ import IssuesSortForm from "./IssuesSortForm";
 import rankifyIssues from "../../../lib/rankifyIssues";
 
 type IssuesFilterableTableProps = {
-	issues: Issue.Issue[];
+	issues: Issue.AppIssue[];
 };
 
 const initFilterFormData: Issue.FilterFormData = {
@@ -29,9 +29,9 @@ export default function IssuesFilterableTable({
 	const [sortValue, setSortValue] = useState<Issue.SortValue>("highest ranked");
 	const [status, setStatus] = useState<Issue.TableTabStatus>("open");
 
-	const [filteredIssues, setFilteredIssues] = useState<
-		Issue.RankedIssue[] | []
-	>([]);
+	const [filteredIssues, setFilteredIssues] = useState<Issue.AppIssue[] | []>(
+		[]
+	);
 
 	function NoFilteredIssues() {
 		return (
@@ -72,15 +72,15 @@ export default function IssuesFilterableTable({
 			});
 
 			// rank issues:
-			const rankedIssues = rankifyIssues(filteredItems);
+			//const rankedIssues = rankifyIssues(filteredItems);
 
 			// sort issues:
 			const levelsOrder: Issue.Level[] = ["high", "medium", "low"];
 
 			function sortIssuesByValue(
-				issues: Issue.RankedIssue[],
+				issues: Issue.AppIssue[],
 				sortValue: Issue.SortValue
-			): Issue.RankedIssue[] {
+			): Issue.AppIssue[] {
 				switch (sortValue) {
 					case "newest":
 						return issues.sort((a, b) => b.created - a.created);
@@ -145,12 +145,12 @@ export default function IssuesFilterableTable({
 				}
 			}
 
-			const filteredRankedAndSortedIssues = sortIssuesByValue(
-				rankedIssues,
+			const filteredAndSortedIssues = sortIssuesByValue(
+				filteredItems,
 				sortValue
 			);
 
-			setFilteredIssues(filteredRankedAndSortedIssues);
+			setFilteredIssues(filteredAndSortedIssues);
 		}
 
 		filterAndSortIssues(filterFormData, status);

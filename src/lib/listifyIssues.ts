@@ -1,9 +1,9 @@
 import { Issue } from "../interfaces/Issue";
 
 export default function listifyIssues(
-	issues: Issue.RankedIssue[]
-): Issue.RankedIssue[] {
-	const sortedIssues: Issue.RankedIssue[] = [];
+	issues: Issue.AppIssue[]
+): Issue.AppIssue[] {
+	const sortedIssues: Issue.AppIssue[] = [];
 
 	// helper function
 	function findIssueById(issueId: string | null | undefined) {
