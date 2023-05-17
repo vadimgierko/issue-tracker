@@ -32,7 +32,10 @@ export default function IssuesAdd() {
 	// we need to check, if there is projectId in the link
 	// (check if we were redirected from project page to add an issue)
 	// to set projectId in new issue:
-	const { projectId } = useParams();
+	const params = useParams();
+	console.log("/issues/add params:", params);
+
+	const { projectId, ordered, after, before } = useParams();
 	const navigate = useNavigate();
 	const [issueData, setIssueData] = useState<Issue.FormData>(emptyIssue);
 	const { projects } = useProjects();
@@ -47,7 +50,13 @@ export default function IssuesAdd() {
 		if (!issueData.projectId)
 			return logError("No project selected... Cannot add issue.");
 
-		const addedIssueId = await addIssue(issueData, issueData.projectId);
+		const addedIssueId = await addIssue(
+			issueData,
+			issueData.projectId,
+			ordered === "true" ? true : false,
+			after ? (after === "null" ? null : after) : null,
+			before ? (before === "null" ? null : before) : null
+		);
 		alert(`Your issue was successfully added with the id ${addedIssueId}.`);
 		clearForm();
 		navigate(-1);
@@ -90,7 +99,7 @@ export default function IssuesAdd() {
 							color: theme === "light" ? "black" : "white",
 						}}
 						required
-						disabled={projectId ? true : false}
+						disabled={projectId && projectId !== "null" ? true : false}
 					>
 						<option value="">Select project</option>
 						{projects.map((project) => (
@@ -172,7 +181,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">feature</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.features?.map((f) => (
 										<option value={f} key={f}>
 											{f}
@@ -200,7 +209,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">page</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.pages?.map((p) => (
 										<option value={p} key={p}>
 											{p}
@@ -228,7 +237,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">component</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.components?.map((c) => (
 										<option value={c} key={c}>
 											{c}

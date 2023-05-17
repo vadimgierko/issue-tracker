@@ -20,7 +20,13 @@ const IsuesContext = createContext<{
 	issues: Issue.AppIssue[];
 	setIssues: React.Dispatch<React.SetStateAction<Issue.AppIssue[]>>;
 	loading: boolean;
-	addIssue: (issueData: Issue.FormData, projectId: string) => Promise<string>;
+	addIssue: (
+		issueData: Issue.FormData,
+		projectId: string,
+		ordered: boolean,
+		after: string | null,
+		before: string | null
+	) => Promise<string>;
 	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
 } | null>(null);
@@ -51,8 +57,11 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	 * @returns The new issue ID.
 	 */
 	async function addIssue(
-		issueData: Issue.FormData,
-		projectId: string
+		issueFormData: Issue.FormData,
+		projectId: string,
+		ordered: boolean,
+		after: string | null,
+		before: string | null
 	): Promise<string> {
 		if (!user || !user.uid) {
 			logError("You need to be logged to add an issue!");
@@ -66,7 +75,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			const creationTime = Date.now();
 			// complete issue document object with authorId & project id:
 			const newIssue: Issue.DbIssue = {
-				...issueData,
+				...issueFormData,
 				authorId: user.uid,
 				projectId,
 				id: newIssueId,
@@ -74,6 +83,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				updated: creationTime,
 				inProgressFrom: null,
 				closedAt: null,
+				ordered,
+				after,
+				before,
 			};
 
 			// init batch to update multiply docs:

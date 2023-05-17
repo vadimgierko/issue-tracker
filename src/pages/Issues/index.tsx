@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "../../components/Layout/PageHeader";
 import IssuesFilterableTable from "./IssuesFilterableTable";
 import { AiOutlinePlusSquare } from "react-icons/ai";
+import createAddIssueLinkWithParams from "../../lib/createAddIssueLinkWithParams";
 
 export default function Issues() {
 	const { issues, loading } = useIssues();
@@ -26,7 +27,7 @@ export default function Issues() {
 				pageTitle={
 					<span>
 						Issues ({issues.length}){" "}
-						<Link to="/issues/add">
+						<Link to={createAddIssueLinkWithParams(null, false, null, null)}>
 							<AiOutlinePlusSquare />
 						</Link>
 					</span>
