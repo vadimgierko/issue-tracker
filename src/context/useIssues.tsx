@@ -108,12 +108,44 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			const projectIssuesRef = doc(firestore, "project-issues", projectId);
 			batch.update(projectIssuesRef, { issuesIds: arrayUnion(newIssueId) });
 
+			// if new issue is ordered => update also after/ before issues if the case:
+			if (newIssue.ordered) {
+				if (newIssue.after) {
+					const issueBeforeNewRef = doc(firestore, "issues", newIssue.after);
+					batch.update(issueBeforeNewRef, {
+						before: newIssueId,
+						updated: creationTime,
+					});
+				}
+
+				if (newIssue.before) {
+					const issueAfterNewIssueRef = doc(
+						firestore,
+						"issues",
+						newIssue.before
+					);
+					batch.update(issueAfterNewIssueRef, {
+						after: newIssueId,
+						updated: creationTime,
+					});
+				}
+			}
+
 			// Commit the batch
 			await batch.commit();
 
-			// rankify issue & add it to app state:
+			// rankify new issue:
 			const newIssueRankified: Issue.AppIssue = rankifyIssue(newIssue);
-			setIssues([...issues, newIssueRankified]);
+			// update also after/ before issues if exist
+			const updatedIssues = issues.map((i) =>
+				newIssueRankified.after && newIssueRankified.after === i.id
+					? { ...i, before: newIssueId, updated: creationTime }
+					: newIssueRankified.before && newIssueRankified.before === i.id
+					? { ...i, after: newIssueId, updated: creationTime }
+					: i
+			);
+
+			setIssues([...updatedIssues, newIssueRankified]);
 
 			return newIssueId;
 		} catch (error: any) {

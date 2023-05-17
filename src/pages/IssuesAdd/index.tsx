@@ -29,9 +29,6 @@ const emptyIssue: Issue.FormData = {
 
 export default function IssuesAdd() {
 	const { theme } = useTheme();
-	// we need to check, if there is projectId in the link
-	// (check if we were redirected from project page to add an issue)
-	// to set projectId in new issue:
 	const params = useParams();
 	console.log("/issues/add params:", params);
 

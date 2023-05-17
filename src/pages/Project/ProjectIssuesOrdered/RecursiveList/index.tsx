@@ -2,9 +2,10 @@ import { Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { doc, writeBatch } from "firebase/firestore";
 import { firestore } from "../../../../firebaseConfig";
+import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWithParams";
 
 export default function RecursiveList({
 	issuesToList,
@@ -13,6 +14,8 @@ export default function RecursiveList({
 	issuesToList: Issue.AppIssue[];
 	root: string | null;
 }) {
+	const navigate = useNavigate();
+
 	const { setIssues } = useIssues();
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
@@ -209,11 +212,31 @@ export default function RecursiveList({
 		return (
 			<li>
 				<div style={{ display: "flex" }}>
-					<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
+					<Link to={"/issues/" + i.id} className="me-1">
+						{i.title}
+					</Link>
+					<span>{i.rank}/90</span>
 					<Dropdown className="ms-2">
 						<Dropdown.Toggle as="a" variant="outline-secondary" />
 
 						<Dropdown.Menu>
+							{i.ordered && (
+								<Dropdown.Item
+									onClick={() =>
+										navigate(
+											createAddIssueLinkWithParams(
+												i.projectId,
+												i.ordered ? i.ordered : false,
+												i.id,
+												i.before ? i.before : null
+											)
+										)
+									}
+								>
+									+ add after
+								</Dropdown.Item>
+							)}
+
 							{!i.ordered && (
 								<Dropdown.Item onClick={() => transformIntoOrdered(i.id)}>
 									transform into ordered
