@@ -15,15 +15,15 @@ export default function RecursiveList({
 }) {
 	const { setIssues } = useIssues();
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
-	const rootOrderedIssues = listifyIssues(rootIssues.filter((i) => i.ordered));
-	const rootUnorderedIssues = rootIssues.filter((i) => !i.ordered);
+	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
+	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
 
 	async function transformIntoOrdered(issueId: string) {
 		const updateTime = Date.now();
 
 		const lastOrderedIssue =
-			rootOrderedIssues && rootOrderedIssues.length
-				? rootOrderedIssues[rootOrderedIssues.length - 1]
+			rootIssuesOrdered && rootIssuesOrdered.length
+				? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 				: null;
 
 		const issueToTransform = rootIssues.find((i) => i.id === issueId);
@@ -94,60 +94,178 @@ export default function RecursiveList({
 		}
 	}
 
+	async function transformIntoUnordered(issueId: string) {
+		const updateTime = Date.now();
+
+		const issueToTransform = rootIssues.find((i) => i.id === issueId);
+
+		if (issueToTransform) {
+			const issueToTransformAfter = rootIssues.find(
+				(i) => i.id === issueToTransform.after
+			);
+			const issueToTransformBefore = rootIssues.find(
+				(i) => i.id === issueToTransform.before
+			);
+
+			const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
+				i.id === issueToTransform.id
+					? {
+							...issueToTransform,
+							ordered: false,
+							after: null,
+							before: null,
+							updated: updateTime,
+					  }
+					: issueToTransformAfter && i.id === issueToTransformAfter.id
+					? {
+							...issueToTransformAfter,
+							before: issueToTransform.before,
+							updated: updateTime,
+					  }
+					: issueToTransformBefore && i.id === issueToTransformBefore.id
+					? {
+							...issueToTransformBefore,
+							after: issueToTransform.after,
+							updated: updateTime,
+					  }
+					: i
+			);
+
+			// UPDATE DATABASE & APP STATE:
+			try {
+				// init batch to update multiply docs:
+				// Get a new write batch
+				const batch = writeBatch(firestore);
+
+				const transformedIssueRef = doc(
+					firestore,
+					"issues",
+					issueToTransform.id
+				);
+				batch.update(transformedIssueRef, {
+					ordered: false,
+					after: null,
+					before: null,
+					updated: updateTime,
+				});
+
+				if (issueToTransformAfter) {
+					const issueToTransformAfterRef = doc(
+						firestore,
+						"issues",
+						issueToTransformAfter.id
+					);
+					batch.update(issueToTransformAfterRef, {
+						before: issueToTransform.before,
+						updated: updateTime,
+					});
+				}
+
+				if (issueToTransformBefore) {
+					const issueToTransformBeforeRef = doc(
+						firestore,
+						"issues",
+						issueToTransformBefore.id
+					);
+					batch.update(issueToTransformBeforeRef, {
+						before: issueToTransform.before,
+						updated: updateTime,
+					});
+				}
+
+				// Commit the batch
+				await batch.commit();
+
+				console.log("issue to transform was updated succsessfully!");
+
+				issueToTransformAfter &&
+					console.log(
+						"issue which transformed issue was after exists & was updated succsessfully!"
+					);
+				!issueToTransformAfter &&
+					console.log(
+						"issue which transformed issue was after DOESN'T exists... no need to update"
+					);
+
+				issueToTransformBefore &&
+					console.log(
+						"issue which transformed issue was before exists & was updated succsessfully!"
+					);
+				!issueToTransformBefore &&
+					console.log(
+						"issue which transformed issue was before DOESN'T exists... no need to update"
+					);
+
+				// UPDATE APP STATE:
+				setIssues(updatedIssues);
+			} catch (error: any) {
+				console.error(error);
+				alert(error);
+			}
+		}
+	}
+
+	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
+		return (
+			<li>
+				<div style={{ display: "flex" }}>
+					<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
+					<Dropdown className="ms-2">
+						<Dropdown.Toggle as="a" variant="outline-secondary" />
+
+						<Dropdown.Menu>
+							{!i.ordered && (
+								<Dropdown.Item onClick={() => transformIntoOrdered(i.id)}>
+									transform into ordered
+								</Dropdown.Item>
+							)}
+							{i.ordered && (
+								<Dropdown.Item onClick={() => transformIntoUnordered(i.id)}>
+									transform into unordered
+								</Dropdown.Item>
+							)}
+						</Dropdown.Menu>
+					</Dropdown>
+					{i.children && i.children.length ? (
+						<RecursiveList
+							issuesToList={
+								i.children
+									.map((id) => issuesToList.find((iss) => iss.id === id))
+									.filter((f) => f !== undefined) as Issue.AppIssue[]
+							}
+							root={i.id}
+						/>
+					) : null}
+				</div>
+			</li>
+		);
+	}
+
 	return (
 		<>
-			{rootOrderedIssues && rootOrderedIssues.length ? (
+			{rootIssuesOrdered && rootIssuesOrdered.length ? (
 				<ol>
-					{rootOrderedIssues.map((i) => (
-						<li key={i.id}>
-							<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
-							{i.children && i.children.length ? (
-								<RecursiveList
-									issuesToList={
-										i.children
-											.map((id) => issuesToList.find((iss) => iss.id === id))
-											.filter((f) => f !== undefined) as Issue.AppIssue[]
-									}
-									root={i.id}
-								/>
-							) : null}
-						</li>
+					{rootIssuesOrdered.map((i) => (
+						<RecursiveListItem key={i.id} i={i} />
 					))}
 				</ol>
-			) : null}
+			) : (
+				<p>There are no ordered issues yet... Add one!</p>
+			)}
 
-			{rootUnorderedIssues && rootUnorderedIssues.length ? (
+			<hr />
+
+			{rootIssuesUnordered && rootIssuesUnordered.length ? (
 				<ul>
-					{rootUnorderedIssues
+					{rootIssuesUnordered
 						.sort((a, b) => b.rank - a.rank)
 						.map((i) => (
-							<li key={i.id}>
-								<div style={{ display: "flex" }}>
-									<Link to={"/issues/" + i.id}>{i.title}</Link> ({i.rank}/90)
-									<Dropdown className="ms-2">
-										<Dropdown.Toggle as="a" variant="outline-secondary" />
-
-										<Dropdown.Menu>
-											<Dropdown.Item onClick={() => transformIntoOrdered(i.id)}>
-												transform into ordered issue
-											</Dropdown.Item>
-										</Dropdown.Menu>
-									</Dropdown>
-								</div>
-								{i.children && i.children.length ? (
-									<RecursiveList
-										issuesToList={
-											i.children
-												.map((id) => issuesToList.find((iss) => iss.id === id))
-												.filter((f) => f !== undefined) as Issue.AppIssue[]
-										}
-										root={i.id}
-									/>
-								) : null}
-							</li>
+							<RecursiveListItem key={i.id} i={i} />
 						))}
 				</ul>
-			) : null}
+			) : (
+				<p>There are no unordered issues yet... Add one!</p>
+			)}
 		</>
 	);
 }
