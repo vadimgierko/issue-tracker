@@ -30,7 +30,7 @@ const emptyIssue: Issue.FormData = {
 export default function IssuesAdd() {
 	const { theme } = useTheme();
 	const params = useParams();
-	console.log("/issues/add params:", params);
+	// console.log("/issues/add params:", params);
 
 	const { projectId, ordered, after, before } = useParams();
 	const navigate = useNavigate();

@@ -12,8 +12,8 @@ export default function Project() {
 	const navigate = useNavigate();
 
 	const { issues } = useIssues();
-	const allProjectIssues = issues.filter((i) => i.projectId === projectId);
-	const orderedProjectIssues = issues.filter(
+	const projectIssuesAll = issues.filter((i) => i.projectId === projectId);
+	const projectIssuesOpenAndInProgress = issues.filter(
 		(i) =>
 			i.projectId === projectId &&
 			(i.status === "open" || i.status === "in progress")
@@ -35,7 +35,7 @@ export default function Project() {
 	}
 
 	// TODO: make "issues view" the root view for project page:
-	useEffect(() => navigate("issues"), []); // this is just a workaround for now
+	// useEffect(() => navigate("issues"), []); // this is just a workaround for now
 
 	// TODO: add some error here, but that is made to satisfy ts:
 	if (!projectId) return null;
@@ -64,10 +64,10 @@ export default function Project() {
 				}
 			>
 				<p className="text-center">
-					<Link to="issues">Issues ({allProjectIssues.length})</Link> |{" "}
+					<Link to="issues">Issues ({projectIssuesAll.length})</Link> |{" "}
 					<Link to="details">Details</Link> |{" "}
 					<Link to="issues-ordered">
-						Issues (ordered) ({orderedProjectIssues.length})
+						Issues (ordered) ({projectIssuesOpenAndInProgress.length})
 					</Link>
 				</p>
 			</PageHeader>

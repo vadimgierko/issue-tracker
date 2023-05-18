@@ -53,7 +53,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	console.log("user issues:", issues);
 
 	/**
-	 * Add a new issue to the project & returns new issue id.
 	 * @returns The new issue ID.
 	 */
 	async function addIssue(
@@ -73,7 +72,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			const { id: newIssueId } = doc(collection(firestore, "issues"));
 
 			const creationTime = Date.now();
-			// complete issue document object with authorId & project id:
+
 			const newIssue: Issue.DbIssue = {
 				...issueFormData,
 				authorId: user.uid,
@@ -89,7 +88,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			};
 
 			// init batch to update multiply docs:
-			// Get a new write batch
 			const batch = writeBatch(firestore);
 
 			// set new issue:
@@ -166,62 +164,153 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		if (!updatedIssue)
 			return logError("No updated issue data provided... Cannot update issue.");
 
+		const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id)!;
+
+		const updateTime = Date.now();
+
+		// update cases:
+		// 1. only data update: just unrankify & update issue in db.
+		// 2. status update: update status + unrankify & update issue in db.
+		// 3. ordered false => true: check if there are after & before updates, update them + unrankify & update issue in db.
+		// 4. ordered true => false: check if there are after & before updates, update them + unrankify & update issue in db.
+
+		let updatedIssueWithUpdateTime: Issue.AppIssue = {
+			...updatedIssue,
+			updated: updateTime,
+		};
+
+		const isIssueStatusChanged =
+			issueBeforeUpdates.status !== updatedIssueWithUpdateTime.status;
+
+		const isIssueOrderedPropChanged =
+			issueBeforeUpdates.ordered !== updatedIssueWithUpdateTime.ordered;
+
+		const isConvertedIntoOrdered =
+			!issueBeforeUpdates.ordered && updatedIssueWithUpdateTime.ordered;
+		const isConvertedIntoUnordered =
+			issueBeforeUpdates.ordered && !updatedIssueWithUpdateTime.ordered;
+
+		// 1. & 2.:
+
+		if (isIssueStatusChanged) {
+			const { status: beforeStatus } = issueBeforeUpdates;
+			const { status: currentStatus } = updatedIssue;
+
+			if (beforeStatus === "open" && currentStatus === "in progress") {
+				updatedIssueWithUpdateTime.inProgressFrom = updateTime;
+			} else if (beforeStatus === "in progress" && currentStatus !== "open") {
+				updatedIssueWithUpdateTime.closedAt = updateTime;
+			} else if (beforeStatus === "in progress" && currentStatus === "open") {
+				updatedIssueWithUpdateTime.inProgressFrom = null;
+			} else if (
+				!["open", "in progress"].includes(beforeStatus) &&
+				currentStatus === "in progress"
+			) {
+				updatedIssueWithUpdateTime = {
+					...updatedIssueWithUpdateTime,
+					inProgressFrom: updateTime,
+					closedAt: null,
+				};
+			} else if (
+				!["open", "in progress"].includes(beforeStatus) &&
+				currentStatus === "open"
+			) {
+				updatedIssueWithUpdateTime = {
+					...updatedIssueWithUpdateTime,
+					inProgressFrom: null,
+					closedAt: null,
+				};
+			}
+		}
+
+		// unrankify updated issue to update it db:
+		const updatedIssueUnrankified = unrankifyIssue(updatedIssueWithUpdateTime);
+
 		try {
-			const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id)!;
-			const updateTime = Date.now();
-			const isIssueStatusChanged =
-				issueBeforeUpdates.status !== updatedIssue.status;
+			const batch = writeBatch(firestore);
 
-			let updatedIssueWithAdditionalUpdates: Issue.AppIssue = {
-				...updatedIssue,
-				updated: updateTime,
-			};
+			// set updated issue:
+			const updatedIssueRef = doc(
+				firestore,
+				"issues",
+				updatedIssueUnrankified.id
+			);
+			batch.set(updatedIssueRef, updatedIssueUnrankified);
 
-			if (isIssueStatusChanged) {
-				const { status: beforeStatus } = issueBeforeUpdates;
-				const { status: currentStatus } = updatedIssue;
+			let updatedIssueAfter: Issue.AppIssue | null = null;
+			let updatedIssueBefore: Issue.AppIssue | null = null;
 
-				if (beforeStatus === "open" && currentStatus === "in progress") {
-					updatedIssueWithAdditionalUpdates.inProgressFrom = updateTime;
-				} else if (beforeStatus === "in progress" && currentStatus !== "open") {
-					updatedIssueWithAdditionalUpdates.closedAt = updateTime;
-				} else if (beforeStatus === "in progress" && currentStatus === "open") {
-					updatedIssueWithAdditionalUpdates.inProgressFrom = null;
-				} else if (
-					!["open", "in progress"].includes(beforeStatus) &&
-					currentStatus === "in progress"
-				) {
-					updatedIssueWithAdditionalUpdates = {
-						...updatedIssueWithAdditionalUpdates,
-						inProgressFrom: updateTime,
-						closedAt: null,
-					};
-				} else if (
-					!["open", "in progress"].includes(beforeStatus) &&
-					currentStatus === "open"
-				) {
-					updatedIssueWithAdditionalUpdates = {
-						...updatedIssueWithAdditionalUpdates,
-						inProgressFrom: null,
-						closedAt: null,
-					};
+			if (isIssueOrderedPropChanged) {
+				if (updatedIssueUnrankified.ordered) {
+					if (updatedIssueUnrankified.after) {
+						const issueAfter = issues.find(
+							(i) => i.id === updatedIssueUnrankified.after
+						);
+						if (issueAfter) {
+							updatedIssueAfter = {
+								...issueAfter,
+								before: updatedIssueUnrankified.id,
+								updated: updateTime,
+							};
+						}
+					}
+				} else {
+					const issueAfter = issues.find(
+						(i) => i.id === issueBeforeUpdates.after
+					);
+					const issueBefore = issues.find(
+						(i) => i.id === issueBeforeUpdates.before
+					);
+					if (issueAfter) {
+						updatedIssueAfter = {
+							...issueAfter,
+							before: issueBeforeUpdates.before,
+							updated: updateTime,
+						};
+					}
+					if (issueBefore) {
+						updatedIssueBefore = {
+							...issueBefore,
+							after: issueBeforeUpdates.after,
+							updated: updateTime,
+						};
+					}
 				}
 			}
 
-			// unrankify updated issue to update it db:
-			const updatedIssueUnrankified = unrankifyIssue(
-				updatedIssueWithAdditionalUpdates
-			);
+			if (updatedIssueAfter) {
+				const updatedIssueAfterRef = doc(
+					firestore,
+					"issues",
+					updatedIssueAfter.id
+				);
+				batch.set(updatedIssueAfterRef, unrankifyIssue(updatedIssueAfter));
+			}
 
-			await setDoc(
-				doc(firestore, "issues", updatedIssue.id),
-				updatedIssueUnrankified
-			);
+			if (updatedIssueBefore) {
+				const updatedIssueBeforeRef = doc(
+					firestore,
+					"issues",
+					updatedIssueBefore.id
+				);
+				batch.set(updatedIssueBeforeRef, unrankifyIssue(updatedIssueBefore));
+			}
+
+			batch.commit();
 
 			// update app's state:
-			const updatedIssues = issues.map((i) =>
-				i.id === updatedIssue.id ? updatedIssueWithAdditionalUpdates : i
-			);
+			const updatedIssues = issues.map((i) => {
+				if (i.id === updatedIssue.id) {
+					return updatedIssueWithUpdateTime;
+				} else if (updatedIssueAfter && i.id === updatedIssueAfter.id) {
+					return updatedIssueAfter;
+				} else if (updatedIssueBefore && i.id === updatedIssueBefore.id) {
+					return updatedIssueBefore;
+				} else {
+					return i;
+				}
+			});
+
 			setIssues(updatedIssues);
 		} catch (error: any) {
 			logError(

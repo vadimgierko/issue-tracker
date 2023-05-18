@@ -3,93 +3,42 @@ import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
 import { Link, useNavigate } from "react-router-dom";
-import { doc, writeBatch } from "firebase/firestore";
-import { firestore } from "../../../../firebaseConfig";
 import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWithParams";
 
 export default function RecursiveList({
 	issuesToList,
 	root,
 }: {
-	issuesToList: Issue.AppIssue[];
+	issuesToList: Issue.AppIssue[]; // open & in progress project issues only
 	root: string | null;
 }) {
 	const navigate = useNavigate();
 
-	const { setIssues } = useIssues();
+	const { updateIssue } = useIssues();
+
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
 
-	async function transformIntoOrdered(issueId: string) {
-		const updateTime = Date.now();
-
+	async function convertIntoOrdered(issueId: string) {
 		const lastOrderedIssue =
 			rootIssuesOrdered && rootIssuesOrdered.length
 				? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 				: null;
 
-		const issueToTransform = rootIssues.find((i) => i.id === issueId);
+		const issueToConvert = rootIssues.find((i) => i.id === issueId);
 
-		if (issueToTransform) {
-			const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
-				i.id === issueToTransform.id
-					? {
-							...issueToTransform,
-							ordered: true,
-							after: lastOrderedIssue ? lastOrderedIssue.id : null,
-							before: null,
-							updated: updateTime,
-					  }
-					: lastOrderedIssue && i.id === lastOrderedIssue.id
-					? { ...lastOrderedIssue, before: issueId, updated: updateTime }
-					: i
-			);
+		if (issueToConvert) {
+			const convertedIssue = {
+				...issueToConvert,
+				ordered: true,
+				after: lastOrderedIssue ? lastOrderedIssue.id : null,
+				before: null,
+			};
 
-			// UPDATE DATABASE & APP STATE:
 			try {
-				// init batch to update multiply docs:
-				// Get a new write batch
-				const batch = writeBatch(firestore);
-
-				const transformedIssueRef = doc(
-					firestore,
-					"issues",
-					issueToTransform.id
-				);
-				batch.update(transformedIssueRef, {
-					ordered: true,
-					after: lastOrderedIssue ? lastOrderedIssue.id : null,
-					before: null,
-					updated: updateTime,
-				});
-
-				if (lastOrderedIssue) {
-					const lastOrderedIssueRef = doc(
-						firestore,
-						"issues",
-						lastOrderedIssue.id
-					);
-					batch.update(lastOrderedIssueRef, {
-						before: issueId,
-						updated: updateTime,
-					});
-				}
-
-				// Commit the batch
-				await batch.commit();
-
-				console.log("issue to transform was updated succsessfully!");
-				lastOrderedIssue &&
-					console.log("last ordered issue exists & was updated succsessfully!");
-
-				!lastOrderedIssue &&
-					console.log(
-						"there is no last ordered issue to update (there were no ordered issues at all)..."
-					);
-
-				// UPDATE APP STATE:
-				setIssues(updatedIssues);
+				await updateIssue(convertedIssue);
+				console.log("issue was converted into ordered succsessfully!");
 			} catch (error: any) {
 				console.error(error);
 				alert(error);
@@ -97,110 +46,20 @@ export default function RecursiveList({
 		}
 	}
 
-	async function transformIntoUnordered(issueId: string) {
-		const updateTime = Date.now();
+	async function convertIntoUnordered(issueId: string) {
+		const issueToConvert = rootIssues.find((i) => i.id === issueId);
 
-		const issueToTransform = rootIssues.find((i) => i.id === issueId);
+		if (issueToConvert) {
+			const convertedIssue = {
+				...issueToConvert,
+				ordered: false,
+				after: null,
+				before: null,
+			};
 
-		if (issueToTransform) {
-			const issueToTransformAfter = rootIssues.find(
-				(i) => i.id === issueToTransform.after
-			);
-			const issueToTransformBefore = rootIssues.find(
-				(i) => i.id === issueToTransform.before
-			);
-
-			const updatedIssues: Issue.AppIssue[] = rootIssues.map((i) =>
-				i.id === issueToTransform.id
-					? {
-							...issueToTransform,
-							ordered: false,
-							after: null,
-							before: null,
-							updated: updateTime,
-					  }
-					: issueToTransformAfter && i.id === issueToTransformAfter.id
-					? {
-							...issueToTransformAfter,
-							before: issueToTransform.before,
-							updated: updateTime,
-					  }
-					: issueToTransformBefore && i.id === issueToTransformBefore.id
-					? {
-							...issueToTransformBefore,
-							after: issueToTransform.after,
-							updated: updateTime,
-					  }
-					: i
-			);
-
-			// UPDATE DATABASE & APP STATE:
 			try {
-				// init batch to update multiply docs:
-				// Get a new write batch
-				const batch = writeBatch(firestore);
-
-				const transformedIssueRef = doc(
-					firestore,
-					"issues",
-					issueToTransform.id
-				);
-				batch.update(transformedIssueRef, {
-					ordered: false,
-					after: null,
-					before: null,
-					updated: updateTime,
-				});
-
-				if (issueToTransformAfter) {
-					const issueToTransformAfterRef = doc(
-						firestore,
-						"issues",
-						issueToTransformAfter.id
-					);
-					batch.update(issueToTransformAfterRef, {
-						before: issueToTransform.before,
-						updated: updateTime,
-					});
-				}
-
-				if (issueToTransformBefore) {
-					const issueToTransformBeforeRef = doc(
-						firestore,
-						"issues",
-						issueToTransformBefore.id
-					);
-					batch.update(issueToTransformBeforeRef, {
-						before: issueToTransform.before,
-						updated: updateTime,
-					});
-				}
-
-				// Commit the batch
-				await batch.commit();
-
-				console.log("issue to transform was updated succsessfully!");
-
-				issueToTransformAfter &&
-					console.log(
-						"issue which transformed issue was after exists & was updated succsessfully!"
-					);
-				!issueToTransformAfter &&
-					console.log(
-						"issue which transformed issue was after DOESN'T exists... no need to update"
-					);
-
-				issueToTransformBefore &&
-					console.log(
-						"issue which transformed issue was before exists & was updated succsessfully!"
-					);
-				!issueToTransformBefore &&
-					console.log(
-						"issue which transformed issue was before DOESN'T exists... no need to update"
-					);
-
-				// UPDATE APP STATE:
-				setIssues(updatedIssues);
+				await updateIssue(convertedIssue);
+				console.log("issue was converted into unordered succsessfully!");
 			} catch (error: any) {
 				console.error(error);
 				alert(error);
@@ -238,12 +97,12 @@ export default function RecursiveList({
 							)}
 
 							{!i.ordered && (
-								<Dropdown.Item onClick={() => transformIntoOrdered(i.id)}>
+								<Dropdown.Item onClick={() => convertIntoOrdered(i.id)}>
 									transform into ordered
 								</Dropdown.Item>
 							)}
 							{i.ordered && (
-								<Dropdown.Item onClick={() => transformIntoUnordered(i.id)}>
+								<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
 									transform into unordered
 								</Dropdown.Item>
 							)}

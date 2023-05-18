@@ -9,7 +9,7 @@ export default function ProjectIssuesOrdered() {
 	const { projects } = useProjects();
 	const { issues } = useIssues();
 	const project = projects.find((p) => p.id === projectId);
-	const projectIssues = issues.filter(
+	const projectIssuesOpenAndInProgress = issues.filter(
 		(i) =>
 			i.projectId === projectId &&
 			(i.status === "open" || i.status === "in progress")
@@ -20,7 +20,7 @@ export default function ProjectIssuesOrdered() {
 			<p className="text-center text-danger">There is no such project...</p>
 		);
 
-	if (!projectIssues || !projectIssues.length)
+	if (!projectIssuesOpenAndInProgress || !projectIssuesOpenAndInProgress.length)
 		return (
 			<p className="text-center text-danger">
 				There are no issues in this project...
@@ -30,12 +30,16 @@ export default function ProjectIssuesOrdered() {
 	return (
 		<>
 			<h2 className="text-center">
-				Issues Ordered (open & in progress) ({projectIssues.length}){" "}
+				Issues Ordered (open & in progress) (
+				{projectIssuesOpenAndInProgress.length}){" "}
 				{/* <Link to="add-issue">
 					<AiOutlinePlusSquare />
 				</Link> */}
 			</h2>
-			<RecursiveList issuesToList={projectIssues} root={null} />
+			<RecursiveList
+				issuesToList={projectIssuesOpenAndInProgress}
+				root={null}
+			/>
 		</>
 	);
 }
