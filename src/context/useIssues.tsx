@@ -6,7 +6,6 @@ import {
 	getDoc,
 	writeBatch,
 	arrayUnion,
-	setDoc,
 	arrayRemove,
 } from "firebase/firestore";
 import useUser from "./useUser";
@@ -15,7 +14,6 @@ import logError from "../lib/logError";
 import rankifyIssue from "../lib/rankifyIssue";
 import unrankifyIssue from "../lib/unrankifyIssue";
 import rankifyIssues from "../lib/rankifyIssues";
-import unrankifyIssues from "../lib/unrankifyIssues";
 
 type UpdateIssuesProps = {
 	update: Issue.AppIssue[];
@@ -244,11 +242,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		const isIssueOrderedPropChanged =
 			issueBeforeUpdates.ordered !== updatedIssueWithUpdateTime.ordered;
-
-		const isConvertedIntoOrdered =
-			!issueBeforeUpdates.ordered && updatedIssueWithUpdateTime.ordered;
-		const isConvertedIntoUnordered =
-			issueBeforeUpdates.ordered && !updatedIssueWithUpdateTime.ordered;
 
 		// 1. & 2.:
 

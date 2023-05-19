@@ -2,8 +2,18 @@ import { Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWithParams";
+import {
+	BsArrowDown,
+	BsPlus,
+	BsArrowUp,
+	BsDot,
+	BsArrowLeft,
+	BsArrowRight,
+	BsPencilSquare,
+	BsEye,
+} from "react-icons/bs";
 
 export default function RecursiveList({
 	issuesToList,
@@ -13,20 +23,21 @@ export default function RecursiveList({
 	root: string | null;
 }) {
 	const navigate = useNavigate();
-
+	const { projectId } = useParams();
 	const { issues, findIssueById, updateIssues } = useIssues();
+
+	if (!projectId) return null;
 
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
 	console.log("ordered root issues:", rootIssuesOrdered);
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+	const lastOrderedIssue =
+		rootIssuesOrdered && rootIssuesOrdered.length
+			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
+			: null;
 
 	async function convertIntoOrdered(issueId: string) {
-		const lastOrderedIssue =
-			rootIssuesOrdered && rootIssuesOrdered.length
-				? rootIssuesOrdered[rootIssuesOrdered.length - 1]
-				: null;
-
 		const issueToConvert = findIssueById(issueId);
 
 		if (!issueToConvert) return;
@@ -221,10 +232,12 @@ export default function RecursiveList({
 		return (
 			<li>
 				<div style={{ display: "flex" }}>
-					<Link to={"/issues/" + i.id} className="me-1">
+					{/* <Link to={"/issues/" + i.id} className="me-1">
 						{i.title}
-					</Link>
-					<span>{i.rank}/90</span>
+					</Link> */}
+					<span>
+						<strong>{i.title}</strong> ({i.rank}/90)
+					</span>
 					<Dropdown className="ms-2">
 						<Dropdown.Toggle as="a" variant="outline-secondary" />
 
@@ -243,7 +256,8 @@ export default function RecursiveList({
 											)
 										}
 									>
-										+ add after
+										<BsArrowDown />
+										<BsPlus /> add after
 									</Dropdown.Item>
 
 									<Dropdown.Item
@@ -258,29 +272,32 @@ export default function RecursiveList({
 											)
 										}
 									>
-										+ add before
+										<BsArrowUp />
+										<BsPlus /> add before
 									</Dropdown.Item>
 
 									<Dropdown.Divider />
 
 									<Dropdown.Item onClick={() => moveUp(i.id)}>
-										move up
+										<BsArrowUp /> move up
 									</Dropdown.Item>
 									<Dropdown.Item onClick={() => moveDown(i.id)}>
-										move down
+										<BsArrowDown /> move down
 									</Dropdown.Item>
 
 									<Dropdown.Divider />
 
 									<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
-										transform into unordered
+										1. <BsArrowRight />
+										<BsDot /> transform into unordered
 									</Dropdown.Item>
 								</>
 							)}
 
 							{!i.ordered && (
 								<Dropdown.Item onClick={() => convertIntoOrdered(i.id)}>
-									transform into ordered
+									<BsDot />
+									<BsArrowRight /> 1. transform into ordered
 								</Dropdown.Item>
 							)}
 
@@ -289,7 +306,11 @@ export default function RecursiveList({
 							<Dropdown.Item
 								onClick={() => navigate("/issues/" + i.id + "/edit")}
 							>
-								edit
+								<BsPencilSquare /> edit
+							</Dropdown.Item>
+
+							<Dropdown.Item onClick={() => navigate("/issues/" + i.id)}>
+								<BsEye /> view
 							</Dropdown.Item>
 						</Dropdown.Menu>
 					</Dropdown>
@@ -317,10 +338,20 @@ export default function RecursiveList({
 					))}
 				</ol>
 			) : (
-				<p>There are no ordered issues yet... Add one!</p>
+				<p>
+					There are no ordered issues yet...{" "}
+					<Link
+						to={createAddIssueLinkWithParams(
+							projectId,
+							true,
+							lastOrderedIssue ? lastOrderedIssue.id : null,
+							null
+						)}
+					>
+						Add one!
+					</Link>
+				</p>
 			)}
-
-			<hr />
 
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
 				<ul>
@@ -331,7 +362,12 @@ export default function RecursiveList({
 						))}
 				</ul>
 			) : (
-				<p>There are no unordered issues yet... Add one!</p>
+				<p>
+					There are no unordered issues yet...{" "}
+					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+						Add one!
+					</Link>
+				</p>
 			)}
 		</>
 	);
