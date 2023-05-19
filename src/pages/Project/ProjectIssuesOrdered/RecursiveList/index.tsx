@@ -14,7 +14,7 @@ export default function RecursiveList({
 }) {
 	const navigate = useNavigate();
 
-	const { updateIssue } = useIssues();
+	const { issues, findIssueById, updateIssues } = useIssues();
 
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
@@ -26,44 +26,97 @@ export default function RecursiveList({
 				? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 				: null;
 
-		const issueToConvert = rootIssues.find((i) => i.id === issueId);
+		const issueToConvert = findIssueById(issueId);
 
-		if (issueToConvert) {
-			const convertedIssue = {
-				...issueToConvert,
-				ordered: true,
-				after: lastOrderedIssue ? lastOrderedIssue.id : null,
-				before: null,
-			};
+		if (!issueToConvert) return;
 
-			try {
-				await updateIssue(convertedIssue);
-				console.log("issue was converted into ordered succsessfully!");
-			} catch (error: any) {
-				console.error(error);
-				alert(error);
-			}
+		const convertedIssue: Issue.AppIssue = {
+			...issueToConvert,
+			ordered: true,
+			after: lastOrderedIssue ? lastOrderedIssue.id : null,
+			before: null,
+		};
+
+		const issueAfter = convertedIssue.after
+			? findIssueById(convertedIssue.after)
+			: null;
+
+		const issueAfterUpdated: Issue.AppIssue | null = issueAfter
+			? {
+					...issueAfter,
+					before: convertedIssue.id,
+			  }
+			: null;
+
+		const updatedIssuesArray: Issue.AppIssue[] = [
+			convertedIssue,
+			...(issueAfterUpdated ? [issueAfterUpdated] : []),
+		];
+
+		try {
+			await updateIssues({ update: updatedIssuesArray });
+			console.log(
+				"issues were updated succsessfully after converting issue to ordered:,",
+				updatedIssuesArray
+			);
+		} catch (error: any) {
+			console.error(error);
+			alert(error);
 		}
 	}
 
 	async function convertIntoUnordered(issueId: string) {
-		const issueToConvert = rootIssues.find((i) => i.id === issueId);
+		const issueToConvert = findIssueById(issueId);
 
-		if (issueToConvert) {
-			const convertedIssue = {
-				...issueToConvert,
-				ordered: false,
-				after: null,
-				before: null,
-			};
+		if (!issueToConvert) {
+			return; // Issue not found, exit early
+		}
 
-			try {
-				await updateIssue(convertedIssue);
-				console.log("issue was converted into unordered succsessfully!");
-			} catch (error: any) {
-				console.error(error);
-				alert(error);
-			}
+		const convertedIssue: Issue.AppIssue = {
+			...issueToConvert,
+			ordered: false,
+			after: null,
+			before: null,
+		};
+
+		const issueAfter = issueToConvert.after
+			? issues.find((i) => i.id === issueToConvert.after)
+			: null;
+
+		const issueBefore = issueToConvert.before
+			? issues.find((i) => i.id === issueToConvert.before)
+			: null;
+
+		const issueAfterUpdated: Issue.AppIssue | null = issueAfter
+			? {
+					...issueAfter,
+					before: issueToConvert.before,
+			  }
+			: null;
+
+		const issueBeforeUpdated: Issue.AppIssue | null = issueBefore
+			? {
+					...issueBefore,
+					after: issueToConvert.after,
+			  }
+			: null;
+
+		const updatedIssuesArray: Issue.AppIssue[] = [
+			convertedIssue,
+			...(issueAfterUpdated ? [issueAfterUpdated] : []),
+			...(issueBeforeUpdated ? [issueBeforeUpdated] : []),
+		];
+
+		try {
+			await updateIssues({ update: updatedIssuesArray });
+
+			console.log(
+				"issues were updated succsessfully after converting issue to unordered:",
+				updatedIssuesArray
+			);
+		} catch (error: any) {
+			console.error(error);
+			alert(error);
 		}
 	}
 

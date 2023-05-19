@@ -16,10 +16,16 @@ import rankifyIssue from "../lib/rankifyIssue";
 import unrankifyIssue from "../lib/unrankifyIssue";
 import rankifyIssues from "../lib/rankifyIssues";
 
+type UpdateIssuesProps = {
+	update: Issue.AppIssue[];
+};
+
 const IsuesContext = createContext<{
 	issues: Issue.AppIssue[];
 	setIssues: React.Dispatch<React.SetStateAction<Issue.AppIssue[]>>;
 	loading: boolean;
+	findIssueById: (id: string) => Issue.AppIssue | null;
+	updateIssues: (props: UpdateIssuesProps) => Promise<void>;
 	addIssue: (
 		issueData: Issue.FormData,
 		projectId: string,
@@ -51,6 +57,58 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	const { user } = useUser();
 
 	console.log("user issues:", issues);
+
+	/**
+	 * This is a reusable function, that uses writeBatch(),
+	 * so all passed issues will be set in 1 single batch.
+	 *
+	 * @param {UpdateIssuesProps} props - The payload object containing update property: {update: Issue.AppIssue[]}.
+	 *
+	 * TODO: enable adding & deleting issues too.
+	 */
+	async function updateIssues(props: UpdateIssuesProps) {
+		console.log("issues to update:", props);
+
+		const updateTime = Date.now();
+
+		const { update } = props;
+
+		const batch = writeBatch(firestore);
+
+		if (update && update.length) {
+			update.forEach((i) => {
+				const issueRef = doc(firestore, "issues", i.id);
+				batch.set(issueRef, unrankifyIssue({ ...i, updated: updateTime }));
+			});
+		}
+
+		// update firestore db:
+		await batch.commit();
+
+		// update app state:
+		const updatedAppIssues: Issue.AppIssue[] = issues.map((i) => {
+			const issueToUpdate = update.find((f) => f.id === i.id);
+
+			if (issueToUpdate) {
+				return issueToUpdate;
+			} else {
+				return i;
+			}
+		});
+
+		setIssues(updatedAppIssues);
+	}
+
+	function findIssueById(id: string): Issue.AppIssue | null {
+		if (!id) return null;
+		if (!issues || !issues.length) return null;
+
+		const i = issues.find((i) => i.id === id);
+
+		if (!i) return null;
+
+		return i;
+	}
 
 	/**
 	 * @returns The new issue ID.
@@ -448,6 +506,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		issues,
 		setIssues,
 		loading,
+		findIssueById,
+		updateIssues,
 		addIssue,
 		updateIssue,
 		deleteIssue,
