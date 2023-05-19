@@ -15,6 +15,7 @@ import logError from "../lib/logError";
 import rankifyIssue from "../lib/rankifyIssue";
 import unrankifyIssue from "../lib/unrankifyIssue";
 import rankifyIssues from "../lib/rankifyIssues";
+import unrankifyIssues from "../lib/unrankifyIssues";
 
 type UpdateIssuesProps = {
 	update: Issue.AppIssue[];
@@ -96,7 +97,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			}
 		});
 
-		setIssues(updatedAppIssues);
+		const rerankifiedUpdatedIssues = rankifyIssues(updatedAppIssues);
+		setIssues(rerankifiedUpdatedIssues);
 	}
 
 	function findIssueById(id: string): Issue.AppIssue | null {
@@ -252,7 +254,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		if (isIssueStatusChanged) {
 			const { status: beforeStatus } = issueBeforeUpdates;
-			const { status: currentStatus } = updatedIssue;
+			const { status: currentStatus } = updatedIssueWithUpdateTime;
 
 			if (beforeStatus === "open" && currentStatus === "in progress") {
 				updatedIssueWithUpdateTime.inProgressFrom = updateTime;
@@ -369,7 +371,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				}
 			});
 
-			setIssues(updatedIssues);
+			const rerankifiedUpdatedIssues = rankifyIssues(updatedIssues);
+			setIssues(rerankifiedUpdatedIssues);
 		} catch (error: any) {
 			logError(
 				`An error occurred while updating an issue: ${error.message}. Cannot update issue.`

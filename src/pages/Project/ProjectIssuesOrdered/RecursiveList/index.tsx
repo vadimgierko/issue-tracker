@@ -18,6 +18,7 @@ export default function RecursiveList({
 
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
+	console.log("ordered root issues:", rootIssuesOrdered);
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
 
 	async function convertIntoOrdered(issueId: string) {
@@ -120,6 +121,102 @@ export default function RecursiveList({
 		}
 	}
 
+	async function moveUp(issueId: string) {
+		const issueToMove_UP = findIssueById(issueId);
+
+		if (!issueToMove_UP || !rootIssuesOrdered.map((i) => i.id).indexOf(issueId))
+			return;
+
+		const issueToMove_DOWN = findIssueById(
+			issueToMove_UP.after as string
+		) as Issue.AppIssue;
+
+		const UP = {
+			...issueToMove_UP,
+			before: issueToMove_UP.after,
+			after: issueToMove_DOWN.after,
+		};
+		const DOWN = {
+			...issueToMove_DOWN,
+			before: issueToMove_UP.before,
+			after: issueToMove_DOWN.before,
+		};
+
+		const issueAt_START = UP.after ? findIssueById(UP.after) : null;
+		const START = issueAt_START ? { ...issueAt_START, before: UP.id } : null;
+
+		const issueAt_END = DOWN.before ? findIssueById(DOWN.before) : null;
+		const END = issueAt_END ? { ...issueAt_END, after: DOWN.id } : null;
+
+		const updatedIssuesArray: Issue.AppIssue[] = [
+			UP,
+			DOWN,
+			...(START ? [START] : []),
+			...(END ? [END] : []),
+		];
+
+		try {
+			await updateIssues({ update: updatedIssuesArray });
+			console.log(
+				"issues were successfully updated after an issue moved up:",
+				updatedIssuesArray
+			);
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
+	async function moveDown(issueId: string) {
+		const issueToMove_DOWN = findIssueById(issueId);
+
+		if (
+			!issueToMove_DOWN ||
+			rootIssuesOrdered.map((i) => i.id).indexOf(issueId) ===
+				rootIssuesOrdered.length - 1
+		)
+			return;
+
+		const issueToMove_UP = findIssueById(
+			issueToMove_DOWN.before as string
+		) as Issue.AppIssue;
+
+		const DOWN = {
+			...issueToMove_UP,
+			before: issueToMove_UP.after,
+			after: issueToMove_DOWN.after,
+		};
+		const UP = {
+			...issueToMove_DOWN,
+			before: issueToMove_UP.before,
+			after: issueToMove_DOWN.before,
+		};
+
+		const issueAt_START = DOWN.after ? findIssueById(DOWN.after) : null;
+		const START = issueAt_START ? { ...issueAt_START, before: DOWN.id } : null;
+
+		const issueAt_END = UP.before ? findIssueById(UP.before) : null;
+		const END = issueAt_END ? { ...issueAt_END, after: UP.id } : null;
+
+		const updatedIssuesArray: Issue.AppIssue[] = [
+			UP,
+			DOWN,
+			...(START ? [START] : []),
+			...(END ? [END] : []),
+		];
+
+		try {
+			await updateIssues({ update: updatedIssuesArray });
+			console.log(
+				"issues were successfully updated after an issue moved up:",
+				updatedIssuesArray
+			);
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
 	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
 		return (
 			<li>
@@ -133,20 +230,52 @@ export default function RecursiveList({
 
 						<Dropdown.Menu>
 							{i.ordered && (
-								<Dropdown.Item
-									onClick={() =>
-										navigate(
-											createAddIssueLinkWithParams(
-												i.projectId,
-												i.ordered ? i.ordered : false,
-												i.id,
-												i.before ? i.before : null
+								<>
+									<Dropdown.Item
+										onClick={() =>
+											navigate(
+												createAddIssueLinkWithParams(
+													i.projectId,
+													true,
+													i.id,
+													i.before ? i.before : null
+												)
 											)
-										)
-									}
-								>
-									+ add after
-								</Dropdown.Item>
+										}
+									>
+										+ add after
+									</Dropdown.Item>
+
+									<Dropdown.Item
+										onClick={() =>
+											navigate(
+												createAddIssueLinkWithParams(
+													i.projectId,
+													true,
+													i.after ? i.after : null,
+													i.id
+												)
+											)
+										}
+									>
+										+ add before
+									</Dropdown.Item>
+
+									<Dropdown.Divider />
+
+									<Dropdown.Item onClick={() => moveUp(i.id)}>
+										move up
+									</Dropdown.Item>
+									<Dropdown.Item onClick={() => moveDown(i.id)}>
+										move down
+									</Dropdown.Item>
+
+									<Dropdown.Divider />
+
+									<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
+										transform into unordered
+									</Dropdown.Item>
+								</>
 							)}
 
 							{!i.ordered && (
@@ -154,11 +283,14 @@ export default function RecursiveList({
 									transform into ordered
 								</Dropdown.Item>
 							)}
-							{i.ordered && (
-								<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
-									transform into unordered
-								</Dropdown.Item>
-							)}
+
+							<Dropdown.Divider />
+
+							<Dropdown.Item
+								onClick={() => navigate("/issues/" + i.id + "/edit")}
+							>
+								edit
+							</Dropdown.Item>
 						</Dropdown.Menu>
 					</Dropdown>
 					{i.children && i.children.length ? (

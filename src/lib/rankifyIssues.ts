@@ -1,7 +1,7 @@
 import { Issue } from "../interfaces/Issue";
 
 export default function rankifyIssues(
-	issues: Issue.DbIssue[],
+	issues: Issue.DbIssue[] | Issue.AppIssue[],
 	sort: boolean = false
 ) {
 	const rankifiedIssues: Issue.AppIssue[] = issues.map((i) => {
