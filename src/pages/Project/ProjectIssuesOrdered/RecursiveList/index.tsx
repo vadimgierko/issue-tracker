@@ -13,6 +13,7 @@ import {
 	BsArrowRight,
 	BsPencilSquare,
 	BsEye,
+	BsTrash,
 } from "react-icons/bs";
 
 export default function RecursiveList({
@@ -24,7 +25,7 @@ export default function RecursiveList({
 }) {
 	const navigate = useNavigate();
 	const { projectId } = useParams();
-	const { issues, findIssueById, updateIssues } = useIssues();
+	const { issues, findIssueById, updateIssues, deleteIssue } = useIssues();
 
 	if (!projectId) return null;
 
@@ -36,6 +37,21 @@ export default function RecursiveList({
 		rootIssuesOrdered && rootIssuesOrdered.length
 			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 			: null;
+
+	async function handleDeleteIssue(issue: Issue.AppIssue) {
+		if (!issue) return alert("No issue was provided... Cannot delete issue.");
+
+		if (
+			window.confirm(
+				"Are you sure you want to delete this issue permanently? This action can not be undone!"
+			)
+		) {
+			await deleteIssue(issue.id, issue.projectId);
+			alert(
+				`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
+			);
+		}
+	}
 
 	async function convertIntoOrdered(issueId: string) {
 		const issueToConvert = findIssueById(issueId);
@@ -303,14 +319,19 @@ export default function RecursiveList({
 
 							<Dropdown.Divider />
 
+							<Dropdown.Item onClick={() => navigate("/issues/" + i.id)}>
+								<BsEye /> view
+							</Dropdown.Item>
+
 							<Dropdown.Item
 								onClick={() => navigate("/issues/" + i.id + "/edit")}
 							>
 								<BsPencilSquare /> edit
 							</Dropdown.Item>
 
-							<Dropdown.Item onClick={() => navigate("/issues/" + i.id)}>
-								<BsEye /> view
+							<Dropdown.Item onClick={() => handleDeleteIssue(i)}>
+								<BsTrash className="text-danger" />{" "}
+								<span className="text-danger">delete</span>
 							</Dropdown.Item>
 						</Dropdown.Menu>
 					</Dropdown>
@@ -354,13 +375,21 @@ export default function RecursiveList({
 			)}
 
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
-				<ul>
-					{rootIssuesUnordered
-						.sort((a, b) => b.rank - a.rank)
-						.map((i) => (
-							<RecursiveListItem key={i.id} i={i} />
-						))}
-				</ul>
+				<>
+					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+						+ Add unordered issue
+					</Link>
+					<ul>
+						{rootIssuesUnordered
+							.sort((a, b) => b.rank - a.rank)
+							.map((i) => (
+								<RecursiveListItem key={i.id} i={i} />
+							))}
+					</ul>
+					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+						+ Add unordered issue
+					</Link>
+				</>
 			) : (
 				<p>
 					There are no unordered issues yet...{" "}

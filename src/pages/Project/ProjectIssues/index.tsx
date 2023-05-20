@@ -25,7 +25,9 @@ export default function ProjectIssues() {
 			) : (
 				<p className="text-center">
 					There are no issues in the project.{" "}
-					<Link to="/issues/add">Add one!</Link>
+					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+						Add one!
+					</Link>
 				</p>
 			)}
 		</>

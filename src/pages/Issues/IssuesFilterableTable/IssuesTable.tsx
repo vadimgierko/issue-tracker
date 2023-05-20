@@ -30,7 +30,9 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 			)
 		) {
 			await deleteIssue(issue.id, issue.projectId);
-			alert(`Your issue with the id ${issue.id} was successfully deleted.`);
+			alert(
+				`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
+			);
 		}
 	}
 

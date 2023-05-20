@@ -16,7 +16,9 @@ import unrankifyIssue from "../lib/unrankifyIssue";
 import rankifyIssues from "../lib/rankifyIssues";
 
 type UpdateIssuesProps = {
-	update: Issue.AppIssue[];
+	add?: Issue.AppIssue[];
+	update?: Issue.AppIssue[];
+	delete?: Issue.AppIssue[];
 };
 
 const IsuesContext = createContext<{
@@ -63,17 +65,24 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	 *
 	 * @param {UpdateIssuesProps} props - The payload object containing update property: {update: Issue.AppIssue[]}.
 	 *
-	 * TODO: enable adding & deleting issues too.
 	 */
 	async function updateIssues(props: UpdateIssuesProps) {
 		console.log("issues to update:", props);
 
+		if (!user || (user && !user.uid))
+			return logError("You need to be logged to update issues. Log in!");
+
 		const updateTime = Date.now();
 
-		const { update } = props;
+		const { add, update, delete: deleteIssues } = props;
+
+		//==================================> INIT BATCH:
 
 		const batch = writeBatch(firestore);
 
+		//==================================> BATCH ADD:
+
+		//==================================> BATCH UPDATE:
 		if (update && update.length) {
 			update.forEach((i) => {
 				const issueRef = doc(firestore, "issues", i.id);
@@ -81,21 +90,65 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			});
 		}
 
-		// update firestore db:
+		//==================================> BATCH DELETE:
+		if (deleteIssues && deleteIssues.length) {
+			deleteIssues.forEach((i) => {
+				// delete issue from /issues:
+				const issueRef = doc(firestore, "issues", i.id);
+				batch.delete(issueRef);
+
+				// delete issue id from /user-issues doc's "issuesIds" array:
+				const userIssuesRef = doc(firestore, "user-issues", user.uid);
+				batch.update(userIssuesRef, {
+					issuesIds: arrayRemove(i.id),
+				});
+
+				// delete issue id from /project-issues doc's "issuesIds" array:
+				const projectIssuesRef = doc(firestore, "project-issues", i.projectId);
+				batch.update(projectIssuesRef, {
+					issuesIds: arrayRemove(i.id),
+				});
+			});
+		}
+
+		//==================================> BATCH COMMIT:
 		await batch.commit();
 
-		// update app state:
-		const updatedAppIssues: Issue.AppIssue[] = issues.map((i) => {
-			const issueToUpdate = update.find((f) => f.id === i.id);
+		//==================================> UPDATE APP STATE:
 
-			if (issueToUpdate) {
-				return issueToUpdate;
-			} else {
-				return i;
+		// at first delete issues:
+		const appIssuesAfterDelete: Issue.AppIssue[] = issues.filter((i) => {
+			if (deleteIssues && deleteIssues.length) {
+				const issueToDelete = deleteIssues.find((d) => d.id === i.id);
+
+				if (issueToDelete) return false;
 			}
+
+			return true;
 		});
 
-		const rerankifiedUpdatedIssues = rankifyIssues(updatedAppIssues);
+		// then update remaining issues:
+		const appIssuesAfterUpdate: Issue.AppIssue[] = appIssuesAfterDelete.map(
+			(i) => {
+				if (update && update.length) {
+					const issueToUpdate = update.find((f) => f.id === i.id);
+
+					if (issueToUpdate) {
+						return issueToUpdate;
+					}
+				}
+
+				return i;
+			}
+		);
+
+		// finally add new issues:
+		const appIssuesAfterAdd: Issue.AppIssue[] =
+			add && add.length
+				? [...appIssuesAfterUpdate, ...add]
+				: [...appIssuesAfterUpdate];
+
+		const rerankifiedUpdatedIssues = rankifyIssues(appIssuesAfterAdd);
 		setIssues(rerankifiedUpdatedIssues);
 	}
 
@@ -374,11 +427,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	}
 
 	async function deleteIssue(issueId: string, projectId: string) {
-		// NOTE:
-		// we need to delete issue from /issues collection
-		// & also from /user-issues & /project-issues doc array
-		// so we use batch
-
 		if (!issueId)
 			return logError("No issue id provided... Cannot delete issue.");
 
@@ -388,33 +436,39 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		if (!user || (user && !user.uid))
 			return logError("You need to be logged to delete issue. Log in!");
 
+		const issueToDelete = findIssueById(issueId);
+
+		if (!issueToDelete) {
+			const message =
+				"Issue to delete with the id " +
+				issueId +
+				" was not found in issues. Cannot delete issue...";
+			return logError(message);
+		}
+
+		const issueToDeleteAfter = issueToDelete.after
+			? findIssueById(issueToDelete.after)
+			: null;
+		const issueToDeleteAfterUpdated = issueToDeleteAfter
+			? { ...issueToDeleteAfter, before: issueToDelete.before }
+			: null;
+
+		const issueToDeleteBefore = issueToDelete.before
+			? findIssueById(issueToDelete.before)
+			: null;
+		const issueToDeleteBeforeUpdated = issueToDeleteBefore
+			? { ...issueToDeleteBefore, after: issueToDelete.after }
+			: null;
+
 		try {
-			// init batch to update multiply docs:
-			// Get a new write batch
-			const batch = writeBatch(firestore);
-
-			// delete project:
-			const deletedIssueRef = doc(firestore, "issues", issueId);
-			batch.delete(deletedIssueRef);
-
-			// delete issue id from /user-issues doc's "issuesIds" array:
-			const userIssuesRef = doc(firestore, "user-issues", user.uid);
-			batch.update(userIssuesRef, {
-				issuesIds: arrayRemove(issueId),
+			const issuesToUpdate: Issue.AppIssue[] = [
+				...(issueToDeleteAfterUpdated ? [issueToDeleteAfterUpdated] : []),
+				...(issueToDeleteBeforeUpdated ? [issueToDeleteBeforeUpdated] : []),
+			];
+			updateIssues({
+				update: issuesToUpdate,
+				delete: [issueToDelete],
 			});
-
-			// delete issue id from /project-issues doc's "issuesIds" array:
-			const projectIssuesRef = doc(firestore, "project-issues", projectId);
-			batch.update(projectIssuesRef, {
-				issuesIds: arrayRemove(issueId),
-			});
-
-			// Commit the batch
-			await batch.commit();
-
-			// update app's state:
-			const updatedIssues = issues.filter((i) => i.id !== issueId);
-			setIssues(updatedIssues);
 		} catch (error: any) {
 			logError(
 				`An error occurred while deleting an issue: ${error.message}. Cannot delete issue.`

@@ -3,6 +3,7 @@ import useIssues from "../../../context/useIssues";
 import useProjects from "../../../context/useProjects";
 import { AiOutlinePlusSquare } from "react-icons/ai";
 import RecursiveList from "./RecursiveList";
+import createAddIssueLinkWithParams from "../../../lib/createAddIssueLinkWithParams";
 
 export default function ProjectIssuesOrdered() {
 	const { projectId } = useParams();
@@ -15,16 +16,9 @@ export default function ProjectIssuesOrdered() {
 			(i.status === "open" || i.status === "in progress")
 	);
 
-	if (!project)
+	if (!project || !projectId)
 		return (
 			<p className="text-center text-danger">There is no such project...</p>
-		);
-
-	if (!projectIssuesOpenAndInProgress || !projectIssuesOpenAndInProgress.length)
-		return (
-			<p className="text-center text-danger">
-				There are no issues in this project...
-			</p>
 		);
 
 	return (
@@ -32,14 +26,24 @@ export default function ProjectIssuesOrdered() {
 			<h2 className="text-center">
 				Issues Ordered (open & in progress) (
 				{projectIssuesOpenAndInProgress.length}){" "}
-				{/* <Link to="add-issue">
+				<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
 					<AiOutlinePlusSquare />
-				</Link> */}
+				</Link>
 			</h2>
-			<RecursiveList
-				issuesToList={projectIssuesOpenAndInProgress}
-				root={null}
-			/>
+			{projectIssuesOpenAndInProgress &&
+			projectIssuesOpenAndInProgress.length ? (
+				<RecursiveList
+					issuesToList={projectIssuesOpenAndInProgress}
+					root={null}
+				/>
+			) : (
+				<p className="text-center">
+					There are no issues in the project.{" "}
+					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+						Add one!
+					</Link>
+				</p>
+			)}
 		</>
 	);
 }
