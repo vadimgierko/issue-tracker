@@ -16,7 +16,8 @@ export default function IssueEdit() {
 	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { issueId } = useParams();
-	const { issues, updateIssue, deleteIssue } = useIssues();
+	const { issues, updateIssues, updateIssue, deleteIssue, findIssueById } =
+		useIssues();
 	const issueToUpdate = issues.find((i) => i.id === issueId);
 	const [updatedIssue, setUpdatedIssue] = useState<Issue.AppIssue | null>(null);
 	const { projects } = useProjects();
@@ -32,9 +33,89 @@ export default function IssueEdit() {
 		if (!updatedIssue.projectId)
 			return logError("No project selected... Cannot update issue.");
 
-		await updateIssue(updatedIssue);
-		alert(`Your issue with the id ${issueId} was successfully updated.`);
-		navigate(-1);
+		const issueBeforeUpdates = findIssueById(updatedIssue.id);
+
+		if (!issueBeforeUpdates) return;
+
+		const wasIssueOpenOrInProgress =
+			issueBeforeUpdates.status === "open" ||
+			issueBeforeUpdates.status === "in progress";
+		const isIssueOpenOrInProgress =
+			updatedIssue.status === "open" || updatedIssue.status === "in progress";
+
+		if (
+			updatedIssue.ordered &&
+			wasIssueOpenOrInProgress &&
+			!isIssueOpenOrInProgress
+		) {
+			// if ordered issue was closed:
+			// de facto convert issue into unordered:
+
+			const closeTime = Date.now();
+
+			const closedUpdatedIssue: Issue.AppIssue = {
+				...updatedIssue,
+				closedAt: closeTime,
+				updated: closeTime,
+				ordered: false,
+				after: null,
+				before: null,
+			};
+
+			const issueAfter = issueBeforeUpdates.after
+				? issues.find((i) => i.id === issueBeforeUpdates.after)
+				: null;
+
+			const issueBefore = issueBeforeUpdates.before
+				? issues.find((i) => i.id === issueBeforeUpdates.before)
+				: null;
+
+			const issueAfterUpdated: Issue.AppIssue | null = issueAfter
+				? {
+						...issueAfter,
+						before: issueBeforeUpdates.before,
+						updated: closeTime,
+				  }
+				: null;
+
+			const issueBeforeUpdated: Issue.AppIssue | null = issueBefore
+				? {
+						...issueBefore,
+						after: issueBeforeUpdates.after,
+						updated: closeTime,
+				  }
+				: null;
+
+			const updatedIssuesArray: Issue.AppIssue[] = [
+				closedUpdatedIssue,
+				...(issueAfterUpdated ? [issueAfterUpdated] : []),
+				...(issueBeforeUpdated ? [issueBeforeUpdated] : []),
+			];
+
+			try {
+				await updateIssues({ update: updatedIssuesArray });
+
+				console.log(
+					"issues were updated succsessfully after closing and ordered issues:",
+					updatedIssuesArray
+				);
+				alert(`Your issue with the id ${issueId} was successfully updated.`);
+				navigate(-1);
+			} catch (error: any) {
+				console.error(error);
+				alert(error);
+			}
+		} else {
+			try {
+				await updateIssue(updatedIssue);
+
+				alert(`Your issue with the id ${issueId} was successfully updated.`);
+				navigate(-1);
+			} catch (error: any) {
+				console.error(error);
+				alert(error);
+			}
+		}
 	}
 
 	async function handleDeleteIssue() {

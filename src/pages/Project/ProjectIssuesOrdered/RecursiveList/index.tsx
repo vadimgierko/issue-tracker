@@ -54,6 +54,8 @@ export default function RecursiveList({
 	}
 
 	async function convertIntoOrdered(issueId: string) {
+		const convertTime = Date.now();
+
 		const issueToConvert = findIssueById(issueId);
 
 		if (!issueToConvert) return;
@@ -63,6 +65,7 @@ export default function RecursiveList({
 			ordered: true,
 			after: lastOrderedIssue ? lastOrderedIssue.id : null,
 			before: null,
+			updated: convertTime,
 		};
 
 		const issueAfter = convertedIssue.after
@@ -73,6 +76,7 @@ export default function RecursiveList({
 			? {
 					...issueAfter,
 					before: convertedIssue.id,
+					updated: convertTime,
 			  }
 			: null;
 
@@ -94,6 +98,8 @@ export default function RecursiveList({
 	}
 
 	async function convertIntoUnordered(issueId: string) {
+		const convertTime = Date.now();
+
 		const issueToConvert = findIssueById(issueId);
 
 		if (!issueToConvert) {
@@ -105,6 +111,7 @@ export default function RecursiveList({
 			ordered: false,
 			after: null,
 			before: null,
+			updated: convertTime,
 		};
 
 		const issueAfter = issueToConvert.after
@@ -119,6 +126,7 @@ export default function RecursiveList({
 			? {
 					...issueAfter,
 					before: issueToConvert.before,
+					updated: convertTime,
 			  }
 			: null;
 
@@ -126,6 +134,7 @@ export default function RecursiveList({
 			? {
 					...issueBefore,
 					after: issueToConvert.after,
+					updated: convertTime,
 			  }
 			: null;
 
@@ -149,6 +158,8 @@ export default function RecursiveList({
 	}
 
 	async function moveUp(issueId: string) {
+		const moveTime = Date.now();
+
 		const issueToMove_UP = findIssueById(issueId);
 
 		if (!issueToMove_UP || !rootIssuesOrdered.map((i) => i.id).indexOf(issueId))
@@ -158,22 +169,28 @@ export default function RecursiveList({
 			issueToMove_UP.after as string
 		) as Issue.AppIssue;
 
-		const UP = {
+		const UP: Issue.AppIssue = {
 			...issueToMove_UP,
 			before: issueToMove_UP.after,
 			after: issueToMove_DOWN.after,
+			updated: moveTime,
 		};
-		const DOWN = {
+		const DOWN: Issue.AppIssue = {
 			...issueToMove_DOWN,
 			before: issueToMove_UP.before,
 			after: issueToMove_DOWN.before,
+			updated: moveTime,
 		};
 
 		const issueAt_START = UP.after ? findIssueById(UP.after) : null;
-		const START = issueAt_START ? { ...issueAt_START, before: UP.id } : null;
+		const START = issueAt_START
+			? { ...issueAt_START, before: UP.id, updated: moveTime }
+			: null;
 
 		const issueAt_END = DOWN.before ? findIssueById(DOWN.before) : null;
-		const END = issueAt_END ? { ...issueAt_END, after: DOWN.id } : null;
+		const END = issueAt_END
+			? { ...issueAt_END, after: DOWN.id, updated: moveTime }
+			: null;
 
 		const updatedIssuesArray: Issue.AppIssue[] = [
 			UP,
@@ -195,6 +212,7 @@ export default function RecursiveList({
 	}
 
 	async function moveDown(issueId: string) {
+		const moveTime = Date.now();
 		const issueToMove_DOWN = findIssueById(issueId);
 
 		if (
@@ -208,22 +226,28 @@ export default function RecursiveList({
 			issueToMove_DOWN.before as string
 		) as Issue.AppIssue;
 
-		const DOWN = {
+		const DOWN: Issue.AppIssue = {
 			...issueToMove_UP,
 			before: issueToMove_UP.after,
 			after: issueToMove_DOWN.after,
+			updated: moveTime,
 		};
-		const UP = {
+		const UP: Issue.AppIssue = {
 			...issueToMove_DOWN,
 			before: issueToMove_UP.before,
 			after: issueToMove_DOWN.before,
+			updated: moveTime,
 		};
 
 		const issueAt_START = DOWN.after ? findIssueById(DOWN.after) : null;
-		const START = issueAt_START ? { ...issueAt_START, before: DOWN.id } : null;
+		const START = issueAt_START
+			? { ...issueAt_START, before: DOWN.id, updated: moveTime }
+			: null;
 
 		const issueAt_END = UP.before ? findIssueById(UP.before) : null;
-		const END = issueAt_END ? { ...issueAt_END, after: UP.id } : null;
+		const END = issueAt_END
+			? { ...issueAt_END, after: UP.id, updated: moveTime }
+			: null;
 
 		const updatedIssuesArray: Issue.AppIssue[] = [
 			UP,

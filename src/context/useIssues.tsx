@@ -33,7 +33,7 @@ const IsuesContext = createContext<{
 		ordered: boolean,
 		after: string | null,
 		before: string | null
-	) => Promise<string>;
+	) => Promise<string | null>;
 	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
 } | null>(null);
@@ -62,6 +62,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	/**
 	 * This is a reusable function, that uses writeBatch(),
 	 * so all passed issues will be set in 1 single batch.
+	 * NOTE: you need to pass issues with updateTime!
 	 *
 	 * @param {UpdateIssuesProps} props - The payload object containing update property: {update: Issue.AppIssue[]}.
 	 *
@@ -72,8 +73,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		if (!user || (user && !user.uid))
 			return logError("You need to be logged to update issues. Log in!");
 
-		const updateTime = Date.now();
-
 		const { add, update, delete: deleteIssues } = props;
 
 		//==================================> INIT BATCH:
@@ -81,12 +80,29 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		const batch = writeBatch(firestore);
 
 		//==================================> BATCH ADD:
+		if (add && add.length) {
+			add.forEach((i) => {
+				// add new issue to /issues:
+				const issueRef = doc(firestore, "issues", i.id);
+				batch.set(issueRef, unrankifyIssue(i));
+
+				// add new issue to /user-issues:
+				const userIssuesRef = doc(firestore, "user-issues", user.uid);
+				batch.update(userIssuesRef, {
+					issuesIds: arrayUnion(i.id),
+				});
+
+				// add new issue to /project-issues:
+				const projectIssuesRef = doc(firestore, "project-issues", i.projectId);
+				batch.update(projectIssuesRef, { issuesIds: arrayUnion(i.id) });
+			});
+		}
 
 		//==================================> BATCH UPDATE:
 		if (update && update.length) {
 			update.forEach((i) => {
 				const issueRef = doc(firestore, "issues", i.id);
-				batch.set(issueRef, unrankifyIssue({ ...i, updated: updateTime }));
+				batch.set(issueRef, unrankifyIssue(i));
 			});
 		}
 
@@ -164,7 +180,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	}
 
 	/**
-	 * @returns The new issue ID.
+	 * @returns The new issue ID or null.
 	 */
 	async function addIssue(
 		issueFormData: Issue.FormData,
@@ -172,96 +188,63 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		ordered: boolean,
 		after: string | null,
 		before: string | null
-	): Promise<string> {
+	): Promise<string | null> {
 		if (!user || !user.uid) {
 			logError("You need to be logged to add an issue!");
-			return "";
+			return null;
 		}
+		// get the id for new issue (create an empty doc):
+		const { id: newIssueId } = doc(collection(firestore, "issues"));
+
+		const creationTime = Date.now();
+
+		const issueToAdd: Issue.DbIssue = {
+			...issueFormData,
+			authorId: user.uid,
+			projectId,
+			id: newIssueId,
+			created: creationTime,
+			updated: creationTime,
+			inProgressFrom: null,
+			closedAt: null,
+			ordered,
+			after,
+			before,
+		};
+
+		// if new issue is ordered => update also after/ before issues if the case:
+		const issueToAddAfter: Issue.AppIssue | null =
+			issueToAdd.ordered && issueToAdd.after
+				? findIssueById(issueToAdd.after)
+				: null;
+		const issueToAddBefore: Issue.AppIssue | null =
+			issueToAdd.ordered && issueToAdd.before
+				? findIssueById(issueToAdd.before)
+				: null;
+
+		const issueToAddAfterUpdated: Issue.AppIssue | null = issueToAddAfter
+			? { ...issueToAddAfter, before: newIssueId, updated: creationTime }
+			: null;
+		const issueToAddBeforeUpdated: Issue.AppIssue | null = issueToAddBefore
+			? { ...issueToAddBefore, after: newIssueId, updated: creationTime }
+			: null;
+
+		const issuesToUpdate: Issue.AppIssue[] = [
+			...(issueToAddAfterUpdated ? [issueToAddAfterUpdated] : []),
+			...(issueToAddBeforeUpdated ? [issueToAddBeforeUpdated] : []),
+		];
 
 		try {
-			// get the id for new issue (create an empty doc):
-			const { id: newIssueId } = doc(collection(firestore, "issues"));
-
-			const creationTime = Date.now();
-
-			const newIssue: Issue.DbIssue = {
-				...issueFormData,
-				authorId: user.uid,
-				projectId,
-				id: newIssueId,
-				created: creationTime,
-				updated: creationTime,
-				inProgressFrom: null,
-				closedAt: null,
-				ordered,
-				after,
-				before,
-			};
-
-			// init batch to update multiply docs:
-			const batch = writeBatch(firestore);
-
-			// set new issue:
-			const newIssueRef = doc(firestore, "issues", newIssueId);
-			batch.set(newIssueRef, newIssue);
-
-			// add newIssueId to /user-issues:
-			// (add newIssueId to doc's "issues" array)
-			const userIssuesRef = doc(firestore, "user-issues", user.uid);
-			batch.update(userIssuesRef, {
-				issuesIds: arrayUnion(newIssueId),
+			await updateIssues({
+				add: [rankifyIssue(issueToAdd)],
+				update: issuesToUpdate,
 			});
-
-			// add newIssueId to /project-issues:
-			// (add newIssueId to doc's "issuesIds" array)
-			const projectIssuesRef = doc(firestore, "project-issues", projectId);
-			batch.update(projectIssuesRef, { issuesIds: arrayUnion(newIssueId) });
-
-			// if new issue is ordered => update also after/ before issues if the case:
-			if (newIssue.ordered) {
-				if (newIssue.after) {
-					const issueBeforeNewRef = doc(firestore, "issues", newIssue.after);
-					batch.update(issueBeforeNewRef, {
-						before: newIssueId,
-						updated: creationTime,
-					});
-				}
-
-				if (newIssue.before) {
-					const issueAfterNewIssueRef = doc(
-						firestore,
-						"issues",
-						newIssue.before
-					);
-					batch.update(issueAfterNewIssueRef, {
-						after: newIssueId,
-						updated: creationTime,
-					});
-				}
-			}
-
-			// Commit the batch
-			await batch.commit();
-
-			// rankify new issue:
-			const newIssueRankified: Issue.AppIssue = rankifyIssue(newIssue);
-			// update also after/ before issues if exist
-			const updatedIssues = issues.map((i) =>
-				newIssueRankified.after && newIssueRankified.after === i.id
-					? { ...i, before: newIssueId, updated: creationTime }
-					: newIssueRankified.before && newIssueRankified.before === i.id
-					? { ...i, after: newIssueId, updated: creationTime }
-					: i
-			);
-
-			setIssues([...updatedIssues, newIssueRankified]);
-
 			return newIssueId;
 		} catch (error: any) {
 			logError(
 				`An error occurred while adding an issue: ${error.message}. Cannot add issue.`
 			);
-			return "";
+			return null;
 		}
 	}
 
@@ -436,6 +419,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		if (!user || (user && !user.uid))
 			return logError("You need to be logged to delete issue. Log in!");
 
+		const deleteTime = Date.now();
+
 		const issueToDelete = findIssueById(issueId);
 
 		if (!issueToDelete) {
@@ -450,22 +435,31 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			? findIssueById(issueToDelete.after)
 			: null;
 		const issueToDeleteAfterUpdated = issueToDeleteAfter
-			? { ...issueToDeleteAfter, before: issueToDelete.before }
+			? {
+					...issueToDeleteAfter,
+					before: issueToDelete.before,
+					updated: deleteTime,
+			  }
 			: null;
 
 		const issueToDeleteBefore = issueToDelete.before
 			? findIssueById(issueToDelete.before)
 			: null;
 		const issueToDeleteBeforeUpdated = issueToDeleteBefore
-			? { ...issueToDeleteBefore, after: issueToDelete.after }
+			? {
+					...issueToDeleteBefore,
+					after: issueToDelete.after,
+					updated: deleteTime,
+			  }
 			: null;
 
+		const issuesToUpdate: Issue.AppIssue[] = [
+			...(issueToDeleteAfterUpdated ? [issueToDeleteAfterUpdated] : []),
+			...(issueToDeleteBeforeUpdated ? [issueToDeleteBeforeUpdated] : []),
+		];
+
 		try {
-			const issuesToUpdate: Issue.AppIssue[] = [
-				...(issueToDeleteAfterUpdated ? [issueToDeleteAfterUpdated] : []),
-				...(issueToDeleteBeforeUpdated ? [issueToDeleteBeforeUpdated] : []),
-			];
-			updateIssues({
+			await updateIssues({
 				update: issuesToUpdate,
 				delete: [issueToDelete],
 			});
