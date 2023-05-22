@@ -269,6 +269,27 @@ export default function RecursiveList({
 		}
 	}
 
+	async function addChild(parentId: string) {
+		const parent = findIssueById(parentId);
+
+		if (!parent) return;
+
+		const children = parent.children;
+
+		const after =
+			children && children.length ? children[children.length - 1] : null;
+
+		navigate(
+			createAddIssueLinkWithParams(
+				parent.projectId,
+				true,
+				after,
+				null, // before
+				parent.id
+			)
+		);
+	}
+
 	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
 		return (
 			<li>
@@ -321,19 +342,7 @@ export default function RecursiveList({
 
 									<Dropdown.Divider />
 
-									<Dropdown.Item
-										onClick={() =>
-											navigate(
-												createAddIssueLinkWithParams(
-													i.projectId,
-													true,
-													null,
-													null,
-													i.id
-												)
-											)
-										}
-									>
+									<Dropdown.Item onClick={() => addChild(i.id)}>
 										<BsArrowReturnRight />
 										<BsPlus /> add child
 									</Dropdown.Item>
@@ -351,7 +360,7 @@ export default function RecursiveList({
 
 									<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
 										1. <BsArrowRight />
-										<BsDot /> transform into unordered
+										<BsDot /> convert into unordered
 									</Dropdown.Item>
 								</>
 							)}
@@ -359,7 +368,7 @@ export default function RecursiveList({
 							{!i.ordered && (
 								<Dropdown.Item onClick={() => convertIntoOrdered(i.id)}>
 									<BsDot />
-									<BsArrowRight /> 1. transform into ordered
+									<BsArrowRight /> 1. convert into ordered
 								</Dropdown.Item>
 							)}
 
@@ -381,17 +390,17 @@ export default function RecursiveList({
 							</Dropdown.Item>
 						</Dropdown.Menu>
 					</Dropdown>
-					{i.children && i.children.length ? (
-						<RecursiveList
-							issuesToList={
-								i.children
-									.map((id) => issuesToList.find((iss) => iss.id === id))
-									.filter((f) => f !== undefined) as Issue.AppIssue[]
-							}
-							root={i.id}
-						/>
-					) : null}
 				</div>
+				{i.children && i.children.length ? (
+					<RecursiveList
+						issuesToList={
+							i.children
+								.map((id) => issues.find((iss) => iss.id === id))
+								.filter((f) => f !== undefined) as Issue.AppIssue[]
+						}
+						root={i.id}
+					/>
+				) : null}
 			</li>
 		);
 	}
@@ -421,9 +430,10 @@ export default function RecursiveList({
 				</p>
 			)}
 
-			{rootIssuesUnordered && rootIssuesUnordered.length ? (
-				<>
-					<Link
+			{
+				rootIssuesUnordered && rootIssuesUnordered.length ? (
+					<>
+						{/* <Link
 						to={createAddIssueLinkWithParams(
 							projectId,
 							false,
@@ -433,15 +443,15 @@ export default function RecursiveList({
 						)}
 					>
 						+ Add unordered issue
-					</Link>
-					<ul>
-						{rootIssuesUnordered
-							.sort((a, b) => b.rank - a.rank)
-							.map((i) => (
-								<RecursiveListItem key={i.id} i={i} />
-							))}
-					</ul>
-					<Link
+					</Link> */}
+						<ul>
+							{rootIssuesUnordered
+								.sort((a, b) => b.rank - a.rank)
+								.map((i) => (
+									<RecursiveListItem key={i.id} i={i} />
+								))}
+						</ul>
+						{/* <Link
 						to={createAddIssueLinkWithParams(
 							projectId,
 							false,
@@ -451,24 +461,24 @@ export default function RecursiveList({
 						)}
 					>
 						+ Add unordered issue
-					</Link>
-				</>
-			) : (
-				<p>
-					There are no unordered issues yet...{" "}
-					<Link
-						to={createAddIssueLinkWithParams(
-							projectId,
-							false,
-							null,
-							null,
-							root
-						)}
-					>
-						Add one!
-					</Link>
-				</p>
-			)}
+					</Link> */}
+					</>
+				) : null
+				// <p>
+				// 	There are no unordered issues yet...{" "}
+				// 	<Link
+				// 		to={createAddIssueLinkWithParams(
+				// 			projectId,
+				// 			false,
+				// 			null,
+				// 			null,
+				// 			root
+				// 		)}
+				// 	>
+				// 		Add one!
+				// 	</Link>
+				// </p>
+			}
 		</>
 	);
 }
