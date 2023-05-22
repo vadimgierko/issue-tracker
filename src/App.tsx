@@ -89,7 +89,7 @@ const privateRoutes: RouteObject[] = [
 	},
 	{
 		// NOTE: REMEMBER TO UPDATE createAddIssueLinkWithParams() WHEN UPDATE THIS PATH !!!
-		path: "issues/add/:projectId/:ordered/:after/:before", // maybe add feature, page & component in future
+		path: "issues/add/:projectId/:ordered/:after/:before/:parent", // maybe add feature, page & component in future
 		element: <IssuesAdd />,
 	},
 	{

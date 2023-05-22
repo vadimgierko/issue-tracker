@@ -26,7 +26,9 @@ export default function ProjectIssuesOrdered() {
 			<h2 className="text-center">
 				Issues Ordered (open & in progress) (
 				{projectIssuesOpenAndInProgress.length}){" "}
-				<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+				<Link
+					to={createAddIssueLinkWithParams(projectId, false, null, null, null)}
+				>
 					<AiOutlinePlusSquare />
 				</Link>
 			</h2>
@@ -39,7 +41,15 @@ export default function ProjectIssuesOrdered() {
 			) : (
 				<p className="text-center">
 					There are no issues in the project.{" "}
-					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+					<Link
+						to={createAddIssueLinkWithParams(
+							projectId,
+							false,
+							null,
+							null,
+							null
+						)}
+					>
 						Add one!
 					</Link>
 				</p>

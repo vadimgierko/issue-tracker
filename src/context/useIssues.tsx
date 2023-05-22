@@ -32,7 +32,8 @@ const IsuesContext = createContext<{
 		projectId: string,
 		ordered: boolean,
 		after: string | null,
-		before: string | null
+		before: string | null,
+		parent: string | null
 	) => Promise<string | null>;
 	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
@@ -187,7 +188,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		projectId: string,
 		ordered: boolean,
 		after: string | null,
-		before: string | null
+		before: string | null,
+		parent: string | null
 	): Promise<string | null> {
 		if (!user || !user.uid) {
 			logError("You need to be logged to add an issue!");
@@ -210,6 +212,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			ordered,
 			after,
 			before,
+			parent,
 		};
 
 		// if new issue is ordered => update also after/ before issues if the case:
@@ -229,9 +232,26 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			? { ...issueToAddBefore, after: newIssueId, updated: creationTime }
 			: null;
 
+		// parent:
+		const issueToAddParent: Issue.AppIssue | null =
+			issueToAdd.ordered && issueToAdd.parent
+				? findIssueById(issueToAdd.parent)
+				: null;
+
+		const issueToAddParentUpdated: Issue.AppIssue | null = issueToAddParent
+			? {
+					...issueToAddParent,
+					updated: creationTime,
+					children: issueToAddParent.children
+						? [...issueToAddParent.children, issueToAdd.id]
+						: [issueToAdd.id],
+			  }
+			: null;
+
 		const issuesToUpdate: Issue.AppIssue[] = [
 			...(issueToAddAfterUpdated ? [issueToAddAfterUpdated] : []),
 			...(issueToAddBeforeUpdated ? [issueToAddBeforeUpdated] : []),
+			...(issueToAddParentUpdated ? [issueToAddParentUpdated] : []),
 		];
 
 		try {

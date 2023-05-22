@@ -27,7 +27,9 @@ export default function Issues() {
 				pageTitle={
 					<span>
 						Issues ({issues.length}){" "}
-						<Link to={createAddIssueLinkWithParams(null, false, null, null)}>
+						<Link
+							to={createAddIssueLinkWithParams(null, false, null, null, null)}
+						>
 							<AiOutlinePlusSquare />
 						</Link>
 					</span>

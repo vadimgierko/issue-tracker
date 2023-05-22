@@ -98,7 +98,7 @@ export namespace Issue {
 		closedAt: number | null;
 		// order features props:
 		parent?: string | null; // issue id OR null in case of Project/ root
-		children?: string[] | []; // issues ids
+		children?: string[]; // issues ids
 		ordered?: boolean;
 		after?: string | null; //issue id
 		before?: string | null; //issue id

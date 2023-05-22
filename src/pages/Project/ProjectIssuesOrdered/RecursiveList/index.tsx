@@ -14,6 +14,7 @@ import {
 	BsPencilSquare,
 	BsEye,
 	BsTrash,
+	BsArrowReturnRight,
 } from "react-icons/bs";
 
 export default function RecursiveList({
@@ -291,7 +292,8 @@ export default function RecursiveList({
 													i.projectId,
 													true,
 													i.id,
-													i.before ? i.before : null
+													i.before ? i.before : null,
+													i.parent ? i.parent : null
 												)
 											)
 										}
@@ -307,13 +309,33 @@ export default function RecursiveList({
 													i.projectId,
 													true,
 													i.after ? i.after : null,
-													i.id
+													i.id,
+													i.parent ? i.parent : null
 												)
 											)
 										}
 									>
 										<BsArrowUp />
 										<BsPlus /> add before
+									</Dropdown.Item>
+
+									<Dropdown.Divider />
+
+									<Dropdown.Item
+										onClick={() =>
+											navigate(
+												createAddIssueLinkWithParams(
+													i.projectId,
+													true,
+													null,
+													null,
+													i.id
+												)
+											)
+										}
+									>
+										<BsArrowReturnRight />
+										<BsPlus /> add child
 									</Dropdown.Item>
 
 									<Dropdown.Divider />
@@ -390,7 +412,8 @@ export default function RecursiveList({
 							projectId,
 							true,
 							lastOrderedIssue ? lastOrderedIssue.id : null,
-							null
+							null,
+							root
 						)}
 					>
 						Add one!
@@ -400,7 +423,15 @@ export default function RecursiveList({
 
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
 				<>
-					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+					<Link
+						to={createAddIssueLinkWithParams(
+							projectId,
+							false,
+							null,
+							null,
+							root
+						)}
+					>
 						+ Add unordered issue
 					</Link>
 					<ul>
@@ -410,14 +441,30 @@ export default function RecursiveList({
 								<RecursiveListItem key={i.id} i={i} />
 							))}
 					</ul>
-					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+					<Link
+						to={createAddIssueLinkWithParams(
+							projectId,
+							false,
+							null,
+							null,
+							root
+						)}
+					>
 						+ Add unordered issue
 					</Link>
 				</>
 			) : (
 				<p>
 					There are no unordered issues yet...{" "}
-					<Link to={createAddIssueLinkWithParams(projectId, false, null, null)}>
+					<Link
+						to={createAddIssueLinkWithParams(
+							projectId,
+							false,
+							null,
+							null,
+							root
+						)}
+					>
 						Add one!
 					</Link>
 				</p>

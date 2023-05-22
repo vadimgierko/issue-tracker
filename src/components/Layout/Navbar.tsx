@@ -71,7 +71,13 @@ export default function NavigationBar() {
 									<Nav.Link>Issues ({issues.length})</Nav.Link>
 								</LinkContainer>
 								<LinkContainer
-									to={createAddIssueLinkWithParams(null, false, null, null)}
+									to={createAddIssueLinkWithParams(
+										null,
+										false,
+										null,
+										null,
+										null
+									)}
 								>
 									<Nav.Link>
 										<AiOutlinePlusSquare />

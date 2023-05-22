@@ -4,7 +4,8 @@ export default function createAddIssueLinkWithParams(
 	projectId: string | null,
 	ordered: boolean,
 	after: string | null,
-	before: string | null
+	before: string | null,
+	parent: string | null
 ) {
-	return `/issues/add/${projectId}/${ordered}/${after}/${before}`;
+	return `/issues/add/${projectId}/${ordered}/${after}/${before}/${parent}`;
 }

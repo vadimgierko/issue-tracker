@@ -29,10 +29,10 @@ const emptyIssue: Issue.FormData = {
 
 export default function IssuesAdd() {
 	const { theme } = useTheme();
-	const params = useParams();
+	// const params = useParams();
 	// console.log("/issues/add params:", params);
 
-	const { projectId, ordered, after, before } = useParams();
+	const { projectId, ordered, after, before, parent } = useParams();
 	const navigate = useNavigate();
 	const [issueData, setIssueData] = useState<Issue.FormData>(emptyIssue);
 	const { projects } = useProjects();
@@ -52,7 +52,8 @@ export default function IssuesAdd() {
 			issueData.projectId,
 			ordered === "true" ? true : false,
 			after ? (after === "null" ? null : after) : null,
-			before ? (before === "null" ? null : before) : null
+			before ? (before === "null" ? null : before) : null,
+			parent ? (parent === "null" ? null : parent) : null
 		);
 		alert(`Your issue was successfully added with the id ${addedIssueId}.`);
 		clearForm();
