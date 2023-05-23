@@ -29,7 +29,7 @@ const emptyIssue: Issue.FormData = {
 
 export default function IssuesAdd() {
 	const { theme } = useTheme();
-	// const params = useParams();
+	const params = useParams();
 	// console.log("/issues/add params:", params);
 
 	const { projectId, ordered, after, before, parent } = useParams();
@@ -40,6 +40,9 @@ export default function IssuesAdd() {
 
 	async function handleAddIssue(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
+		console.log("/issues/add params:", params);
+		console.log();
 
 		if (!issueData)
 			return logError("No issue data provided... Cannot add issue.");

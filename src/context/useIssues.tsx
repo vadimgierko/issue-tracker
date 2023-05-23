@@ -233,20 +233,22 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			: null;
 
 		// parent:
-		const issueToAddParent: Issue.AppIssue | null =
-			issueToAdd.ordered && issueToAdd.parent
-				? findIssueById(issueToAdd.parent)
-				: null;
+		const issueToAddParent: Issue.AppIssue | null = issueToAdd.parent
+			? findIssueById(issueToAdd.parent)
+			: null;
 
 		const issueToAddParentUpdated: Issue.AppIssue | null = issueToAddParent
 			? {
 					...issueToAddParent,
 					updated: creationTime,
-					children: issueToAddParent.children
-						? [...issueToAddParent.children, issueToAdd.id]
-						: [issueToAdd.id],
+					children:
+						issueToAddParent.children && issueToAddParent.children.length
+							? [...issueToAddParent.children, issueToAdd.id]
+							: [issueToAdd.id],
 			  }
 			: null;
+
+		console.log("updated parent in addIssue():", issueToAddParentUpdated);
 
 		const issuesToUpdate: Issue.AppIssue[] = [
 			...(issueToAddAfterUpdated ? [issueToAddAfterUpdated] : []),

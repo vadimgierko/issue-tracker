@@ -34,6 +34,8 @@ export default function RecursiveList({
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
 	console.log("ordered root issues:", rootIssuesOrdered);
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+	console.log("unordered root issues:", rootIssuesUnordered);
+
 	const lastOrderedIssue =
 		rootIssuesOrdered && rootIssuesOrdered.length
 			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
@@ -269,21 +271,46 @@ export default function RecursiveList({
 		}
 	}
 
-	async function addChild(parentId: string) {
+	async function addChildOrdered(parentId: string) {
 		const parent = findIssueById(parentId);
 
 		if (!parent) return;
 
 		const children = parent.children;
 
+		const orderedChildren =
+			children && children.length
+				? children.filter((i) => findIssueById(i)?.ordered)
+				: null;
+
 		const after =
-			children && children.length ? children[children.length - 1] : null;
+			orderedChildren && orderedChildren.length
+				? orderedChildren[orderedChildren.length - 1]
+				: null;
 
 		navigate(
 			createAddIssueLinkWithParams(
 				parent.projectId,
 				true,
 				after,
+				null, // before
+				parent.id
+			)
+		);
+	}
+
+	async function addChildUnordered(parentId: string) {
+		const parent = findIssueById(parentId);
+
+		if (!parent) return;
+
+		console.log("new unordered issue parent:", parent);
+
+		navigate(
+			createAddIssueLinkWithParams(
+				parent.projectId,
+				false, // ordered
+				null, // after
 				null, // before
 				parent.id
 			)
@@ -342,13 +369,6 @@ export default function RecursiveList({
 
 									<Dropdown.Divider />
 
-									<Dropdown.Item onClick={() => addChild(i.id)}>
-										<BsArrowReturnRight />
-										<BsPlus /> add child
-									</Dropdown.Item>
-
-									<Dropdown.Divider />
-
 									<Dropdown.Item onClick={() => moveUp(i.id)}>
 										<BsArrowUp /> move up
 									</Dropdown.Item>
@@ -371,6 +391,18 @@ export default function RecursiveList({
 									<BsArrowRight /> 1. convert into ordered
 								</Dropdown.Item>
 							)}
+
+							<Dropdown.Divider />
+
+							<Dropdown.Item onClick={() => addChildOrdered(i.id)}>
+								<BsArrowReturnRight />
+								<BsPlus /> 1. add ordered child
+							</Dropdown.Item>
+
+							<Dropdown.Item onClick={() => addChildUnordered(i.id)}>
+								<BsArrowReturnRight />
+								<BsPlus /> <BsDot /> add unordered child
+							</Dropdown.Item>
 
 							<Dropdown.Divider />
 
