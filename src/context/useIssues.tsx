@@ -443,47 +443,168 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		const deleteTime = Date.now();
 
-		const issueToDelete = findIssueById(issueId);
+		const issue = findIssueById(issueId);
 
-		if (!issueToDelete) {
+		if (!issue) {
 			const message =
 				"Issue to delete with the id " +
 				issueId +
 				" was not found in issues. Cannot delete issue...";
 			return logError(message);
+		} else {
+			console.warn("issue to delete:", issue.title, issue.id, issue);
 		}
 
-		const issueToDeleteAfter = issueToDelete.after
-			? findIssueById(issueToDelete.after)
-			: null;
-		const issueToDeleteAfterUpdated = issueToDeleteAfter
+		const after = issue.after ? findIssueById(issue.after) : null;
+		const afterUpdated = after
 			? {
-					...issueToDeleteAfter,
-					before: issueToDelete.before,
+					...after,
+					before: issue.before,
 					updated: deleteTime,
 			  }
 			: null;
 
-		const issueToDeleteBefore = issueToDelete.before
-			? findIssueById(issueToDelete.before)
-			: null;
-		const issueToDeleteBeforeUpdated = issueToDeleteBefore
+		if (after) {
+			console.warn(
+				"issue to delete has after prop, so need to update the issue before:",
+				after.title,
+				after.id
+			);
+		} else {
+			console.warn("issue to delete has no after prop => no need to update.");
+		}
+
+		const before = issue.before ? findIssueById(issue.before) : null;
+		const beforeUpdated = before
 			? {
-					...issueToDeleteBefore,
-					after: issueToDelete.after,
+					...before,
+					after: issue.after,
 					updated: deleteTime,
 			  }
 			: null;
+
+		if (before) {
+			console.warn(
+				"issue to delete has before prop, so need to update the issue after:",
+				before.title,
+				before.id
+			);
+		} else {
+			console.warn("issue to delete has no before prop => no need to update.");
+		}
+
+		// when issue has children =>
+		// check recursively, if there are futher grand chidren =>
+		// delete all children & grand children:
+		let children: Issue.AppIssue[] = [];
+
+		async function findAllChidrenRecursively(
+			issueToGetChildren: Issue.AppIssue
+		) {
+			if (!issueToGetChildren) return;
+			console.log("looking for children of", issueToGetChildren.title);
+
+			if (
+				!issueToGetChildren.children ||
+				(issueToGetChildren.children && !issueToGetChildren.children.length)
+			)
+				return;
+
+			console.log(
+				issueToGetChildren.title,
+				"has",
+				issueToGetChildren.children.length,
+				"children:",
+				issueToGetChildren.children
+			);
+
+			issueToGetChildren.children.forEach((i, x) => {
+				const childIssue = findIssueById(i);
+
+				if (childIssue) {
+					console.log("child issue", x + 1, ":", childIssue.title);
+
+					if (childIssue.children && childIssue.children.length) {
+						console.log(
+							"child issue",
+							x + 1,
+							childIssue.title,
+							"has children too! Check for its children!"
+						);
+						findAllChidrenRecursively(childIssue);
+					} else {
+						console.log(
+							"child issue",
+							x + 1,
+							childIssue.title,
+							"has no children. Push it to children[] to delete..."
+						);
+					}
+
+					children.push(childIssue);
+				}
+			});
+		}
+
+		// find all children for issue to delete:
+		await findAllChidrenRecursively(issue);
+
+		// const children: Issue.AppIssue[] | null =
+		// 	issue.children && issue.children.length
+		// 		? (issue.children
+		// 				.map((id) => findIssueById(id))
+		// 				.filter((i) => i !== null) as Issue.AppIssue[])
+		// 		: null;
+
+		if (children && children.length) {
+			console.warn(
+				"issue to delete has children, so need to delete children:",
+				issue.children
+			);
+		} else {
+			console.warn("issue to delete has no children => no need to update.");
+		}
+
+		// when issue has parent => remove its id from parent children:
+		const parent: Issue.AppIssue | null = issue.parent
+			? findIssueById(issue.parent)
+			: null;
+		const parentUpdated: Issue.AppIssue | null = parent
+			? {
+					...parent,
+					updated: deleteTime,
+					children:
+						parent.children && parent.children.length
+							? parent.children.filter((id) => id !== issue.id)
+							: [],
+			  }
+			: null;
+
+		if (parent) {
+			console.warn(
+				"issue to delete has parent prop, so need to update parent:",
+				parent.title,
+				parent.id
+			);
+		} else {
+			console.warn("issue to delete has no parent prop => no need to update.");
+		}
+
+		const issuesToDelete: Issue.AppIssue[] = [
+			issue,
+			...(children ? children : []),
+		];
 
 		const issuesToUpdate: Issue.AppIssue[] = [
-			...(issueToDeleteAfterUpdated ? [issueToDeleteAfterUpdated] : []),
-			...(issueToDeleteBeforeUpdated ? [issueToDeleteBeforeUpdated] : []),
+			...(afterUpdated ? [afterUpdated] : []),
+			...(beforeUpdated ? [beforeUpdated] : []),
+			...(parentUpdated ? [parentUpdated] : []),
 		];
 
 		try {
 			await updateIssues({
 				update: issuesToUpdate,
-				delete: [issueToDelete],
+				delete: issuesToDelete,
 			});
 		} catch (error: any) {
 			logError(

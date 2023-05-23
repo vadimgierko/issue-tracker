@@ -46,13 +46,26 @@ export default function RecursiveList({
 
 		if (
 			window.confirm(
-				"Are you sure you want to delete this issue permanently? This action can not be undone!"
+				`Are you sure you want to delete ${issue.title} issue permanently? This action can not be undone!`
 			)
 		) {
-			await deleteIssue(issue.id, issue.projectId);
-			alert(
-				`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
-			);
+			if (issue.children && issue.children.length) {
+				if (
+					window.confirm(
+						`The ${issue.title} issue you want to delete has children issues, so deleting this parent issue will delete all its children. Are you sure you want to delete all ${issue.title} issue children (${issue.children.length})? This action cannot be undone!`
+					)
+				) {
+					await deleteIssue(issue.id, issue.projectId);
+					alert(
+						`Your issue ${issue.title} with the id ${issue.id} and its children (${issue.children.length}) were successfully deleted.`
+					);
+				}
+			} else {
+				await deleteIssue(issue.id, issue.projectId);
+				alert(
+					`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
+				);
+			}
 		}
 	}
 
@@ -439,28 +452,29 @@ export default function RecursiveList({
 
 	return (
 		<>
-			{rootIssuesOrdered && rootIssuesOrdered.length ? (
-				<ol>
-					{rootIssuesOrdered.map((i) => (
-						<RecursiveListItem key={i.id} i={i} />
-					))}
-				</ol>
-			) : (
-				<p>
-					There are no ordered issues yet...{" "}
-					<Link
-						to={createAddIssueLinkWithParams(
-							projectId,
-							true,
-							lastOrderedIssue ? lastOrderedIssue.id : null,
-							null,
-							root
-						)}
-					>
-						Add one!
-					</Link>
-				</p>
-			)}
+			{
+				rootIssuesOrdered && rootIssuesOrdered.length ? (
+					<ol>
+						{rootIssuesOrdered.map((i) => (
+							<RecursiveListItem key={i.id} i={i} />
+						))}
+					</ol>
+				) : null
+				// <p>
+				// 	There are no ordered issues yet...{" "}
+				// 	<Link
+				// 		to={createAddIssueLinkWithParams(
+				// 			projectId,
+				// 			true,
+				// 			lastOrderedIssue ? lastOrderedIssue.id : null,
+				// 			null,
+				// 			root
+				// 		)}
+				// 	>
+				// 		Add one!
+				// 	</Link>
+				// </p>
+			}
 
 			{
 				rootIssuesUnordered && rootIssuesUnordered.length ? (
