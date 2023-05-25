@@ -16,6 +16,7 @@ import {
 	BsArrowReturnRight,
 	BsCheck2Square,
 } from "react-icons/bs";
+import { VscIssueReopened } from "react-icons/vsc";
 
 export default function RecursiveList({
 	issuesToList,
@@ -330,27 +331,46 @@ export default function RecursiveList({
 		);
 	}
 
-	async function resolve(issueId: string) {
+	async function resolve(issue: Issue.AppIssue) {
+		if (!issue) return;
+
 		const closeTime = Date.now();
 
-		const issueToClose = findIssueById(issueId);
-		const issueToCloseUpdated: Issue.AppIssue | null = issueToClose
-			? {
-					...issueToClose,
-					updated: closeTime,
-					closedAt: closeTime,
-					status: "resolved",
-			  }
-			: null;
+		const issueToClose: Issue.AppIssue = {
+			...issue,
+			updated: closeTime,
+			closedAt: closeTime,
+			status: "resolved",
+		};
 
-		if (issueToCloseUpdated) {
-			try {
-				await updateIssues({ update: [issueToCloseUpdated] });
-				console.log("Issue was resolved successfully!");
-			} catch (error: any) {
-				console.log(error);
-				alert(error);
-			}
+		try {
+			await updateIssues({ update: [issueToClose] });
+			console.log("Issue was resolved successfully!");
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
+	async function reopen(issue: Issue.AppIssue) {
+		if (!issue) return;
+
+		const reopenTime = Date.now();
+
+		const issueToReopen: Issue.AppIssue = {
+			...issue,
+			updated: reopenTime,
+			closedAt: null,
+			inProgressFrom: null,
+			status: "open",
+		};
+
+		try {
+			await updateIssues({ update: [issueToReopen] });
+			console.log("Issue was reopened successfully!");
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
 		}
 	}
 
@@ -458,10 +478,17 @@ export default function RecursiveList({
 								<BsPencilSquare /> edit
 							</Dropdown.Item>
 
-							<Dropdown.Item onClick={() => resolve(i.id)}>
-								<BsCheck2Square className="text-success" />{" "}
-								<span className="text-success">resolve</span>
-							</Dropdown.Item>
+							{i.status &&
+							(i.status === "open" || i.status === "in progress") ? (
+								<Dropdown.Item onClick={() => resolve(i)}>
+									<BsCheck2Square className="text-success" />{" "}
+									<span className="text-success">resolve</span>
+								</Dropdown.Item>
+							) : (
+								<Dropdown.Item onClick={() => reopen(i)}>
+									<VscIssueReopened /> <span>reopen</span>
+								</Dropdown.Item>
+							)}
 
 							<Dropdown.Item onClick={() => handleDeleteIssue(i)}>
 								<BsTrash className="text-danger" />{" "}
