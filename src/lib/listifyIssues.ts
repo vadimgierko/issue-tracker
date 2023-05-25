@@ -1,5 +1,10 @@
 import { Issue } from "../interfaces/Issue";
 
+/**
+ * Order passed issues with ordered prop set to true only.
+ *
+ * DO NOT PASS ISSUES WITH ORDERED PROP SET TO FALSE !!!
+ */
 export default function listifyIssues(
 	issues: Issue.AppIssue[]
 ): Issue.AppIssue[] {

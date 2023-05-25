@@ -62,10 +62,21 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 	/**
 	 * This is a reusable function, that uses writeBatch(),
-	 * so all passed issues will be set in 1 single batch.
+	 * so all passed issues will be deleted, added or updated
+	 * in 1 single batch.
+	 *
+	 * It cares about deleting issues from all related collections
+	 * & adding issues to all related collections.
+	 *
+	 * Also it updates app state automatically.
+	 *
+	 * So just pass all issues that need to be added, deleted or updated
+	 * via add, delete or update prop
+	 * and updateIssues() will take care of them.
+	 *
 	 * NOTE: you need to pass issues with updateTime!
 	 *
-	 * @param {UpdateIssuesProps} props - The payload object containing update property: {update: Issue.AppIssue[]}.
+	 * @param {UpdateIssuesProps} props {add?: Issue.AppIssue[], update?: Issue.AppIssue[], delete?: Issue.AppIssue[]}.
 	 *
 	 */
 	async function updateIssues(props: UpdateIssuesProps) {
@@ -215,7 +226,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			parent,
 		};
 
-		// if new issue is ordered => update also after/ before issues if the case:
+		// if new issue is ordered => update also after/ before issues if exist:
 		const issueToAddAfter: Issue.AppIssue | null =
 			issueToAdd.ordered && issueToAdd.after
 				? findIssueById(issueToAdd.after)
@@ -232,7 +243,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			? { ...issueToAddBefore, after: newIssueId, updated: creationTime }
 			: null;
 
-		// parent:
+		// update parent if exist:
 		const issueToAddParent: Issue.AppIssue | null = issueToAdd.parent
 			? findIssueById(issueToAdd.parent)
 			: null;
@@ -270,9 +281,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
-	/**
-	 * Updates issue and adds update time automatically.
-	 */
 	async function updateIssue(updatedIssue: Issue.AppIssue) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
@@ -548,13 +556,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		// find all children for issue to delete:
 		await findAllChidrenRecursively(issue);
-
-		// const children: Issue.AppIssue[] | null =
-		// 	issue.children && issue.children.length
-		// 		? (issue.children
-		// 				.map((id) => findIssueById(id))
-		// 				.filter((i) => i !== null) as Issue.AppIssue[])
-		// 		: null;
 
 		if (children && children.length) {
 			console.warn(

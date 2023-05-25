@@ -2,19 +2,19 @@ import { Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWithParams";
 import {
 	BsArrowDown,
 	BsPlus,
 	BsArrowUp,
 	BsDot,
-	BsArrowLeft,
 	BsArrowRight,
 	BsPencilSquare,
 	BsEye,
 	BsTrash,
 	BsArrowReturnRight,
+	BsCheck2Square,
 } from "react-icons/bs";
 
 export default function RecursiveList({
@@ -330,6 +330,30 @@ export default function RecursiveList({
 		);
 	}
 
+	async function resolve(issueId: string) {
+		const closeTime = Date.now();
+
+		const issueToClose = findIssueById(issueId);
+		const issueToCloseUpdated: Issue.AppIssue | null = issueToClose
+			? {
+					...issueToClose,
+					updated: closeTime,
+					closedAt: closeTime,
+					status: "resolved",
+			  }
+			: null;
+
+		if (issueToCloseUpdated) {
+			try {
+				await updateIssues({ update: [issueToCloseUpdated] });
+				console.log("Issue was resolved successfully!");
+			} catch (error: any) {
+				console.log(error);
+				alert(error);
+			}
+		}
+	}
+
 	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
 		return (
 			<li>
@@ -338,7 +362,12 @@ export default function RecursiveList({
 						{i.title}
 					</Link> */}
 					<span>
-						<strong>{i.title}</strong> ({i.rank}/90)
+						<strong
+							style={{ textDecoration: i.closedAt ? "line-through" : "" }}
+						>
+							{i.title}
+						</strong>{" "}
+						({i.rank}/90)
 					</span>
 					<Dropdown className="ms-2">
 						<Dropdown.Toggle as="a" variant="outline-secondary" />
@@ -427,6 +456,11 @@ export default function RecursiveList({
 								onClick={() => navigate("/issues/" + i.id + "/edit")}
 							>
 								<BsPencilSquare /> edit
+							</Dropdown.Item>
+
+							<Dropdown.Item onClick={() => resolve(i.id)}>
+								<BsCheck2Square className="text-success" />{" "}
+								<span className="text-success">resolve</span>
 							</Dropdown.Item>
 
 							<Dropdown.Item onClick={() => handleDeleteIssue(i)}>

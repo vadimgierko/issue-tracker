@@ -2,7 +2,6 @@ import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
-import { useEffect } from "react";
 import useIssues from "../../context/useIssues";
 
 export default function Project() {
@@ -12,12 +11,7 @@ export default function Project() {
 	const navigate = useNavigate();
 
 	const { issues } = useIssues();
-	const projectIssuesAll = issues.filter((i) => i.projectId === projectId);
-	const projectIssuesOpenAndInProgress = issues.filter(
-		(i) =>
-			i.projectId === projectId &&
-			(i.status === "open" || i.status === "in progress")
-	);
+	const projectIssues = issues.filter((i) => i.projectId === projectId);
 
 	async function handleDeleteProject(projectId: string) {
 		if (!projectId)
@@ -64,11 +58,9 @@ export default function Project() {
 				}
 			>
 				<p className="text-center">
-					<Link to="issues">Issues ({projectIssuesAll.length})</Link> |{" "}
+					<Link to="issues">Issues Table ({projectIssues.length})</Link> |{" "}
 					<Link to="details">Details</Link> |{" "}
-					<Link to="issues-ordered">
-						Issues (ordered) ({projectIssuesOpenAndInProgress.length})
-					</Link>
+					<Link to="issues-ordered">Issues List ({projectIssues.length})</Link>
 				</p>
 			</PageHeader>
 
