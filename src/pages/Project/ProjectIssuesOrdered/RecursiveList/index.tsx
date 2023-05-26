@@ -15,6 +15,7 @@ import {
 	BsTrash,
 	BsArrowReturnRight,
 	BsCheck2Square,
+	BsRocketTakeoff,
 } from "react-icons/bs";
 import { VscIssueReopened } from "react-icons/vsc";
 
@@ -27,7 +28,15 @@ export default function RecursiveList({
 }) {
 	const navigate = useNavigate();
 	const { projectId } = useParams();
-	const { issues, findIssueById, updateIssues, deleteIssue } = useIssues();
+	const {
+		issues,
+		findIssueById,
+		updateIssues,
+		deleteIssue,
+		reopenIssue,
+		resolveIssue,
+		setToInProgressIssue,
+	} = useIssues();
 
 	if (!projectId) return null;
 
@@ -69,6 +78,9 @@ export default function RecursiveList({
 			}
 		}
 	}
+
+	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
+	// BECAUSE THEY ARE NEEDED ONLY HERE:
 
 	async function convertIntoOrdered(issueId: string) {
 		const convertTime = Date.now();
@@ -331,48 +343,7 @@ export default function RecursiveList({
 		);
 	}
 
-	async function resolve(issue: Issue.AppIssue) {
-		if (!issue) return;
-
-		const closeTime = Date.now();
-
-		const issueToClose: Issue.AppIssue = {
-			...issue,
-			updated: closeTime,
-			closedAt: closeTime,
-			status: "resolved",
-		};
-
-		try {
-			await updateIssues({ update: [issueToClose] });
-			console.log("Issue was resolved successfully!");
-		} catch (error: any) {
-			console.log(error);
-			alert(error);
-		}
-	}
-
-	async function reopen(issue: Issue.AppIssue) {
-		if (!issue) return;
-
-		const reopenTime = Date.now();
-
-		const issueToReopen: Issue.AppIssue = {
-			...issue,
-			updated: reopenTime,
-			closedAt: null,
-			inProgressFrom: null,
-			status: "open",
-		};
-
-		try {
-			await updateIssues({ update: [issueToReopen] });
-			console.log("Issue was reopened successfully!");
-		} catch (error: any) {
-			console.log(error);
-			alert(error);
-		}
-	}
+	//=============================================================
 
 	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
 		return (
@@ -383,7 +354,12 @@ export default function RecursiveList({
 					</Link> */}
 					<span>
 						<strong
-							style={{ textDecoration: i.closedAt ? "line-through" : "" }}
+							style={{
+								textDecoration: i.closedAt ? "line-through" : "",
+								backgroundColor:
+									i.status === "in progress" ? "rgb(50, 140, 113)" : "",
+								color: i.status === "in progress" ? "white" : "",
+							}}
 						>
 							{i.title}
 						</strong>{" "}
@@ -468,6 +444,27 @@ export default function RecursiveList({
 
 							<Dropdown.Divider />
 
+							{i.status && i.status === "open" && (
+								<Dropdown.Item onClick={() => setToInProgressIssue(i)}>
+									<BsRocketTakeoff />{" "}
+									<span className="text-primary">in progress...</span>
+								</Dropdown.Item>
+							)}
+
+							{i.status &&
+							(i.status === "open" || i.status === "in progress") ? (
+								<Dropdown.Item onClick={() => resolveIssue(i)}>
+									<BsCheck2Square className="text-success" />{" "}
+									<span className="text-success">resolve</span>
+								</Dropdown.Item>
+							) : (
+								<Dropdown.Item onClick={() => reopenIssue(i)}>
+									<VscIssueReopened /> <span>reopen</span>
+								</Dropdown.Item>
+							)}
+
+							<Dropdown.Divider />
+
 							<Dropdown.Item onClick={() => navigate("/issues/" + i.id)}>
 								<BsEye /> view
 							</Dropdown.Item>
@@ -477,18 +474,6 @@ export default function RecursiveList({
 							>
 								<BsPencilSquare /> edit
 							</Dropdown.Item>
-
-							{i.status &&
-							(i.status === "open" || i.status === "in progress") ? (
-								<Dropdown.Item onClick={() => resolve(i)}>
-									<BsCheck2Square className="text-success" />{" "}
-									<span className="text-success">resolve</span>
-								</Dropdown.Item>
-							) : (
-								<Dropdown.Item onClick={() => reopen(i)}>
-									<VscIssueReopened /> <span>reopen</span>
-								</Dropdown.Item>
-							)}
 
 							<Dropdown.Item onClick={() => handleDeleteIssue(i)}>
 								<BsTrash className="text-danger" />{" "}

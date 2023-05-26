@@ -37,6 +37,9 @@ const IsuesContext = createContext<{
 	) => Promise<string | null>;
 	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
 	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
+	resolveIssue: (issue: Issue.AppIssue) => Promise<void>;
+	reopenIssue: (issue: Issue.AppIssue) => Promise<void>;
+	setToInProgressIssue: (issue: Issue.AppIssue) => Promise<void>;
 } | null>(null);
 
 export default function useIssues() {
@@ -614,6 +617,81 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
+	async function resolveIssue(issue: Issue.AppIssue) {
+		if (!issue) return;
+
+		const updateTime = Date.now();
+
+		const updatedIssue: Issue.AppIssue = {
+			...issue,
+			updated: updateTime,
+			closedAt: updateTime,
+			status: "resolved",
+		};
+
+		try {
+			await updateIssues({ update: [updatedIssue] });
+			console.log(
+				`Issue ${issue.id} ${issue.title} was resolved successfully!"`
+			);
+			alert(`Issue ${issue.id} ${issue.title} was resolved successfully!"`);
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
+	async function reopenIssue(issue: Issue.AppIssue) {
+		if (!issue) return;
+
+		const updateTime = Date.now();
+
+		const updatedIssue: Issue.AppIssue = {
+			...issue,
+			updated: updateTime,
+			closedAt: null,
+			inProgressFrom: null,
+			status: "open",
+		};
+
+		try {
+			await updateIssues({ update: [updatedIssue] });
+			console.log(
+				`Issue ${issue.id} ${issue.title} was reopened successfully!"`
+			);
+			alert(`Issue ${issue.id} ${issue.title} was reopened successfully!"`);
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
+	async function setToInProgressIssue(issue: Issue.AppIssue) {
+		if (!issue) return;
+
+		const updateTime = Date.now();
+
+		const updatedIssue: Issue.AppIssue = {
+			...issue,
+			updated: updateTime,
+			inProgressFrom: updateTime,
+			status: "in progress",
+		};
+
+		try {
+			await updateIssues({ update: [updatedIssue] });
+			console.log(
+				`Issue ${issue.id} ${issue.title} was set to be in progress successfully!`
+			);
+			alert(
+				`Issue ${issue.id} ${issue.title} was set to be in progress successfully!`
+			);
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+	}
+
 	// fetch user issuesIds array from /user-issues collection,
 	// then fetch those issues:
 	useEffect(() => {
@@ -699,6 +777,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		addIssue,
 		updateIssue,
 		deleteIssue,
+		resolveIssue,
+		reopenIssue,
+		setToInProgressIssue,
 	};
 
 	return (
