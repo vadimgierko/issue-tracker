@@ -14,24 +14,6 @@ export default function Issue() {
 	const project = projects.find((p) => p.id === issue?.projectId);
 	const navigate = useNavigate();
 
-	async function handleDeleteIssue() {
-		if (!issueId)
-			return alert("No issue id was provided... Cannot delete issue.");
-
-		if (!issue || !issue.projectId)
-			return alert("No project id was provided... Cannot delete issue.");
-
-		if (
-			window.confirm(
-				"Are you sure you want to delete this issue permanently? This action can not be undone!"
-			)
-		) {
-			await deleteIssue(issue.id, issue.projectId);
-			alert(`Your issue with the id ${issueId} was successfully deleted.`);
-			navigate(-1); // maybe add checking if there is prev page
-		}
-	}
-
 	if (!issue || !issueId)
 		return <p className="text-center text-danger">There is no such issue...</p>;
 
@@ -74,7 +56,7 @@ export default function Issue() {
 						</Link>
 						<Button
 							variant="outline-danger"
-							onClick={handleDeleteIssue}
+							onClick={() => deleteIssue(issue).then(() => navigate(-1))}
 							className="ms-2"
 						>
 							delete issue

@@ -17,8 +17,8 @@ const emptyIssue: Issue.FormData = {
 	title: "",
 	description: "",
 	type: "improvement",
-	importance: "high",
-	urgency: "high",
+	importance: "medium",
+	urgency: "medium",
 	estimatedTime: "medium",
 	difficulty: "medium",
 	status: "open",
@@ -30,7 +30,6 @@ const emptyIssue: Issue.FormData = {
 export default function IssuesAdd() {
 	const { theme } = useTheme();
 	const params = useParams();
-	// console.log("/issues/add params:", params);
 
 	const { projectId, ordered, after, before, parent } = useParams();
 	const navigate = useNavigate();

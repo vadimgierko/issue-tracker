@@ -25,42 +25,19 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 	const { theme } = useTheme();
 	const { projects } = useProjects();
 	const { projectId } = useParams();
-	const { deleteIssue, reopenIssue, resolveIssue, setToInProgressIssue } =
-		useIssues();
+	const {
+		deleteIssue,
+		reopenIssue,
+		resolveIssue,
+		setToInProgressIssue,
+		findAllIssueChidrenRecursively,
+	} = useIssues();
 
 	// all issues have same status,
 	// because they are filtered by status via issue table tabs:
 	const issuesStatus: Issue.Status = issues[0].status; // needed for conditional rendering
 
 	const navigate = useNavigate();
-
-	async function handleDeleteIssue(issue: Issue.AppIssue) {
-		if (!issue) return alert("No issue was provided... Cannot delete issue.");
-
-		if (
-			window.confirm(
-				`Are you sure you want to delete ${issue.title} issue permanently? This action can not be undone!`
-			)
-		) {
-			if (issue.children && issue.children.length) {
-				if (
-					window.confirm(
-						`The ${issue.title} issue you want to delete has children issues, so deleting this parent issue will delete all its children. Are you sure you want to delete all ${issue.title} issue children (${issue.children.length})? This action cannot be undone!`
-					)
-				) {
-					await deleteIssue(issue.id, issue.projectId);
-					alert(
-						`Your issue ${issue.title} with the id ${issue.id} and its children (${issue.children.length}) were successfully deleted.`
-					);
-				}
-			} else {
-				await deleteIssue(issue.id, issue.projectId);
-				alert(
-					`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
-				);
-			}
-		}
-	}
 
 	return (
 		<Table striped bordered hover responsive className="mt-3" variant={theme}>
@@ -120,7 +97,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 										<BsPencilSquare /> edit
 									</Dropdown.Item>
 
-									<Dropdown.Item onClick={() => handleDeleteIssue(issue)}>
+									<Dropdown.Item onClick={() => deleteIssue(issue)}>
 										<BsTrash className="text-danger" />{" "}
 										<span className="text-danger">delete</span>
 									</Dropdown.Item>
@@ -128,7 +105,22 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 							</Dropdown>
 						</td>
 						<td>
-							<Link to={"/issues/" + issue.id}>{issue.title}</Link>{" "}
+							{issue.title}{" "}
+							{issue.children && issue.children.length ? (
+								<Badge
+									bg={theme === "dark" ? "light" : "dark"}
+									className={`me-1 text-${theme}`}
+								>
+									{
+										findAllIssueChidrenRecursively(issue).filter(
+											(i) => i.status !== "open" && i.status !== "in progress"
+										).length
+									}
+									/{findAllIssueChidrenRecursively(issue).length}
+								</Badge>
+							) : (
+								""
+							)}{" "}
 							<Badge
 								bg={issue.type === "bug" ? "danger" : "primary"}
 								className="me-1"

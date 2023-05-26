@@ -35,11 +35,16 @@ const IsuesContext = createContext<{
 		before: string | null,
 		parent: string | null
 	) => Promise<string | null>;
-	updateIssue: (updatedIssue: Issue.AppIssue) => Promise<void>;
-	deleteIssue: (issueId: string, projectId: string) => Promise<void>;
+	updateIssueData: (updatedIssue: Issue.AppIssue) => Promise<void>;
+	deleteIssue: (issue: Issue.AppIssue) => Promise<void>;
 	resolveIssue: (issue: Issue.AppIssue) => Promise<void>;
 	reopenIssue: (issue: Issue.AppIssue) => Promise<void>;
 	setToInProgressIssue: (issue: Issue.AppIssue) => Promise<void>;
+	showClosedIssues: boolean;
+	setShowClosedIssues: React.Dispatch<React.SetStateAction<boolean>>;
+	findAllIssueChidrenRecursively: (
+		issueToGetChildren: Issue.AppIssue
+	) => Issue.AppIssue[];
 } | null>(null);
 
 export default function useIssues() {
@@ -59,6 +64,7 @@ type IssuesProviderProps = {
 export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [showClosedIssues, setShowClosedIssues] = useState(true);
 	const { user } = useUser();
 
 	console.log("user issues:", issues);
@@ -284,187 +290,65 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
-	async function updateIssue(updatedIssue: Issue.AppIssue) {
+	/**
+	 * Updates only issue data.
+	 */
+	async function updateIssueData(updatedIssue: Issue.AppIssue) {
 		// NOTE:
 		// as we have issue data only in /issues collection,
 		// we need to update it only there
 		if (!updatedIssue)
 			return logError("No updated issue data provided... Cannot update issue.");
 
-		const issueBeforeUpdates = issues.find((i) => i.id === updatedIssue.id)!;
+		const issueBeforeUpdates = findIssueById(updatedIssue.id);
+
+		if (!issueBeforeUpdates) return;
 
 		const updateTime = Date.now();
 
-		// update cases:
-		// 1. only data update: just unrankify & update issue in db.
-		// 2. status update: update status + unrankify & update issue in db.
-		// 3. ordered false => true: check if there are after & before updates, update them + unrankify & update issue in db.
-		// 4. ordered true => false: check if there are after & before updates, update them + unrankify & update issue in db.
-
-		let updatedIssueWithUpdateTime: Issue.AppIssue = {
-			...updatedIssue,
-			updated: updateTime,
-		};
-
-		const isIssueStatusChanged =
-			issueBeforeUpdates.status !== updatedIssueWithUpdateTime.status;
-
-		const isIssueOrderedPropChanged =
-			issueBeforeUpdates.ordered !== updatedIssueWithUpdateTime.ordered;
-
-		// 1. & 2.:
-
-		if (isIssueStatusChanged) {
-			const { status: beforeStatus } = issueBeforeUpdates;
-			const { status: currentStatus } = updatedIssueWithUpdateTime;
-
-			if (beforeStatus === "open" && currentStatus === "in progress") {
-				updatedIssueWithUpdateTime.inProgressFrom = updateTime;
-			} else if (beforeStatus === "in progress" && currentStatus !== "open") {
-				updatedIssueWithUpdateTime.closedAt = updateTime;
-			} else if (beforeStatus === "in progress" && currentStatus === "open") {
-				updatedIssueWithUpdateTime.inProgressFrom = null;
-			} else if (
-				!["open", "in progress"].includes(beforeStatus) &&
-				currentStatus === "in progress"
-			) {
-				updatedIssueWithUpdateTime = {
-					...updatedIssueWithUpdateTime,
-					inProgressFrom: updateTime,
-					closedAt: null,
-				};
-			} else if (
-				!["open", "in progress"].includes(beforeStatus) &&
-				currentStatus === "open"
-			) {
-				updatedIssueWithUpdateTime = {
-					...updatedIssueWithUpdateTime,
-					inProgressFrom: null,
-					closedAt: null,
-				};
-			}
-		}
-
-		// unrankify updated issue to update it db:
-		const updatedIssueUnrankified = unrankifyIssue(updatedIssueWithUpdateTime);
-
 		try {
-			const batch = writeBatch(firestore);
-
-			// set updated issue:
-			const updatedIssueRef = doc(
-				firestore,
-				"issues",
-				updatedIssueUnrankified.id
-			);
-			batch.set(updatedIssueRef, updatedIssueUnrankified);
-
-			let updatedIssueAfter: Issue.AppIssue | null = null;
-			let updatedIssueBefore: Issue.AppIssue | null = null;
-
-			if (isIssueOrderedPropChanged) {
-				if (updatedIssueUnrankified.ordered) {
-					if (updatedIssueUnrankified.after) {
-						const issueAfter = issues.find(
-							(i) => i.id === updatedIssueUnrankified.after
-						);
-						if (issueAfter) {
-							updatedIssueAfter = {
-								...issueAfter,
-								before: updatedIssueUnrankified.id,
-								updated: updateTime,
-							};
-						}
-					}
-				} else {
-					const issueAfter = issues.find(
-						(i) => i.id === issueBeforeUpdates.after
-					);
-					const issueBefore = issues.find(
-						(i) => i.id === issueBeforeUpdates.before
-					);
-					if (issueAfter) {
-						updatedIssueAfter = {
-							...issueAfter,
-							before: issueBeforeUpdates.before,
-							updated: updateTime,
-						};
-					}
-					if (issueBefore) {
-						updatedIssueBefore = {
-							...issueBefore,
-							after: issueBeforeUpdates.after,
-							updated: updateTime,
-						};
-					}
-				}
-			}
-
-			if (updatedIssueAfter) {
-				const updatedIssueAfterRef = doc(
-					firestore,
-					"issues",
-					updatedIssueAfter.id
-				);
-				batch.set(updatedIssueAfterRef, unrankifyIssue(updatedIssueAfter));
-			}
-
-			if (updatedIssueBefore) {
-				const updatedIssueBeforeRef = doc(
-					firestore,
-					"issues",
-					updatedIssueBefore.id
-				);
-				batch.set(updatedIssueBeforeRef, unrankifyIssue(updatedIssueBefore));
-			}
-
-			batch.commit();
-
-			// update app's state:
-			const updatedIssues = issues.map((i) => {
-				if (i.id === updatedIssue.id) {
-					return updatedIssueWithUpdateTime;
-				} else if (updatedIssueAfter && i.id === updatedIssueAfter.id) {
-					return updatedIssueAfter;
-				} else if (updatedIssueBefore && i.id === updatedIssueBefore.id) {
-					return updatedIssueBefore;
-				} else {
-					return i;
-				}
+			await updateIssues({
+				update: [{ ...updatedIssue, updated: updateTime }],
 			});
 
-			const rerankifiedUpdatedIssues = rankifyIssues(updatedIssues);
-			setIssues(rerankifiedUpdatedIssues);
-		} catch (error: any) {
-			logError(
-				`An error occurred while updating an issue: ${error.message}. Cannot update issue.`
+			console.log(
+				`Issue ${issueBeforeUpdates.id} ${issueBeforeUpdates.title} was successfully updated.`
 			);
+			alert(
+				`Issue ${issueBeforeUpdates.id} ${issueBeforeUpdates.title} was successfully updated.`
+			);
+		} catch (error: any) {
+			console.error(error);
+			alert(error);
 		}
 	}
 
-	async function deleteIssue(issueId: string, projectId: string) {
-		if (!issueId)
-			return logError("No issue id provided... Cannot delete issue.");
-
-		if (!projectId)
-			return logError("No issue project id provided... Cannot delete issue.");
-
+	async function deleteIssue(issue: Issue.AppIssue) {
 		if (!user || (user && !user.uid))
 			return logError("You need to be logged to delete issue. Log in!");
 
-		const deleteTime = Date.now();
-
-		const issue = findIssueById(issueId);
-
 		if (!issue) {
-			const message =
-				"Issue to delete with the id " +
-				issueId +
-				" was not found in issues. Cannot delete issue...";
-			return logError(message);
+			return logError("No issue id provided... Cannot delete issue.");
 		} else {
 			console.warn("issue to delete:", issue.title, issue.id, issue);
 		}
+
+		const confirmToDelete = window.confirm(
+			`Are you sure you want to delete ${issue.title} issue permanently? This action can not be undone!`
+		);
+
+		if (!confirmToDelete) return;
+
+		const confirmToDeleteChildrenIfExist =
+			issue.children && issue.children.length
+				? window.confirm(
+						`The ${issue.title} issue you want to delete has children issues, so deleting this parent issue will delete all of its children. Are you sure you want to delete all ${issue.title} issue children (${issue.children.length})? This action cannot be undone!`
+				  )
+				: true;
+
+		if (!confirmToDeleteChildrenIfExist) return;
+
+		const deleteTime = Date.now();
 
 		const after = issue.after ? findIssueById(issue.after) : null;
 		const afterUpdated = after
@@ -507,58 +391,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		// when issue has children =>
 		// check recursively, if there are futher grand chidren =>
 		// delete all children & grand children:
-		let children: Issue.AppIssue[] = [];
-
-		async function findAllChidrenRecursively(
-			issueToGetChildren: Issue.AppIssue
-		) {
-			if (!issueToGetChildren) return;
-			console.log("looking for children of", issueToGetChildren.title);
-
-			if (
-				!issueToGetChildren.children ||
-				(issueToGetChildren.children && !issueToGetChildren.children.length)
-			)
-				return;
-
-			console.log(
-				issueToGetChildren.title,
-				"has",
-				issueToGetChildren.children.length,
-				"children:",
-				issueToGetChildren.children
-			);
-
-			issueToGetChildren.children.forEach((i, x) => {
-				const childIssue = findIssueById(i);
-
-				if (childIssue) {
-					console.log("child issue", x + 1, ":", childIssue.title);
-
-					if (childIssue.children && childIssue.children.length) {
-						console.log(
-							"child issue",
-							x + 1,
-							childIssue.title,
-							"has children too! Check for its children!"
-						);
-						findAllChidrenRecursively(childIssue);
-					} else {
-						console.log(
-							"child issue",
-							x + 1,
-							childIssue.title,
-							"has no children. Push it to children[] to delete..."
-						);
-					}
-
-					children.push(childIssue);
-				}
-			});
-		}
-
-		// find all children for issue to delete:
-		await findAllChidrenRecursively(issue);
+		const children = findAllIssueChidrenRecursively(issue);
 
 		if (children && children.length) {
 			console.warn(
@@ -610,6 +443,13 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				update: issuesToUpdate,
 				delete: issuesToDelete,
 			});
+
+			console.log(
+				`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
+			);
+			alert(
+				`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
+			);
 		} catch (error: any) {
 			logError(
 				`An error occurred while deleting an issue: ${error.message}. Cannot delete issue.`
@@ -620,6 +460,15 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	async function resolveIssue(issue: Issue.AppIssue) {
 		if (!issue) return;
 
+		const confirmToResolveChildrenIfExist =
+			issue.children && issue.children.length
+				? window.confirm(
+						`The ${issue.title} issue you want to resolve has children issues, so resolving this parent issue will resolve all of its children. Are you sure you want to resolve all ${issue.title} issue children (${issue.children.length})?`
+				  )
+				: true;
+
+		if (!confirmToResolveChildrenIfExist) return;
+
 		const updateTime = Date.now();
 
 		const updatedIssue: Issue.AppIssue = {
@@ -629,8 +478,34 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			status: "resolved",
 		};
 
+		// when issue has children =>
+		// check recursively, if there are futher grand chidren =>
+		// resolve all children & grand children:
+		const children = findAllIssueChidrenRecursively(issue);
+
+		if (children && children.length) {
+			console.warn(
+				"issue to resolve has children, so need to resolve children also:",
+				issue.children
+			);
+		} else {
+			console.warn("issue to resolve has no children => no need to update.");
+		}
+
+		const resolvedChildren: Issue.AppIssue[] | null =
+			children && children.length
+				? children.map((i) => ({
+						...i,
+						updated: updateTime,
+						closedAt: updateTime,
+						status: "resolved",
+				  }))
+				: null;
+
 		try {
-			await updateIssues({ update: [updatedIssue] });
+			await updateIssues({
+				update: [updatedIssue, ...(resolvedChildren ? resolvedChildren : [])],
+			});
 			console.log(
 				`Issue ${issue.id} ${issue.title} was resolved successfully!"`
 			);
@@ -639,6 +514,59 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			console.log(error);
 			alert(error);
 		}
+	}
+
+	function findAllIssueChidrenRecursively(
+		issueToGetChildren: Issue.AppIssue,
+		prevChildren: Issue.AppIssue[] = []
+	) {
+		let children: Issue.AppIssue[] = prevChildren;
+
+		if (!issueToGetChildren) return prevChildren;
+		//console.log("looking for children of", issueToGetChildren.title);
+
+		if (
+			!issueToGetChildren.children ||
+			(issueToGetChildren.children && !issueToGetChildren.children.length)
+		)
+			return [];
+
+		// console.log(
+		// 	issueToGetChildren.title,
+		// 	"has",
+		// 	issueToGetChildren.children.length,
+		// 	"children:",
+		// 	issueToGetChildren.children
+		// );
+
+		issueToGetChildren.children.forEach((i, x) => {
+			const childIssue = findIssueById(i);
+
+			if (childIssue) {
+				//console.log("child issue", x + 1, ":", childIssue.title);
+
+				if (childIssue.children && childIssue.children.length) {
+					// console.log(
+					// 	"child issue",
+					// 	x + 1,
+					// 	childIssue.title,
+					// 	"has children too! Check for its children!"
+					// );
+					findAllIssueChidrenRecursively(childIssue, children);
+				} else {
+					// console.log(
+					// 	"child issue",
+					// 	x + 1,
+					// 	childIssue.title,
+					// 	"has no children. Push it to children[] to delete..."
+					// );
+				}
+
+				children.push(childIssue);
+			}
+		});
+
+		return children;
 	}
 
 	async function reopenIssue(issue: Issue.AppIssue) {
@@ -775,11 +703,14 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		findIssueById,
 		updateIssues,
 		addIssue,
-		updateIssue,
+		updateIssueData,
 		deleteIssue,
 		resolveIssue,
 		reopenIssue,
 		setToInProgressIssue,
+		showClosedIssues,
+		setShowClosedIssues,
+		findAllIssueChidrenRecursively,
 	};
 
 	return (

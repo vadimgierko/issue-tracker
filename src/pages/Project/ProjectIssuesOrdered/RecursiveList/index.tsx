@@ -1,4 +1,4 @@
-import { Dropdown } from "react-bootstrap";
+import { Badge, Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
@@ -18,6 +18,7 @@ import {
 	BsRocketTakeoff,
 } from "react-icons/bs";
 import { VscIssueReopened } from "react-icons/vsc";
+import useTheme from "../../../../context/useTheme";
 
 export default function RecursiveList({
 	issuesToList,
@@ -26,6 +27,7 @@ export default function RecursiveList({
 	issuesToList: Issue.AppIssue[]; // open & in progress project issues only
 	root: string | null;
 }) {
+	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { projectId } = useParams();
 	const {
@@ -36,13 +38,16 @@ export default function RecursiveList({
 		reopenIssue,
 		resolveIssue,
 		setToInProgressIssue,
+		showClosedIssues,
+		findAllIssueChidrenRecursively,
 	} = useIssues();
-
 	if (!projectId) return null;
 
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
+
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
 	console.log("ordered root issues:", rootIssuesOrdered);
+
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
 	console.log("unordered root issues:", rootIssuesUnordered);
 
@@ -50,34 +55,6 @@ export default function RecursiveList({
 		rootIssuesOrdered && rootIssuesOrdered.length
 			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 			: null;
-
-	async function handleDeleteIssue(issue: Issue.AppIssue) {
-		if (!issue) return alert("No issue was provided... Cannot delete issue.");
-
-		if (
-			window.confirm(
-				`Are you sure you want to delete ${issue.title} issue permanently? This action can not be undone!`
-			)
-		) {
-			if (issue.children && issue.children.length) {
-				if (
-					window.confirm(
-						`The ${issue.title} issue you want to delete has children issues, so deleting this parent issue will delete all its children. Are you sure you want to delete all ${issue.title} issue children (${issue.children.length})? This action cannot be undone!`
-					)
-				) {
-					await deleteIssue(issue.id, issue.projectId);
-					alert(
-						`Your issue ${issue.title} with the id ${issue.id} and its children (${issue.children.length}) were successfully deleted.`
-					);
-				}
-			} else {
-				await deleteIssue(issue.id, issue.projectId);
-				alert(
-					`Your issue ${issue.title} with the id ${issue.id} was successfully deleted.`
-				);
-			}
-		}
-	}
 
 	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
 	// BECAUSE THEY ARE NEEDED ONLY HERE:
@@ -349,11 +326,8 @@ export default function RecursiveList({
 		return (
 			<li>
 				<div style={{ display: "flex" }}>
-					{/* <Link to={"/issues/" + i.id} className="me-1">
-						{i.title}
-					</Link> */}
 					<span>
-						<strong
+						<span
 							style={{
 								textDecoration: i.closedAt ? "line-through" : "",
 								backgroundColor:
@@ -362,7 +336,23 @@ export default function RecursiveList({
 							}}
 						>
 							{i.title}
-						</strong>{" "}
+						</span>{" "}
+						{i.children && i.children.length ? (
+							<Badge
+								bg={theme === "dark" ? "light" : "dark"}
+								className={`me-1 text-${theme}`}
+							>
+								{
+									findAllIssueChidrenRecursively(i).filter(
+										(child) =>
+											child.status !== "open" && child.status !== "in progress"
+									).length
+								}
+								/{findAllIssueChidrenRecursively(i).length}
+							</Badge>
+						) : (
+							""
+						)}
 						({i.rank}/90)
 					</span>
 					<Dropdown className="ms-2">
@@ -475,7 +465,7 @@ export default function RecursiveList({
 								<BsPencilSquare /> edit
 							</Dropdown.Item>
 
-							<Dropdown.Item onClick={() => handleDeleteIssue(i)}>
+							<Dropdown.Item onClick={() => deleteIssue(i)}>
 								<BsTrash className="text-danger" />{" "}
 								<span className="text-danger">delete</span>
 							</Dropdown.Item>
@@ -498,79 +488,36 @@ export default function RecursiveList({
 
 	return (
 		<>
-			{
-				rootIssuesOrdered && rootIssuesOrdered.length ? (
-					<ol>
-						{rootIssuesOrdered.map((i) => (
+			{rootIssuesOrdered && rootIssuesOrdered.length ? (
+				<ol>
+					{rootIssuesOrdered
+						.filter((i) =>
+							showClosedIssues
+								? true
+								: i.status === "open" || i.status === "in progress"
+						)
+						.map((i) => (
 							<RecursiveListItem key={i.id} i={i} />
 						))}
-					</ol>
-				) : null
-				// <p>
-				// 	There are no ordered issues yet...{" "}
-				// 	<Link
-				// 		to={createAddIssueLinkWithParams(
-				// 			projectId,
-				// 			true,
-				// 			lastOrderedIssue ? lastOrderedIssue.id : null,
-				// 			null,
-				// 			root
-				// 		)}
-				// 	>
-				// 		Add one!
-				// 	</Link>
-				// </p>
-			}
+				</ol>
+			) : null}
 
-			{
-				rootIssuesUnordered && rootIssuesUnordered.length ? (
-					<>
-						{/* <Link
-						to={createAddIssueLinkWithParams(
-							projectId,
-							false,
-							null,
-							null,
-							root
-						)}
-					>
-						+ Add unordered issue
-					</Link> */}
-						<ul>
-							{rootIssuesUnordered
-								.sort((a, b) => b.rank - a.rank)
-								.map((i) => (
-									<RecursiveListItem key={i.id} i={i} />
-								))}
-						</ul>
-						{/* <Link
-						to={createAddIssueLinkWithParams(
-							projectId,
-							false,
-							null,
-							null,
-							root
-						)}
-					>
-						+ Add unordered issue
-					</Link> */}
-					</>
-				) : null
-				// <p>
-				// 	There are no unordered issues yet...{" "}
-				// 	<Link
-				// 		to={createAddIssueLinkWithParams(
-				// 			projectId,
-				// 			false,
-				// 			null,
-				// 			null,
-				// 			root
-				// 		)}
-				// 	>
-				// 		Add one!
-				// 	</Link>
-				// </p>
-			}
+			{rootIssuesUnordered && rootIssuesUnordered.length ? (
+				<>
+					<ul>
+						{rootIssuesUnordered
+							.sort((a, b) => b.rank - a.rank)
+							.filter((i) =>
+								showClosedIssues
+									? true
+									: i.status === "open" || i.status === "in progress"
+							)
+							.map((i) => (
+								<RecursiveListItem key={i.id} i={i} />
+							))}
+					</ul>
+				</>
+			) : null}
 		</>
 	);
 }
