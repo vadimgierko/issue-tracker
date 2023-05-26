@@ -12,13 +12,13 @@ import useProjects from "../../context/useProjects";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
 import { Col, Row } from "react-bootstrap";
 
-const emptyIssue: Issue.Data = {
+const emptyIssue: Issue.FormData = {
 	projectId: "",
 	title: "",
 	description: "",
 	type: "improvement",
-	importance: "high",
-	urgency: "high",
+	importance: "medium",
+	urgency: "medium",
 	estimatedTime: "medium",
 	difficulty: "medium",
 	status: "open",
@@ -29,17 +29,19 @@ const emptyIssue: Issue.Data = {
 
 export default function IssuesAdd() {
 	const { theme } = useTheme();
-	// we need to check, if there is projectId in the link
-	// (check if we were redirected from project page to add an issue)
-	// to set projectId in new issue:
-	const { projectId } = useParams();
+	const params = useParams();
+
+	const { projectId, ordered, after, before, parent } = useParams();
 	const navigate = useNavigate();
-	const [issueData, setIssueData] = useState<Issue.Data>(emptyIssue);
+	const [issueData, setIssueData] = useState<Issue.FormData>(emptyIssue);
 	const { projects } = useProjects();
 	const { addIssue } = useIssues();
 
 	async function handleAddIssue(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
+		console.log("/issues/add params:", params);
+		console.log();
 
 		if (!issueData)
 			return logError("No issue data provided... Cannot add issue.");
@@ -47,7 +49,14 @@ export default function IssuesAdd() {
 		if (!issueData.projectId)
 			return logError("No project selected... Cannot add issue.");
 
-		const addedIssueId = await addIssue(issueData, issueData.projectId);
+		const addedIssueId = await addIssue(
+			issueData,
+			issueData.projectId,
+			ordered === "true" ? true : false,
+			after ? (after === "null" ? null : after) : null,
+			before ? (before === "null" ? null : before) : null,
+			parent ? (parent === "null" ? null : parent) : null
+		);
 		alert(`Your issue was successfully added with the id ${addedIssueId}.`);
 		clearForm();
 		navigate(-1);
@@ -90,7 +99,7 @@ export default function IssuesAdd() {
 							color: theme === "light" ? "black" : "white",
 						}}
 						required
-						disabled={projectId ? true : false}
+						disabled={projectId && projectId !== "null" ? true : false}
 					>
 						<option value="">Select project</option>
 						{projects.map((project) => (
@@ -172,7 +181,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">feature</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.features?.map((f) => (
 										<option value={f} key={f}>
 											{f}
@@ -200,7 +209,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">page</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.pages?.map((p) => (
 										<option value={p} key={p}>
 											{p}
@@ -228,7 +237,7 @@ export default function IssuesAdd() {
 							>
 								<option value="">component</option>
 								{projects
-									.find((p) => p.id === projectId)
+									.find((p) => p.id === issueData.projectId)
 									?.components?.map((c) => (
 										<option value={c} key={c}>
 											{c}

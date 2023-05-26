@@ -16,9 +16,9 @@ export default function IssueEdit() {
 	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { issueId } = useParams();
-	const { issues, updateIssue, deleteIssue } = useIssues();
+	const { issues, updateIssueData, deleteIssue } = useIssues();
 	const issueToUpdate = issues.find((i) => i.id === issueId);
-	const [updatedIssue, setUpdatedIssue] = useState<Issue.Issue | null>(null);
+	const [updatedIssue, setUpdatedIssue] = useState<Issue.AppIssue | null>(null);
 	const { projects } = useProjects();
 
 	async function handleIssueUpdate(e: React.FormEvent<HTMLFormElement>) {
@@ -32,26 +32,12 @@ export default function IssueEdit() {
 		if (!updatedIssue.projectId)
 			return logError("No project selected... Cannot update issue.");
 
-		await updateIssue(updatedIssue);
-		alert(`Your issue with the id ${issueId} was successfully updated.`);
-		navigate(-1);
-	}
-
-	async function handleDeleteIssue() {
-		if (!issueId)
-			return alert("No issue id was provided... Cannot delete issue.");
-
-		if (!updatedIssue || !updatedIssue.projectId)
-			return alert("No project id was provided... Cannot delete issue.");
-
-		if (
-			window.confirm(
-				"Are you sure you want to delete this issue permanently? This action can not be undone!"
-			)
-		) {
-			await deleteIssue(updatedIssue.id, updatedIssue.projectId);
-			alert(`Your issue with the id ${issueId} was successfully deleted.`);
-			navigate(-1); // maybe add checking if there is prev page
+		try {
+			await updateIssueData(updatedIssue);
+			navigate(-1);
+		} catch (error: any) {
+			console.error(error);
+			alert(error);
 		}
 	}
 
@@ -338,31 +324,6 @@ export default function IssueEdit() {
 							</Form.Select>
 						</FloatingLabel>
 					</Col>
-
-					<Col xs={12} md="auto" className="mb-2">
-						<FloatingLabel label="status" className="mb-3">
-							<Form.Select
-								value={updatedIssue.status}
-								style={{
-									backgroundColor:
-										theme === "light" ? "white" : "rgb(13, 17, 23)",
-									color: theme === "light" ? "black" : "white",
-								}}
-								onChange={(e) =>
-									setUpdatedIssue({
-										...updatedIssue,
-										status: e.target.value as Issue.Status,
-									})
-								}
-							>
-								{Issue.allowedStatuses.map((level) => (
-									<option value={level} key={"status-" + level}>
-										{level}
-									</option>
-								))}
-							</Form.Select>
-						</FloatingLabel>
-					</Col>
 				</Row>
 
 				<div className="d-grid gap-2">
@@ -386,7 +347,12 @@ export default function IssueEdit() {
 					<Button
 						type="button"
 						variant="outline-danger"
-						onClick={handleDeleteIssue}
+						onClick={() => {
+							deleteIssue(issueToUpdate).then(() => {
+								setUpdatedIssue(null);
+								navigate(-1);
+							});
+						}}
 					>
 						delete issue
 					</Button>

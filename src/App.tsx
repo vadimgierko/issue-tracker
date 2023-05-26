@@ -24,6 +24,7 @@ import IssueEdit from "./pages/IssueEdit";
 import Issue from "./pages/Issue";
 import ProjectIssues from "./pages/Project/ProjectIssues";
 import ProjectDetails from "./pages/Project/ProjectDetails";
+import ProjectIssuesOrdered from "./pages/Project/ProjectIssuesOrdered";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -70,15 +71,15 @@ const privateRoutes: RouteObject[] = [
 				path: "details",
 				element: <ProjectDetails />,
 			},
+			{
+				path: "issues-ordered",
+				element: <ProjectIssuesOrdered />,
+			},
 		],
 	},
 	{
 		path: "projects/:projectId/edit",
 		element: <ProjectEdit />,
-	},
-	{
-		path: "projects/:projectId/add-issue",
-		element: <IssuesAdd />,
 	},
 
 	//====================== ISSUES ==========================//
@@ -87,7 +88,8 @@ const privateRoutes: RouteObject[] = [
 		element: <Issues />,
 	},
 	{
-		path: "issues/add",
+		// NOTE: REMEMBER TO UPDATE createAddIssueLinkWithParams() WHEN UPDATE THIS PATH !!!
+		path: "issues/add/:projectId/:ordered/:after/:before/:parent", // maybe add feature, page & component in future
 		element: <IssuesAdd />,
 	},
 	{

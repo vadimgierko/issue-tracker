@@ -9,8 +9,6 @@ export default function ProjectDetails() {
 	const { projects } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
 
-	const v = "features";
-
 	if (!project)
 		return (
 			<p className="text-center text-danger">

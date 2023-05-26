@@ -23,6 +23,7 @@ import { logOut } from "../../services/auth";
 import useUser from "../../context/useUser";
 import useIssues from "../../context/useIssues";
 import useProjects from "../../context/useProjects";
+import createAddIssueLinkWithParams from "../../lib/createAddIssueLinkWithParams";
 
 export default function NavigationBar() {
 	const maxWidth = useMaxWidth();
@@ -69,7 +70,15 @@ export default function NavigationBar() {
 								<LinkContainer to="/issues">
 									<Nav.Link>Issues ({issues.length})</Nav.Link>
 								</LinkContainer>
-								<LinkContainer to="/issues/add">
+								<LinkContainer
+									to={createAddIssueLinkWithParams(
+										null,
+										false,
+										null,
+										null,
+										null
+									)}
+								>
 									<Nav.Link>
 										<AiOutlinePlusSquare />
 									</Nav.Link>

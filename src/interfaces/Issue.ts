@@ -72,7 +72,7 @@ export namespace Issue {
 	export type TableTabStatus = "open" | "in progress" | "closed" | "all";
 
 	// this is what forms use:
-	export interface Data {
+	export interface FormData {
 		projectId: string;
 		title: string;
 		description: string;
@@ -82,21 +82,30 @@ export namespace Issue {
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
 		status: Status;
+		// project's props:
 		feature?: string;
 		page?: string;
 		component?: string;
 	}
 
-	export interface Issue extends Data {
+	// this is what is fetched from db & sended to it:
+	export interface DbIssue extends FormData {
 		id: string;
 		authorId: string;
 		created: number;
 		updated: number;
 		inProgressFrom: number | null;
 		closedAt: number | null;
+		// order features props:
+		parent?: string | null; // issue id OR null in case of Project/ root
+		children?: string[]; // issues ids
+		ordered?: boolean;
+		after?: string | null; //issue id
+		before?: string | null; //issue id
 	}
 
-	export interface RankedIssue extends Issue {
+	// this is the extended/ rankified interface to use in the app
+	export interface AppIssue extends DbIssue {
 		rank: number;
 	}
 

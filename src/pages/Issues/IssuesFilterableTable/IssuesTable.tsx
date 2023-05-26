@@ -1,43 +1,51 @@
 import Table from "react-bootstrap/Table";
 import Badge from "react-bootstrap/Badge";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useProjects from "../../../context/useProjects";
 import useTheme from "../../../context/useTheme";
 import { Issue } from "../../../interfaces/Issue";
-import { BsTrash, BsPencilSquare } from "react-icons/bs";
+import {
+	BsTrash,
+	BsPencilSquare,
+	BsEye,
+	BsCheck2Square,
+	BsRocketTakeoff,
+	BsThreeDotsVertical,
+} from "react-icons/bs";
 import getDate from "../../../lib/getDate";
 import useIssues from "../../../context/useIssues";
+import { Dropdown } from "react-bootstrap";
+import { VscIssueReopened } from "react-icons/vsc";
 
 type IssuesTableProps = {
-	issues: Issue.RankedIssue[];
+	issues: Issue.AppIssue[];
 };
 
 export default function IssuesTable({ issues }: IssuesTableProps) {
 	const { theme } = useTheme();
 	const { projects } = useProjects();
 	const { projectId } = useParams();
-	const { deleteIssue } = useIssues();
+	const {
+		deleteIssue,
+		reopenIssue,
+		resolveIssue,
+		setToInProgressIssue,
+		findAllIssueChidrenRecursively,
+	} = useIssues();
+
 	// all issues have same status,
 	// because they are filtered by status via issue table tabs:
 	const issuesStatus: Issue.Status = issues[0].status; // needed for conditional rendering
 
-	async function handleDeleteIssue(issue: Issue.Issue) {
-		if (!issue) return alert("No issue was provided... Cannot delete issue.");
-
-		if (
-			window.confirm(
-				"Are you sure you want to delete this issue permanently? This action can not be undone!"
-			)
-		) {
-			await deleteIssue(issue.id, issue.projectId);
-			alert(`Your issue with the id ${issue.id} was successfully deleted.`);
-		}
-	}
+	const navigate = useNavigate();
 
 	return (
 		<Table striped bordered hover responsive className="mt-3" variant={theme}>
 			<thead>
 				<tr>
+					<th>
+						<BsThreeDotsVertical />
+					</th>
 					<th>Title</th>
 					{!projectId && <th>Project</th>}
 					<th>Rank</th>
@@ -45,27 +53,74 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 					<th>Urgency</th>
 					<th>Estimated time</th>
 					<th>Difficulty</th>
-					{/* {issuesStatus === "open" && <th>Opened</th>}
-					{issuesStatus === "in progress" && <th>In progress from</th>}
-					{issuesStatus !== "open" && issuesStatus !== "in progress" && (
-						<th>Closed</th>
-					)}
-					{(issuesStatus === "open" || issuesStatus === "in progress") && (
-						<th>Updated</th>
-					)} */}
-					<th>
-						<BsPencilSquare />
-					</th>
-					<th>
-						<BsTrash className="text-danger" />
-					</th>
 				</tr>
 			</thead>
 			<tbody>
 				{issues.map((issue) => (
 					<tr key={issue.id}>
 						<td>
-							<Link to={"/issues/" + issue.id}>{issue.title}</Link>{" "}
+							<Dropdown className="ms-2">
+								<Dropdown.Toggle as="a" variant="outline-secondary" />
+
+								<Dropdown.Menu>
+									{issue.status && issue.status === "open" && (
+										<Dropdown.Item onClick={() => setToInProgressIssue(issue)}>
+											<BsRocketTakeoff />{" "}
+											<span className="text-primary">in progress...</span>
+										</Dropdown.Item>
+									)}
+
+									{issue.status &&
+									(issue.status === "open" ||
+										issue.status === "in progress") ? (
+										<Dropdown.Item onClick={() => resolveIssue(issue)}>
+											<BsCheck2Square className="text-success" />{" "}
+											<span className="text-success">resolve</span>
+										</Dropdown.Item>
+									) : (
+										<Dropdown.Item onClick={() => reopenIssue(issue)}>
+											<VscIssueReopened /> <span>reopen</span>
+										</Dropdown.Item>
+									)}
+
+									<Dropdown.Divider />
+
+									<Dropdown.Item
+										onClick={() => navigate("/issues/" + issue.id)}
+									>
+										<BsEye /> view
+									</Dropdown.Item>
+
+									<Dropdown.Item
+										onClick={() => navigate("/issues/" + issue.id + "/edit")}
+									>
+										<BsPencilSquare /> edit
+									</Dropdown.Item>
+
+									<Dropdown.Item onClick={() => deleteIssue(issue)}>
+										<BsTrash className="text-danger" />{" "}
+										<span className="text-danger">delete</span>
+									</Dropdown.Item>
+								</Dropdown.Menu>
+							</Dropdown>
+						</td>
+						<td>
+							{issue.title}{" "}
+							{issue.children && issue.children.length ? (
+								<Badge
+									bg={theme === "dark" ? "light" : "dark"}
+									className={`me-1 text-${theme}`}
+								>
+									{
+										findAllIssueChidrenRecursively(issue).filter(
+											(i) => i.status !== "open" && i.status !== "in progress"
+										).length
+									}
+									/{findAllIssueChidrenRecursively(issue).length}
+								</Badge>
+							) : (
+								""
+							)}{" "}
 							<Badge
 								bg={issue.type === "bug" ? "danger" : "primary"}
 								className="me-1"
@@ -161,24 +216,6 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 							>
 								{issue.difficulty}
 							</Badge>
-						</td>
-						{/* {issuesStatus === "open" && <td>{getDate(issue.created)}</td>}
-						{issue.inProgressFrom && issuesStatus === "in progress" && (
-							<td>{getDate(issue.inProgressFrom)}</td>
-						)}
-						{issue.closedAt && <td>{getDate(issue.closedAt)}</td>}
-						{!issue.closedAt && <td>{getDate(issue.updated)}</td>} */}
-						<td>
-							<Link to={"/issues/" + issue.id + "/edit"}>
-								<BsPencilSquare />
-							</Link>
-						</td>
-						<td>
-							<BsTrash
-								className="text-danger"
-								onClick={() => handleDeleteIssue(issue)}
-								style={{ cursor: "pointer" }}
-							/>
 						</td>
 					</tr>
 				))}

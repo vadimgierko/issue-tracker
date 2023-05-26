@@ -2,13 +2,16 @@ import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
-import { useEffect } from "react";
+import useIssues from "../../context/useIssues";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
 	const navigate = useNavigate();
+
+	const { issues } = useIssues();
+	const projectIssues = issues.filter((i) => i.projectId === projectId);
 
 	async function handleDeleteProject(projectId: string) {
 		if (!projectId)
@@ -26,7 +29,7 @@ export default function Project() {
 	}
 
 	// TODO: make "issues view" the root view for project page:
-	useEffect(() => navigate("issues"), []); // this is just a workaround for now
+	// useEffect(() => navigate("issues"), []); // this is just a workaround for now
 
 	// TODO: add some error here, but that is made to satisfy ts:
 	if (!projectId) return null;
@@ -55,7 +58,9 @@ export default function Project() {
 				}
 			>
 				<p className="text-center">
-					<Link to="issues">Issues</Link> | <Link to="details">Details</Link>
+					<Link to="issues">Issues Table ({projectIssues.length})</Link> |{" "}
+					<Link to="details">Details</Link> |{" "}
+					<Link to="issues-ordered">Issues List ({projectIssues.length})</Link>
 				</p>
 			</PageHeader>
 

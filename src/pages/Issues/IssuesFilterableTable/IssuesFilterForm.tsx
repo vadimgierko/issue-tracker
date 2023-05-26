@@ -6,7 +6,6 @@ import { MdOutlineCancel } from "react-icons/md";
 import { AiOutlineFilter } from "react-icons/ai";
 import useProjects from "../../../context/useProjects";
 import { useParams } from "react-router-dom";
-import { Project } from "../../../interfaces/Project";
 
 type IssuesFilterFormProps = {
 	filterFormData: Issue.FilterFormData;

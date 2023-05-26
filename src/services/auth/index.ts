@@ -227,7 +227,7 @@ async function changeEmail(
 async function deleteUserAccount(
 	authUser: FirebaseUser | null = auth.currentUser,
 	deletedUserProjects: Project.Project[],
-	deletedUserIssues: Issue.Issue[]
+	deletedUserIssues: Issue.AppIssue[]
 ): Promise<void> {
 	try {
 		if (!authUser) {
