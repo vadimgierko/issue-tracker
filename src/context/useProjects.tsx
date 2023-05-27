@@ -214,13 +214,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 				const docRef = doc(firestore, "user-projects", uid);
 				const docSnap = await getDoc(docRef);
 
-				// if (docSnap.exists()) {
-				// 	console.log("User projects document data:", docSnap.data());
-				// } else {
-				// 	// docSnap.data() will be undefined in this case
-				// 	console.log("No user projects document!");
-				// }
-
 				const userProjectsDoc = docSnap.data();
 
 				// then if there are user projects ids,

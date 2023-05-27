@@ -5,14 +5,21 @@ import { Button, Badge } from "react-bootstrap";
 import useIssues from "../../context/useIssues";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
 import IssueTable from "./IssueTable";
+import { useEffect } from "react";
 
 export default function Issue() {
 	const { issueId } = useParams<string>();
 	const { projects } = useProjects();
-	const { issues, deleteIssue } = useIssues();
+	const { issues, deleteIssue, fetchIssue } = useIssues();
 	const issue = issues.find((i) => i.id === issueId);
 	const project = projects.find((p) => p.id === issue?.projectId);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (issueId) {
+			fetchIssue(issueId);
+		}
+	}, [issueId]);
 
 	if (!issue || !issueId)
 		return <p className="text-center text-danger">There is no such issue...</p>;

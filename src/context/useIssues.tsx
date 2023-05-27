@@ -24,7 +24,6 @@ type UpdateIssuesProps = {
 const IsuesContext = createContext<{
 	issues: Issue.AppIssue[];
 	setIssues: React.Dispatch<React.SetStateAction<Issue.AppIssue[]>>;
-	loading: boolean;
 	findIssueById: (id: string) => Issue.AppIssue | null;
 	updateIssues: (props: UpdateIssuesProps) => Promise<void>;
 	addIssue: (
@@ -45,6 +44,7 @@ const IsuesContext = createContext<{
 	findAllIssueChidrenRecursively: (
 		issueToGetChildren: Issue.AppIssue
 	) => Issue.AppIssue[];
+	fetchIssue: (issueId: string) => Promise<void>;
 } | null>(null);
 
 export default function useIssues() {
@@ -63,11 +63,43 @@ type IssuesProviderProps = {
 
 export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [showClosedIssues, setShowClosedIssues] = useState(true);
+	const [showClosedIssues, setShowClosedIssues] = useState(false);
 	const { user } = useUser();
 
-	console.log("user issues:", issues);
+	console.log(
+		"user issues stored in the app (it may be not all user issues, but only some projects' issues only):",
+		issues
+	);
+
+	async function fetchIssue(issueId: string) {
+		if (!user || !issueId) return;
+
+		if (issues.find((i) => i.id === issueId))
+			return console.warn(
+				`Issue with ${issueId} is already fetched. No need to fetch again.`
+			);
+
+		try {
+			const docRef = doc(firestore, "issues", issueId);
+			const docSnap = await getDoc(docRef);
+
+			if (docSnap.exists()) {
+				const fetchedIssue: Issue.DbIssue = docSnap.data() as Issue.DbIssue;
+				console.log("Document data:", docSnap.data());
+				const rankifiedIssue = rankifyIssue(fetchedIssue);
+
+				if (rankifiedIssue) {
+					setIssues([...issues, rankifiedIssue]);
+				}
+			} else {
+				// docSnap.data() will be undefined in this case
+				console.log("Found no issue with the id:", issueId);
+			}
+		} catch (error: any) {
+			console.error(error);
+			alert(error);
+		}
+	}
 
 	/**
 	 * This is a reusable function, that uses writeBatch(),
@@ -620,86 +652,16 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
-	// fetch user issuesIds array from /user-issues collection,
-	// then fetch those issues:
-	useEffect(() => {
-		async function fetchIssues(uid: string) {
-			try {
-				// fetch user issuesIds array from user-issues collection:
-
-				const docRef = doc(firestore, "user-issues", uid);
-				const docSnap = await getDoc(docRef);
-
-				// if (docSnap.exists()) {
-				// 	console.log("User projects document data:", docSnap.data());
-				// } else {
-				// 	// docSnap.data() will be undefined in this case
-				// 	console.log("No user projects document!");
-				// }
-
-				const userIssuesDoc = docSnap.data();
-
-				// then if there are user issues ids,
-				// fetch those issues data:
-
-				if (userIssuesDoc) {
-					const issuesIds: string[] = userIssuesDoc.issuesIds;
-					console.log("User issues ids:", issuesIds);
-
-					const fetchedUserIssues = await Promise.all(
-						issuesIds.map(async (issueId) => {
-							const docRef = doc(firestore, "issues", issueId);
-							const docSnap = await getDoc(docRef);
-							if (docSnap.exists()) {
-								return docSnap.data() as Issue.DbIssue;
-							}
-						})
-					);
-
-					if (fetchedUserIssues) {
-						const filteredIssues = fetchedUserIssues.filter(
-							(issue) => issue !== undefined
-						) as Issue.DbIssue[];
-
-						// rankify issues & add to app state:
-						setIssues(rankifyIssues(filteredIssues));
-					}
-				} else {
-					setIssues([]);
-				}
-			} catch (error: any) {
-				if (error.code === "not-found") {
-					// Handle case where collection doesn't exist
-					logError(error.message);
-					setIssues([]);
-				} else {
-					// Handle other errors
-					logError(error.message);
-					setIssues([]);
-				}
-			} finally {
-				setLoading(false);
-			}
-		}
-
-		if (!loading) return;
-		if (!user) return;
-
-		fetchIssues(user.uid);
-	}, [loading, user]);
-
 	// clear state when user is logged out:
 	useEffect(() => {
 		if (!user) {
 			setIssues([]);
-			setLoading(true);
 		}
 	}, [user]);
 
 	const value = {
 		issues,
 		setIssues,
-		loading,
 		findIssueById,
 		updateIssues,
 		addIssue,
@@ -711,6 +673,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		showClosedIssues,
 		setShowClosedIssues,
 		findAllIssueChidrenRecursively,
+		fetchIssue,
 	};
 
 	return (

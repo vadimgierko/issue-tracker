@@ -68,7 +68,8 @@ export default function NavigationBar() {
 								</LinkContainer>
 
 								<LinkContainer to="/issues">
-									<Nav.Link>Issues ({issues.length})</Nav.Link>
+									{/* <Nav.Link>Issues ({issues.length})</Nav.Link> */}
+									<Nav.Link>Issues</Nav.Link>
 								</LinkContainer>
 								<LinkContainer
 									to={createAddIssueLinkWithParams(

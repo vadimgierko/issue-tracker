@@ -3,10 +3,13 @@ import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 import useIssues from "../../context/useIssues";
+import { useEffect } from "react";
+import useRootContext from "../../context/useRootContext";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
+	const { fetchProjectIssues } = useRootContext();
 	const project = projects.find((p) => p.id === projectId);
 	const navigate = useNavigate();
 
@@ -27,6 +30,12 @@ export default function Project() {
 			navigate("/projects");
 		}
 	}
+
+	useEffect(() => {
+		if (project) {
+			fetchProjectIssues(project);
+		}
+	}, [project]);
 
 	// TODO: make "issues view" the root view for project page:
 	// useEffect(() => navigate("issues"), []); // this is just a workaround for now
