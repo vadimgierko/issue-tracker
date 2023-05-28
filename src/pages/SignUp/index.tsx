@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
-import { signUp } from "../../services/auth";
+import { logOut, signUp } from "../../services/auth";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignUp() {
@@ -17,11 +17,24 @@ export default function SignUp() {
 		password: "",
 	});
 
+	const navigate = useNavigate();
+
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const { firstName, lastName, email, password } = userData;
 		if (firstName && lastName && email && password) {
-			return signUp(firstName, lastName, email, password);
+			await signUp(firstName, lastName, email, password);
+
+			alert(
+				`Congratulations! You've successfully created an acount! We've sent a verification email, so confirm you're email address & then come back & sign in!`
+			);
+			console.info(
+				`Congratulations! You've successfully created an acount! We've sent a verification email, so confirm you're email address & then come back & sign in!`
+			);
+
+			await logOut();
+
+			navigate("/signin");
 		}
 	}
 

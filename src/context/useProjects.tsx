@@ -40,7 +40,7 @@ type ProjectsProviderProps = {
 export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	const [projects, setProjects] = useState<Project.Project[]>([]);
 	const [loading, setLoading] = useState(true);
-	const { user } = useUser();
+	const { user, firebaseUser } = useUser();
 	const { issues, setIssues } = useIssues();
 
 	console.log("user projects:", projects);
@@ -261,7 +261,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 		if (!user) return;
 
 		fetchProjects(user.uid);
-	}, [loading, user]);
+	}, [loading, user, firebaseUser]);
 
 	// clear state when user is logged out:
 	useEffect(() => {
