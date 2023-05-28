@@ -44,28 +44,44 @@ export function UserProvider({ children }: UserProviderProps) {
 	useEffect(() => {
 		if (firebaseUser) {
 			const { uid } = firebaseUser;
-			console.log("User with the id", uid, "logged in. Fetching user data...");
+			console.info(
+				"User with the id",
+				uid,
+				"logged in. Checking if the user is verified..."
+			);
 
-			const unsubscribe = onSnapshot(doc(firestore, "users", uid), (doc) => {
-				if (doc.exists()) {
-					const fetchedData = doc.data() as User;
-					console.log("Current logged user data: ", fetchedData);
-					if (fetchedData) {
-						const { uid, email, firstName, lastName } = fetchedData;
-						if (uid && email && firstName && lastName) {
-							setUser({ ...fetchedData });
+			if (firebaseUser.emailVerified) {
+				console.info(
+					"Logged user with the id",
+					uid,
+					"is verified. Fetching user data..."
+				);
+
+				const unsubscribe = onSnapshot(doc(firestore, "users", uid), (doc) => {
+					if (doc.exists()) {
+						const fetchedData = doc.data() as User;
+						console.log("Current logged user data: ", fetchedData);
+						if (fetchedData) {
+							const { uid, email, firstName, lastName } = fetchedData;
+							if (uid && email && firstName && lastName) {
+								setUser({ ...fetchedData });
+							}
 						}
+					} else {
+						console.warn(
+							"User with the id",
+							uid,
+							"is logged, but there is no user's data in Firestore..."
+						);
 					}
-				} else {
-					console.warn(
-						"User with the id",
-						uid,
-						"is logged, but there is no user's data in Firestore..."
-					);
-				}
-			});
+				});
 
-			return () => unsubscribe();
+				return () => unsubscribe();
+			} else {
+				console.info(
+					"Logged user is not verified... Do not fetch user's data until user will be verified."
+				);
+			}
 		} else {
 			setUser(null);
 		}

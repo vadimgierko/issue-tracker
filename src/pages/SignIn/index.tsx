@@ -1,25 +1,27 @@
 import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
-import { signIn } from "../../services/auth";
+import { logOut, signIn } from "../../services/auth";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignIn() {
 	const { theme } = useTheme();
-	const { firebaseUser } = useUser();
+	const { user } = useUser();
 	const [userData, setUserData] = useState({
 		email: "",
 		password: "",
 	});
+	const navigate = useNavigate();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const { email, password } = userData;
 		if (email && password) {
-			return signIn(email, password);
+			await signIn(email, password);
+			navigate("/dashboard");
 		} else {
 			return console.error(
 				"No email or password were provided... Cannot sign in..."
@@ -27,7 +29,7 @@ export default function SignIn() {
 		}
 	}
 
-	if (firebaseUser) return <Navigate to="/dashboard" replace />;
+	if (user) return <Navigate to="/dashboard" replace />;
 
 	return (
 		<div

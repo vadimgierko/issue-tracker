@@ -10,6 +10,7 @@ import {
 	updateEmail,
 	User as FirebaseUser,
 	UserCredential,
+	sendEmailVerification,
 } from "firebase/auth";
 import { updateDocument } from "../firestore-crud";
 import { User } from "../../interfaces/User";
@@ -20,6 +21,7 @@ import { Issue } from "../../interfaces/Issue";
 
 async function signIn(email: string, password: string): Promise<void> {
 	try {
+		await logOut();
 		await signInWithEmailAndPassword(auth, email, password);
 	} catch (error: any) {
 		logError(error.message);
@@ -70,6 +72,9 @@ async function signUp(
 
 		// Commit the batch
 		await batch.commit();
+
+		// send verification email:
+		await sendEmailVerification(newUser);
 
 		return updatedUserDataWithUid;
 	} catch (error: any) {
