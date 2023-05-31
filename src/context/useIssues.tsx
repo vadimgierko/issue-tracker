@@ -492,10 +492,16 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	async function resolveIssue(issue: Issue.AppIssue) {
 		if (!issue) return;
 
+		// get recursively all issue chidren:
+		const children = findAllIssueChidrenRecursively(issue);
+		const unresolvedChildren = children.filter(
+			(ch) => ch.status === "open" || ch.status === "in progress"
+		);
+
 		const confirmToResolveChildrenIfExist =
-			issue.children && issue.children.length
+			unresolvedChildren && unresolvedChildren.length
 				? window.confirm(
-						`The ${issue.title} issue you want to resolve has children issues, so resolving this parent issue will resolve all of its children. Are you sure you want to resolve all ${issue.title} issue children (${issue.children.length})?`
+						`The ${issue.title} issue you want to resolve has children issues, so resolving this parent issue will resolve all of its children. Are you sure you want to resolve all ${issue.title} issue children (${unresolvedChildren.length})?`
 				  )
 				: true;
 
@@ -510,23 +516,22 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			status: "resolved",
 		};
 
-		// when issue has children =>
-		// check recursively, if there are futher grand chidren =>
-		// resolve all children & grand children:
-		const children = findAllIssueChidrenRecursively(issue);
+		// resolve all UNRESOLVED children & grand children:
 
-		if (children && children.length) {
+		if (unresolvedChildren && unresolvedChildren.length) {
 			console.warn(
-				"issue to resolve has children, so need to resolve children also:",
-				issue.children
+				`issue to resolve has ${unresolvedChildren.length} unresolved children, so need to resolve unresolved children also:`,
+				unresolvedChildren
 			);
 		} else {
-			console.warn("issue to resolve has no children => no need to update.");
+			console.warn(
+				"issue to resolve has no unresolved children => no need to additionally resolve anything."
+			);
 		}
 
 		const resolvedChildren: Issue.AppIssue[] | null =
-			children && children.length
-				? children.map((i) => ({
+			unresolvedChildren && unresolvedChildren.length
+				? unresolvedChildren.map((i) => ({
 						...i,
 						updated: updateTime,
 						closedAt: updateTime,
