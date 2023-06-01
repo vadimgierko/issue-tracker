@@ -498,58 +498,105 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			(ch) => ch.status === "open" || ch.status === "in progress"
 		);
 
-		const confirmToResolveChildrenIfExist =
-			unresolvedChildren && unresolvedChildren.length
-				? window.confirm(
-						`The ${issue.title} issue you want to resolve has children issues, so resolving this parent issue will resolve all of its children. Are you sure you want to resolve all ${issue.title} issue children (${unresolvedChildren.length})?`
-				  )
-				: true;
+		// check if the issue has parent,
+		// if true => check if the issue is the last one unresolved child,
+		// if true => resolve the parent (the process can be recursive),
+		// if false => resolve the issue:
 
-		if (!confirmToResolveChildrenIfExist) return;
+		const parent = issue.parent ? findIssueById(issue.parent) : null;
+		console.log(`${issue.title} parent:`, parent);
 
-		const updateTime = Date.now();
+		function isLastUnresolvedParentIssue(parent: Issue.AppIssue) {
+			const parentChildren: Issue.AppIssue[] = [];
 
-		const updatedIssue: Issue.AppIssue = {
-			...issue,
-			updated: updateTime,
-			closedAt: updateTime,
-			status: "resolved",
-		};
+			if (parent && parent.children) {
+				parent.children.forEach((id) => {
+					const i = findIssueById(id);
+					if (i) {
+						parentChildren.push(i);
+					}
+				});
+			}
+			console.log(`${issue.title} parent children:`, parentChildren);
 
-		// resolve all UNRESOLVED children & grand children:
-
-		if (unresolvedChildren && unresolvedChildren.length) {
-			console.warn(
-				`issue to resolve has ${unresolvedChildren.length} unresolved children, so need to resolve unresolved children also:`,
+			const unresolvedParentChildren =
+				parentChildren && parentChildren?.length
+					? parentChildren.filter(
+							(i) => i.status === "open" || i.status === "in progress"
+					  )
+					: [];
+			console.log(
+				`${issue.title} parent unresolved children:`,
 				unresolvedChildren
 			);
-		} else {
-			console.warn(
-				"issue to resolve has no unresolved children => no need to additionally resolve anything."
-			);
+
+			if (unresolvedParentChildren.length === 1) {
+				return true;
+			}
+
+			return false;
 		}
 
-		const resolvedChildren: Issue.AppIssue[] | null =
-			unresolvedChildren && unresolvedChildren.length
-				? unresolvedChildren.map((i) => ({
-						...i,
-						updated: updateTime,
-						closedAt: updateTime,
-						status: "resolved",
-				  }))
-				: null;
-
-		try {
-			await updateIssues({
-				update: [updatedIssue, ...(resolvedChildren ? resolvedChildren : [])],
-			});
+		if (parent && isLastUnresolvedParentIssue(parent)) {
 			console.log(
-				`Issue ${issue.id} ${issue.title} was resolved successfully!"`
+				"isLastUnresolvedParentIssue?",
+				isLastUnresolvedParentIssue(parent)
 			);
-			alert(`Issue ${issue.id} ${issue.title} was resolved successfully!"`);
-		} catch (error: any) {
-			console.log(error);
-			alert(error);
+			resolveIssue(parent);
+		} else {
+			// const confirmToResolveChildrenIfExist =
+			// 	unresolvedChildren && unresolvedChildren.length
+			// 		? window.confirm(
+			// 				`The ${issue.title} issue you want to resolve has children issues, so resolving this parent issue will resolve all of its children. Are you sure you want to resolve all ${issue.title} issue children (${unresolvedChildren.length})?`
+			// 		  )
+			// 		: true;
+
+			// if (!confirmToResolveChildrenIfExist) return;
+
+			const updateTime = Date.now();
+
+			const updatedIssue: Issue.AppIssue = {
+				...issue,
+				updated: updateTime,
+				closedAt: updateTime,
+				status: "resolved",
+			};
+
+			// resolve all UNRESOLVED children & grand children:
+
+			if (unresolvedChildren && unresolvedChildren.length) {
+				console.warn(
+					`issue to resolve has ${unresolvedChildren.length} unresolved children, so need to resolve unresolved children also:`,
+					unresolvedChildren
+				);
+			} else {
+				console.warn(
+					"issue to resolve has no unresolved children => no need to additionally resolve anything."
+				);
+			}
+
+			const resolvedChildren: Issue.AppIssue[] | null =
+				unresolvedChildren && unresolvedChildren.length
+					? unresolvedChildren.map((i) => ({
+							...i,
+							updated: updateTime,
+							closedAt: updateTime,
+							status: "resolved",
+					  }))
+					: null;
+
+			try {
+				await updateIssues({
+					update: [updatedIssue, ...(resolvedChildren ? resolvedChildren : [])],
+				});
+				console.log(
+					`Issue ${issue.id} ${issue.title} was resolved successfully!"`
+				);
+				alert(`Issue ${issue.id} ${issue.title} was resolved successfully!"`);
+			} catch (error: any) {
+				console.log(error);
+				alert(error);
+			}
 		}
 	}
 
@@ -568,35 +615,12 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		)
 			return [];
 
-		// console.log(
-		// 	issueToGetChildren.title,
-		// 	"has",
-		// 	issueToGetChildren.children.length,
-		// 	"children:",
-		// 	issueToGetChildren.children
-		// );
-
 		issueToGetChildren.children.forEach((i, x) => {
 			const childIssue = findIssueById(i);
 
 			if (childIssue) {
-				//console.log("child issue", x + 1, ":", childIssue.title);
-
 				if (childIssue.children && childIssue.children.length) {
-					// console.log(
-					// 	"child issue",
-					// 	x + 1,
-					// 	childIssue.title,
-					// 	"has children too! Check for its children!"
-					// );
 					findAllIssueChidrenRecursively(childIssue, children);
-				} else {
-					// console.log(
-					// 	"child issue",
-					// 	x + 1,
-					// 	childIssue.title,
-					// 	"has no children. Push it to children[] to delete..."
-					// );
 				}
 
 				children.push(childIssue);
