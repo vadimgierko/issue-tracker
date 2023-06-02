@@ -606,14 +606,14 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	) {
 		let children: Issue.AppIssue[] = prevChildren;
 
-		if (!issueToGetChildren) return prevChildren;
+		if (!issueToGetChildren) return children;
 		//console.log("looking for children of", issueToGetChildren.title);
 
 		if (
 			!issueToGetChildren.children ||
 			(issueToGetChildren.children && !issueToGetChildren.children.length)
 		)
-			return [];
+			return children;
 
 		issueToGetChildren.children.forEach((i, x) => {
 			const childIssue = findIssueById(i);
@@ -630,8 +630,26 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		return children;
 	}
 
-	async function reopenIssue(issue: Issue.AppIssue) {
+	async function reopenIssue(issue: Issue.AppIssue): Promise<void> {
 		if (!issue) return;
+
+		// if issue has children & all of them are resolved
+		// block the ability to reopen an issue
+		// without adding a new child or reopening of any of its children:
+
+		if (issue.children && issue.children.length) {
+			const children = issue.children.map((id) => findIssueById(id));
+			const isSomeUnresolvedIssue = children.find(
+				(i) => i !== null && (i.status === "open" || i.status === "in progress")
+			);
+
+			if (!isSomeUnresolvedIssue) {
+				alert(
+					`${issue.title} issue has children issues and all of them are resolved, so you cannot reopen the issue without adding a new child or reopening one of any of its children`
+				);
+				return;
+			}
+		}
 
 		const updateTime = Date.now();
 
