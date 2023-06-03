@@ -39,6 +39,7 @@ export default function RecursiveList({
 		resolveIssue,
 		setToInProgressIssue,
 		showClosedIssues,
+		showRank,
 		findAllIssueChidrenRecursively,
 	} = useIssues();
 	if (!projectId) return null;
@@ -353,7 +354,7 @@ export default function RecursiveList({
 						) : (
 							""
 						)}
-						({i.rank}/90)
+						{showRank && <span>({i.rank}/90)</span>}
 					</span>
 					<Dropdown className="ms-2">
 						<Dropdown.Toggle as="a" variant="outline-secondary" />

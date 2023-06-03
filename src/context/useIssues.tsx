@@ -41,6 +41,8 @@ const IsuesContext = createContext<{
 	setToInProgressIssue: (issue: Issue.AppIssue) => Promise<void>;
 	showClosedIssues: boolean;
 	setShowClosedIssues: React.Dispatch<React.SetStateAction<boolean>>;
+	showRank: boolean;
+	setShowRank: React.Dispatch<React.SetStateAction<boolean>>;
 	findAllIssueChidrenRecursively: (
 		issueToGetChildren: Issue.AppIssue
 	) => Issue.AppIssue[];
@@ -64,6 +66,7 @@ type IssuesProviderProps = {
 export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
 	const [showClosedIssues, setShowClosedIssues] = useState(false);
+	const [showRank, setShowRank] = useState(false);
 	const { user } = useUser();
 
 	console.log(
@@ -788,6 +791,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		setShowClosedIssues,
 		findAllIssueChidrenRecursively,
 		fetchIssue,
+		showRank,
+		setShowRank,
 	};
 
 	return (

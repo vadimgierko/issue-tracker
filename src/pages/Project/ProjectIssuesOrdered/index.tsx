@@ -9,7 +9,13 @@ import { FormCheck } from "react-bootstrap";
 export default function ProjectIssuesOrdered() {
 	const { projectId } = useParams();
 	const { projects } = useProjects();
-	const { issues, showClosedIssues, setShowClosedIssues } = useIssues();
+	const {
+		issues,
+		showClosedIssues,
+		setShowClosedIssues,
+		showRank,
+		setShowRank,
+	} = useIssues();
 	const project = projects.find((p) => p.id === projectId);
 	const projectIssues = issues.filter((i) => i.projectId === projectId);
 
@@ -33,6 +39,14 @@ export default function ProjectIssuesOrdered() {
 					label={"Show closed issues"}
 					checked={showClosedIssues}
 					onChange={() => setShowClosedIssues(!showClosedIssues)}
+					className="do-not-display-when-print"
+				/>
+			</div>
+			<div className="d-flex justify-content-center do-not-display-when-print">
+				<FormCheck
+					label={"Show issue's rank"}
+					checked={showRank}
+					onChange={() => setShowRank(!showRank)}
 					className="do-not-display-when-print"
 				/>
 			</div>
