@@ -46,10 +46,10 @@ export default function RecursiveList({
 	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
 
 	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
-	console.log("ordered root issues:", rootIssuesOrdered);
+	// console.log("ordered root issues:", rootIssuesOrdered);
 
 	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
-	console.log("unordered root issues:", rootIssuesUnordered);
+	// console.log("unordered root issues:", rootIssuesUnordered);
 
 	const lastOrderedIssue =
 		rootIssuesOrdered && rootIssuesOrdered.length

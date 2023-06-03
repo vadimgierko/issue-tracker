@@ -221,6 +221,24 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		setIssues(rerankifiedUpdatedIssues);
 	}
 
+	function findAllIssueParents(
+		issue: Issue.AppIssue,
+		prevParents: Issue.AppIssue[] = []
+	): Issue.AppIssue[] {
+		const parents = [...prevParents];
+
+		if (!issue || !issue.parent) return parents;
+
+		const parent = findIssueById(issue.parent);
+
+		if (parent) {
+			parents.push(parent);
+			return findAllIssueParents(parent, parents);
+		}
+
+		return parents;
+	}
+
 	function findIssueById(id: string): Issue.AppIssue | null {
 		if (!id) return null;
 		if (!issues || !issues.length) return null;
@@ -284,7 +302,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			? { ...issueToAddBefore, after: newIssueId, updated: creationTime }
 			: null;
 
-		// update parent if exist:
+		// update & reopen parent if exist:
 		const issueToAddParent: Issue.AppIssue | null = issueToAdd.parent
 			? findIssueById(issueToAdd.parent)
 			: null;
@@ -292,6 +310,14 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		const issueToAddParentUpdated: Issue.AppIssue | null = issueToAddParent
 			? {
 					...issueToAddParent,
+					// if parent was closed, reopen it manually:
+					status:
+						issueToAddParent.status !== "open" &&
+						issueToAddParent.status !== "in progress"
+							? "open"
+							: issueToAddParent.status,
+					closedAt: null,
+					//=========================================//
 					updated: creationTime,
 					children:
 						issueToAddParent.children && issueToAddParent.children.length
@@ -300,12 +326,25 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			  }
 			: null;
 
+		// now reopen potentially existing parent's parents:
+		const reopenedResolvedParents: Issue.AppIssue[] = issueToAddParent
+			? findAllIssueParents(issueToAddParent)
+					.filter((i) => i.status !== "open" && i.status !== "in progress")
+					.map((i) => ({
+						...i,
+						status: "open",
+						updated: creationTime,
+						closedAt: null,
+					}))
+			: [];
+
 		console.log("updated parent in addIssue():", issueToAddParentUpdated);
 
 		const issuesToUpdate: Issue.AppIssue[] = [
 			...(issueToAddAfterUpdated ? [issueToAddAfterUpdated] : []),
 			...(issueToAddBeforeUpdated ? [issueToAddBeforeUpdated] : []),
 			...(issueToAddParentUpdated ? [issueToAddParentUpdated] : []),
+			...reopenedResolvedParents,
 		];
 
 		try {
@@ -559,6 +598,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				...issue,
 				updated: updateTime,
 				closedAt: updateTime,
+				inProgressFrom: issue.inProgressFrom
+					? issue.inProgressFrom
+					: updateTime,
 				status: "resolved",
 			};
 
@@ -581,6 +623,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 							...i,
 							updated: updateTime,
 							closedAt: updateTime,
+							inProgressFrom: i.inProgressFrom ? i.inProgressFrom : updateTime,
 							status: "resolved",
 					  }))
 					: null;
@@ -661,8 +704,20 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			status: "open",
 		};
 
+		const reopenedResolvedParents: Issue.AppIssue[] = findAllIssueParents(issue)
+			.filter((i) => i.status !== "open" && i.status !== "in progress")
+			.map((i) => ({
+				...i,
+				status: "open",
+				updated: updateTime,
+				closedAt: null,
+				inProgressFrom: null,
+			}));
+
 		try {
-			await updateIssues({ update: [updatedIssue] });
+			await updateIssues({
+				update: [updatedIssue, ...reopenedResolvedParents],
+			});
 			console.log(
 				`Issue ${issue.id} ${issue.title} was reopened successfully!"`
 			);
@@ -685,8 +740,20 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			status: "in progress",
 		};
 
+		// if issue has a parent & it's not in progress
+		// set parents to in progress
+		const parents = findAllIssueParents(issue);
+		const parentsSetToInProgress: Issue.AppIssue[] = parents
+			.filter((p) => p.status !== "in progress")
+			.map((p) => ({
+				...p,
+				status: "in progress",
+				updated: updateTime,
+				inProgressFrom: updateTime,
+			}));
+
 		try {
-			await updateIssues({ update: [updatedIssue] });
+			await updateIssues({ update: [updatedIssue, ...parentsSetToInProgress] });
 			console.log(
 				`Issue ${issue.id} ${issue.title} was set to be in progress successfully!`
 			);
