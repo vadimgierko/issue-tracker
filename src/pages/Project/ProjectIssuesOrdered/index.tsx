@@ -28,11 +28,12 @@ export default function ProjectIssuesOrdered() {
 					<AiOutlinePlusSquare />
 				</Link>
 			</h2>
-			<div className="d-flex justify-content-center">
+			<div className="d-flex justify-content-center do-not-display-when-print">
 				<FormCheck
 					label={"Show closed issues"}
 					checked={showClosedIssues}
 					onChange={() => setShowClosedIssues(!showClosedIssues)}
+					className="do-not-display-when-print"
 				/>
 			</div>
 			<hr />

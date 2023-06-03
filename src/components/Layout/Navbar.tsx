@@ -39,7 +39,7 @@ export default function NavigationBar() {
 			bg={theme}
 			variant={theme}
 			fixed="top"
-			className="shadow"
+			className="shadow do-not-display-when-print"
 		>
 			<Container style={{ maxWidth: maxWidth }}>
 				<LinkContainer to="/">

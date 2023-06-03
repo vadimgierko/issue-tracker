@@ -61,7 +61,7 @@ export default function IssuesFilterForm({
 
 	// Prev Form className="border border-secondary rounded mb-3 p-1"
 	return (
-		<Form>
+		<Form className="do-not-display-when-print">
 			<Row
 				className="justify-content-md-center align-items-center justify-content-xs-start"
 				xs="auto"

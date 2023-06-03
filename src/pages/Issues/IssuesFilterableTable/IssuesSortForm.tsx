@@ -18,7 +18,7 @@ export default function IssuesSortForm({
 	const { theme } = useTheme();
 
 	return (
-		<Form className="mb-3">
+		<Form className="mb-3 do-not-display-when-print">
 			<Row
 				className="justify-content-md-center align-items-center justify-content-xs-start"
 				xs="auto"
