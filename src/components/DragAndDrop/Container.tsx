@@ -162,12 +162,7 @@ export default function Container({
 	if (!items) return null;
 
 	return (
-		<div
-			className="container"
-			onDragOver={(e) => {
-				e.preventDefault();
-			}}
-		>
+		<div className="container">
 			<p>
 				D&D Container with ordered & unordered items | direction{" "}
 				{direction ? direction : "null"}
