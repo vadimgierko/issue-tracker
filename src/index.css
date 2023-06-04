@@ -69,3 +69,14 @@ body {
     break-inside: avoid;
   } */
 }
+
+/* FOR DRAG & DROP */
+
+.draggable {
+  cursor: move;
+}
+
+.draggable.dragging {
+  background-color: grey;
+  opacity: 0.5;
+}

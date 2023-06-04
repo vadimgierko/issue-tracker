@@ -25,6 +25,7 @@ import Issue from "./pages/Issue";
 import ProjectIssues from "./pages/Project/ProjectIssues";
 import ProjectDetails from "./pages/Project/ProjectDetails";
 import ProjectIssuesOrdered from "./pages/Project/ProjectIssuesOrdered";
+import DragAndDropContainer from "./components/DragAndDrop";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -133,6 +134,11 @@ const router = createBrowserRouter([
 			{
 				path: "signup",
 				element: <SignUp />,
+			},
+			//================== FOR EXPERIMENTS =====================//
+			{
+				path: "drag-and-drop",
+				element: <DragAndDropContainer />,
 			},
 			//================== PRIVATE / PROTECTED ROUTES ==========//
 			...protectedRoutes,
