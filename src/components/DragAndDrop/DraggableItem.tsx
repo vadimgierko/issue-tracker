@@ -15,7 +15,7 @@ export default function DraggableItem({
 	const [className, setClassname] = useState("draggable");
 
 	return (
-		<p
+		<li
 			className={className}
 			draggable="true"
 			onDragStart={() => {
@@ -35,7 +35,8 @@ export default function DraggableItem({
 			}}
 		>
 			{item.id} after: {item.after ? item.after : "null"} before:{" "}
-			{item.before ? item.before : "null"}
-		</p>
+			{item.before ? item.before : "null"}{" "}
+			{item.ordered ? "ordered" : "unordered"}
+		</li>
 	);
 }

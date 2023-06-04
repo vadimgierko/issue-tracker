@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import Container from "./Container";
 import { Item } from "./interfaces/Item";
-import listifyItems from "./lib/listifyItems";
 
 const initItems: Item[] = [
-	{ id: 1, parent: 1, after: null, before: 2 },
-	{ id: 2, parent: 1, after: 1, before: 3 },
-	{ id: 3, parent: 1, after: 2, before: 4 },
-	{ id: 4, parent: 1, after: 3, before: 5 },
-	{ id: 5, parent: 1, after: 4, before: 6 },
-	{ id: 6, parent: 1, after: 5, before: null },
+	{ id: 1, parent: null, after: null, before: 2, ordered: true },
+	{ id: 2, parent: null, after: 1, before: 3, ordered: true },
+	{ id: 3, parent: null, after: 2, before: 4, ordered: true },
+	{ id: 4, parent: null, after: 3, before: 5, ordered: true },
+	{ id: 5, parent: null, after: 4, before: 6, ordered: true },
+	{ id: 6, parent: null, after: 5, before: null, ordered: true },
+	{ id: 7, parent: null, after: null, before: null, ordered: false },
+	{ id: 8, parent: null, after: null, before: null, ordered: false },
+	{ id: 9, parent: null, after: null, before: null, ordered: false },
+	{ id: 10, parent: null, after: null, before: null, ordered: false },
+	{ id: 11, parent: null, after: null, before: null, ordered: false },
 ];
 
 export default function DragAndDropContainer() {
 	const [items, setItems] = useState<Item[]>([]);
 
-	// listify initial items before sent them to d&d,
-	// after that they will be always listified:
-	useEffect(() => setItems(listifyItems(initItems)), []);
+	useEffect(() => setItems(initItems), []);
 
-	return <Container containerName={1} items={items} setItems={setItems} />;
+	return <Container root={null} items={items} setItems={setItems} />;
 }

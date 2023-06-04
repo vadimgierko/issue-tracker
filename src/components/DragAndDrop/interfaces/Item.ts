@@ -3,4 +3,5 @@ export interface Item {
 	parent: number | null;
 	after: number | null;
 	before: number | null;
+	ordered: boolean;
 }
