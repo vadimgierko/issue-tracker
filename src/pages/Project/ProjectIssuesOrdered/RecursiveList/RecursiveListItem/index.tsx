@@ -30,7 +30,7 @@ type RecursiveListItemProps = {
 	moveUp: (issueId: string) => Promise<void>;
 	convertIntoOrdered: (issueId: string) => Promise<void>;
 	convertIntoUnordered: (issueId: string) => Promise<void>;
-	//======================================================//
+	//=================== D&D =============================//
 	handleDragEnd: () => void;
 	handleDragStart: (i: Issue.AppIssue | null) => void;
 	handleDragOver: (i: Issue.AppIssue | null) => void;
@@ -44,7 +44,7 @@ export default function RecursiveListItem({
 	moveUp,
 	convertIntoOrdered,
 	convertIntoUnordered,
-	//================================================//
+	//================= D&D ====================//
 	handleDragStart,
 	handleDragOver,
 	handleDragEnd,

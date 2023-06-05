@@ -16,6 +16,9 @@ const initItems: Item[] = [
 	{ id: 11, parent: null, after: null, before: null, ordered: false },
 ];
 
+/**
+ * This component simulates <ProjectIssuesOrdered />.
+ */
 export default function DragAndDropContainer() {
 	const [items, setItems] = useState<Item[]>([]);
 

@@ -6,6 +6,7 @@ import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWith
 import RecursiveListItem from "./RecursiveListItem";
 import { useEffect, useState } from "react";
 
+// lista obejmuje jeden pion zdefiniowany przez root
 export default function RecursiveList({
 	issuesToList,
 	root,
@@ -26,15 +27,37 @@ export default function RecursiveList({
 	const [prev, setPrev] = useState<number | null>(null);
 	const [current, setCurrent] = useState<number | null>(null);
 
+	//=============== end of D&D ======================================//
+
+	// root issues must be set in useEffect
+	// to enable order manipulation on them during onDragOver
+	// without updating issues until onDragEnd:
+	const [rootIssues, setRootIssues] = useState<Issue.AppIssue[]>([]);
+
+	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
+	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+
+	const lastOrderedIssue =
+		rootIssuesOrdered && rootIssuesOrdered.length
+			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
+			: null;
+
+	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
+	// BECAUSE THEY ARE NEEDED ONLY HERE:
+	// (WELL, NOW THEY'RE NEEDED IN SEPARATED RECURSIVE LIST ITEM...)
+
 	function handleDragStart(i: Issue.AppIssue | null) {
 		if (!i) return;
 		setDragging(i);
 
-		const index = issuesToList.indexOf(i);
+		const index = rootIssues.indexOf(i);
 		setCurrent(index);
 		setPrev(index);
 	}
 
+	// when we are dragging the issue
+	// we are manipulating local rootIssues order
+	// without updating the db & app state:
 	function handleDragOver(over: Issue.AppIssue | null) {
 		if (!dragging || !over) return;
 		if (dragging.id === over.id) return;
@@ -42,7 +65,7 @@ export default function RecursiveList({
 		setOver(over);
 
 		// this is only to set direction of the movement:
-		const index = issuesToList.indexOf(over);
+		const index = rootIssues.indexOf(over);
 
 		if (index !== current) {
 			setPrev(current);
@@ -52,7 +75,7 @@ export default function RecursiveList({
 
 		if (dragging.ordered && over.ordered) {
 			// reorder index position:
-			const reorderedItems: Issue.AppIssue[] = issuesToList.reduce(
+			const reorderedItems: Issue.AppIssue[] = rootIssues.reduce(
 				(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
 					if (item.id === over.id) {
 						return direction === "down"
@@ -67,13 +90,10 @@ export default function RecursiveList({
 				[]
 			);
 
-			// TODO:
-			// MODIFY IT TO USE WITH ISSUES:
+			const convertedIntoBeforeAfter: Issue.AppIssue[] =
+				convertIndexesIntoBeforeAfterRelation(reorderedItems);
 
-			// const convertedIntoBeforeAfter: Issue.AppIssue[] =
-			// 	convertIndexesIntoBeforeAfterRelation(reorderedItems);
-
-			// setItems(convertedIntoBeforeAfter);
+			setRootIssues(convertedIntoBeforeAfter);
 		} else if (dragging.ordered && !over.ordered) {
 			// convert into unordered
 			// do not add dragging to reorderedItems =>
@@ -144,9 +164,62 @@ export default function RecursiveList({
 		// because those items will be sorted by ranking or other prop
 	}
 
-	function handleDragEnd() {
+	// here we detect issues that changed
+	// & update db & app state by calling updateIssues()
+	async function handleDragEnd() {
 		if (!dragging || !over) return;
 		if (dragging.id === over.id) return;
+
+		// here we detect issues that changed:
+		const changedIssues: Issue.AppIssue[] = [];
+
+		rootIssues.forEach((i) => {
+			const original = findIssueById(i.id);
+
+			if (original) {
+				const isEqual = (
+					obj1: Issue.AppIssue,
+					obj2: Issue.AppIssue
+				): boolean => {
+					for (const key in obj1) {
+						if (
+							key !== "id" &&
+							obj1[key as keyof Issue.AppIssue] !==
+								obj2[key as keyof Issue.AppIssue]
+						) {
+							return false;
+						}
+					}
+					return true;
+				};
+
+				if (!isEqual(original, i)) {
+					changedIssues.push({ ...i, updated: Date.now() });
+				}
+			}
+		});
+
+		changedIssues.forEach((i) =>
+			console.log(
+				`${i.title} issue changed after the ${dragging.title} issue was dragged:`,
+				i
+			)
+		);
+
+		// update db & app state by calling updateIssues()
+
+		try {
+			if (changedIssues.length) {
+				await updateIssues({ update: changedIssues });
+				console.log(
+					`issues were successfully updated after an issue ${dragging.title} was dragged`,
+					changedIssues
+				);
+			}
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
 
 		// clear dragging state:
 		setOver(null);
@@ -155,37 +228,37 @@ export default function RecursiveList({
 		setPrev(null);
 	}
 
-	useEffect(() => console.log("set over:", over), [over]);
-	useEffect(() => console.log("set dragging:", dragging), [dragging]);
+	//============================ D&D helper functions:
+	function convertIndexesIntoBeforeAfterRelation(items: Issue.AppIssue[]) {
+		if (!items) return [];
 
-	useEffect(() => {
-		if (prev && current) {
-			if (prev !== current) {
-				const dir = current > prev ? "down" : "up";
-				console.log("direction:", dir);
-				setDirection(dir);
-			} else {
-				setDirection(null);
-			}
-		}
-	}, [current, prev]);
+		const orderedItems: Issue.AppIssue[] = items.filter(
+			(i) => i.ordered === true
+		);
+		const unorderedItems: Issue.AppIssue[] = items.filter(
+			(i) => i.ordered === false
+		);
 
-	//=====================================================//
+		const orderedItemsConverted: Issue.AppIssue[] = orderedItems.map(
+			(item, index) =>
+				index === 0
+					? { ...item, after: null, before: orderedItems[index + 1].id }
+					: index === orderedItems.length - 1
+					? { ...item, before: null, after: orderedItems[index - 1].id }
+					: {
+							...item,
+							after: orderedItems[index - 1].id,
+							before: orderedItems[index + 1].id,
+					  }
+		);
 
-	if (!projectId) return null;
+		const all: Issue.AppIssue[] = [...orderedItemsConverted, ...unorderedItems];
 
-	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
+		return all;
+	}
 
-	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
-	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
-
-	const lastOrderedIssue =
-		rootIssuesOrdered && rootIssuesOrdered.length
-			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
-			: null;
-
-	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
-	// BECAUSE THEY ARE NEEDED ONLY HERE:
+	//============ THESE FUNCS BELOW CAN BE CONVERTED INTO D&D ============//
+	//==== BUT MAYBE LEAVE THEM LIKE THIS TO STILL ENABLE MENU OPTIONS ====//
 
 	async function convertIntoOrdered(issueId: string) {
 		const convertTime = Date.now();
@@ -402,6 +475,9 @@ export default function RecursiveList({
 		}
 	}
 
+	//=====================================================================//
+	//=====================================================================//
+
 	async function addChildOrdered(parentId: string) {
 		const parent = findIssueById(parentId);
 
@@ -448,6 +524,29 @@ export default function RecursiveList({
 		);
 	}
 
+	useEffect(() => {
+		if (issuesToList) {
+			setRootIssues(issuesToList.filter((i) => !i.parent || i.parent === root));
+		}
+	}, [issuesToList, root]);
+
+	// useEffect(() => console.log("set over:", over), [over]);
+	// useEffect(() => console.log("set dragging:", dragging), [dragging]);
+
+	useEffect(() => {
+		if (prev && current) {
+			if (prev !== current) {
+				const dir = current > prev ? "down" : "up";
+				console.log("direction:", dir);
+				setDirection(dir);
+			} else {
+				setDirection(null);
+			}
+		}
+	}, [current, prev]);
+
+	if (!projectId) return null;
+
 	return (
 		<>
 			{rootIssuesOrdered && rootIssuesOrdered.length ? (
@@ -468,7 +567,7 @@ export default function RecursiveList({
 								convertIntoUnordered={convertIntoUnordered}
 								key={i.id}
 								i={i}
-								//========================================//
+								//============== D&D ==================//
 								handleDragStart={handleDragStart}
 								handleDragOver={handleDragOver}
 								handleDragEnd={handleDragEnd}
@@ -478,33 +577,31 @@ export default function RecursiveList({
 			) : null}
 
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
-				<>
-					<ul>
-						{rootIssuesUnordered
-							.sort((a, b) => b.rank - a.rank)
-							.filter((i) =>
-								showClosedIssues
-									? true
-									: i.status === "open" || i.status === "in progress"
-							)
-							.map((i) => (
-								<RecursiveListItem
-									addChildOrdered={addChildOrdered}
-									addChildUnordered={addChildUnordered}
-									moveDown={moveDown}
-									moveUp={moveUp}
-									convertIntoOrdered={convertIntoOrdered}
-									convertIntoUnordered={convertIntoUnordered}
-									key={i.id}
-									i={i}
-									//========================================//
-									handleDragStart={handleDragStart}
-									handleDragOver={handleDragOver}
-									handleDragEnd={handleDragEnd}
-								/>
-							))}
-					</ul>
-				</>
+				<ul>
+					{rootIssuesUnordered
+						.sort((a, b) => b.rank - a.rank)
+						.filter((i) =>
+							showClosedIssues
+								? true
+								: i.status === "open" || i.status === "in progress"
+						)
+						.map((i) => (
+							<RecursiveListItem
+								addChildOrdered={addChildOrdered}
+								addChildUnordered={addChildUnordered}
+								moveDown={moveDown}
+								moveUp={moveUp}
+								convertIntoOrdered={convertIntoOrdered}
+								convertIntoUnordered={convertIntoUnordered}
+								key={i.id}
+								i={i}
+								//============== D&D ==================//
+								handleDragStart={handleDragStart}
+								handleDragOver={handleDragOver}
+								handleDragEnd={handleDragEnd}
+							/>
+						))}
+				</ul>
 			) : null}
 		</>
 	);
