@@ -69,10 +69,10 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [showRank, setShowRank] = useState(false);
 	const { user } = useUser();
 
-	console.log(
-		"user issues stored in the app (it may be not all user issues, but only some projects' issues only):",
-		issues
-	);
+	// console.log(
+	// 	"user issues stored in the app (it may be not all user issues, but only some projects' issues only):",
+	// 	issues
+	// );
 
 	async function fetchIssue(issueId: string) {
 		if (!user || !issueId) return;

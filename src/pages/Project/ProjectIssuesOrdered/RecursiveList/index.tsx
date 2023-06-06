@@ -1,25 +1,12 @@
-import { Badge, Dropdown } from "react-bootstrap";
 import { Issue } from "../../../../interfaces/Issue";
 import listifyIssues from "../../../../lib/listifyIssues";
 import useIssues from "../../../../context/useIssues";
 import { useNavigate, useParams } from "react-router-dom";
 import createAddIssueLinkWithParams from "../../../../lib/createAddIssueLinkWithParams";
-import {
-	BsArrowDown,
-	BsPlus,
-	BsArrowUp,
-	BsDot,
-	BsArrowRight,
-	BsPencilSquare,
-	BsEye,
-	BsTrash,
-	BsArrowReturnRight,
-	BsCheck2Square,
-	BsRocketTakeoff,
-} from "react-icons/bs";
-import { VscIssueReopened } from "react-icons/vsc";
-import useTheme from "../../../../context/useTheme";
+import RecursiveListItem from "./RecursiveListItem";
+import { useEffect, useState } from "react";
 
+// lista obejmuje jeden pion zdefiniowany przez root
 export default function RecursiveList({
 	issuesToList,
 	root,
@@ -27,38 +14,246 @@ export default function RecursiveList({
 	issuesToList: Issue.AppIssue[]; // open & in progress project issues only
 	root: string | null;
 }) {
-	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const { projectId } = useParams();
-	const {
-		issues,
-		findIssueById,
-		updateIssues,
-		deleteIssue,
-		reopenIssue,
-		resolveIssue,
-		setToInProgressIssue,
-		showClosedIssues,
-		showRank,
-		findAllIssueChidrenRecursively,
-	} = useIssues();
-	if (!projectId) return null;
+	const { issues, findIssueById, updateIssues, showClosedIssues } = useIssues();
 
-	const rootIssues = issuesToList.filter((i) => !i.parent || i.parent === root);
+	//==================== D&D ==========================//
+	const [dragging, setDragging] = useState<Issue.AppIssue | null>(null);
+	const [over, setOver] = useState<Issue.AppIssue | null>(null);
 
-	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
-	// console.log("ordered root issues:", rootIssuesOrdered);
+	// this below is only for movement direction detecting:
+	const [direction, setDirection] = useState<"down" | "up" | null>(null);
+	const [prev, setPrev] = useState<number | null>(null);
+	const [current, setCurrent] = useState<number | null>(null);
 
-	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
-	// console.log("unordered root issues:", rootIssuesUnordered);
+	//=============== end of D&D ======================================//
+
+	// root issues must be set in useEffect
+	// to enable order manipulation on them during onDragOver
+	// without updating issues until onDragEnd:
+	const [rootIssues, setRootIssues] = useState<Issue.AppIssue[]>([]);
+
+	const rootIssuesOrdered = rootIssues.filter((i) => i.ordered);
+	const rootIssuesUnordered = rootIssues
+		.filter((i) => !i.ordered)
+		.sort((a, b) => b.rank - a.rank);
 
 	const lastOrderedIssue =
 		rootIssuesOrdered && rootIssuesOrdered.length
 			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 			: null;
 
-	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
-	// BECAUSE THEY ARE NEEDED ONLY HERE:
+	function handleDragStart(i: Issue.AppIssue | null) {
+		if (!i) return;
+
+		setDragging(i);
+
+		const index = rootIssues.indexOf(i);
+		setCurrent(index);
+		setPrev(index);
+	}
+
+	// when we are dragging the issue
+	// we are manipulating local rootIssues order
+	// without updating the db & app state:
+	function handleDragOver(over: Issue.AppIssue | null) {
+		if (!dragging || !over) return;
+		if (dragging.id === over.id) return;
+
+		setOver(over);
+
+		const index = rootIssues.indexOf(over);
+
+		if (index !== current) {
+			setPrev(current);
+			setCurrent(index);
+		}
+
+		//=============================================//
+
+		if (dragging.ordered && over.ordered) {
+			// reorder index position:
+			const reorderedItems: Issue.AppIssue[] = rootIssues.reduce(
+				(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
+					if (item.id === over.id) {
+						return direction === "down"
+							? [...reordered, over, dragging]
+							: [...reordered, dragging, over];
+					} else if (item.id === dragging.id) {
+						return reordered;
+					} else {
+						return [...reordered, item];
+					}
+				},
+				[]
+			);
+
+			const convertedIntoBeforeAfter: Issue.AppIssue[] =
+				convertIndexesIntoBeforeAfterRelation(reorderedItems);
+
+			setRootIssues(convertedIntoBeforeAfter);
+		}
+		// NOTE: commenter code below doesn't work. Left only to investigate why...
+
+		// else if (dragging.ordered && !over.ordered) {
+		// 	// convert into unordered
+		// 	// do not add dragging to reorderedItems =>
+		// 	// instead add converted dragging
+		// 	const convertedIntoUnordered: Issue.AppIssue = {
+		// 		...dragging,
+		// 		ordered: false,
+		// 		after: null,
+		// 		before: null,
+		// 	};
+
+		// 	const reorderedItems: Issue.AppIssue[] = rootIssues.reduce(
+		// 		(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
+		// 			if (item.id === dragging.id) {
+		// 				return [...reordered, convertedIntoUnordered];
+		// 			} else {
+		// 				return [...reordered, item];
+		// 			}
+		// 		},
+		// 		[]
+		// 	);
+
+		// 	const convertedIntoBeforeAfter: Issue.AppIssue[] =
+		// 		convertIndexesIntoBeforeAfterRelation(reorderedItems);
+
+		// 	setRootIssues(convertedIntoBeforeAfter);
+		// } else if (!dragging.ordered && over.ordered) {
+		// 	// convert dragging into ordered
+		// 	// add draging to reorderedItems below (arr length++)
+		// 	// with over index
+		// 	const convertedIntoOrdered: Issue.AppIssue = {
+		// 		...dragging,
+		// 		ordered: true,
+		// 	};
+
+		// 	// const reorderedItems: Issue.AppIssue[] = issuesToList.reduce(
+		// 	// 	(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
+		// 	// 		if (item.id === over.id) {
+		// 	// 			return direction === "down"
+		// 	// 				? [...reordered, over, convertedIntoOrdered]
+		// 	// 				: [...reordered, convertedIntoOrdered, over];
+		// 	// 		} else if (item.id === dragging.id) {
+		// 	// 			return reordered;
+		// 	// 		} else {
+		// 	// 			return [...reordered, item];
+		// 	// 		}
+		// 	// 	},
+		// 	// 	[]
+		// 	// );
+
+		// 	// TODO:
+		// 	// MODIFY IT TO USE WITH ISSUES:
+
+		// 	// const convertedIntoBeforeAfter: Issue.AppIssue[] =
+		// 	// 	convertIndexesIntoBeforeAfterRelation(reorderedItems);
+
+		// 	// setItems(convertedIntoBeforeAfter);
+		// }
+
+		// NOTE: there is no else for both unordered items (for now)
+		// because those items will be sorted by ranking or other prop
+	}
+
+	// here we detect issues that changed
+	// & update db & app state by calling updateIssues()
+	async function handleDragEnd() {
+		if (!dragging || !over) return;
+		if (dragging.id === over.id) return;
+
+		// here we detect issues that changed:
+		const changedIssues: Issue.AppIssue[] = [];
+
+		rootIssues.forEach((i) => {
+			const original = findIssueById(i.id);
+
+			if (original) {
+				const isEqual = (
+					obj1: Issue.AppIssue,
+					obj2: Issue.AppIssue
+				): boolean => {
+					for (const key in obj1) {
+						if (
+							key !== "id" &&
+							obj1[key as keyof Issue.AppIssue] !==
+								obj2[key as keyof Issue.AppIssue]
+						) {
+							return false;
+						}
+					}
+					return true;
+				};
+
+				if (!isEqual(original, i)) {
+					changedIssues.push({ ...i, updated: Date.now() });
+				}
+			}
+		});
+
+		changedIssues.forEach((i) =>
+			console.log(
+				`${i.title} issue changed after the ${dragging.title} issue was dragged:`,
+				i
+			)
+		);
+
+		// update db & app state by calling updateIssues()
+
+		try {
+			if (changedIssues.length) {
+				await updateIssues({ update: changedIssues });
+				console.log(
+					`issues were successfully updated after an issue ${dragging.title} was dragged`,
+					changedIssues
+				);
+			}
+		} catch (error: any) {
+			console.log(error);
+			alert(error);
+		}
+
+		// clear dragging state:
+		setOver(null);
+		setDragging(null);
+		setCurrent(null);
+		setPrev(null);
+	}
+
+	//============================ D&D helper functions:
+	function convertIndexesIntoBeforeAfterRelation(items: Issue.AppIssue[]) {
+		if (!items) return [];
+
+		const orderedItems: Issue.AppIssue[] = items.filter(
+			(i) => i.ordered === true
+		);
+		const unorderedItems: Issue.AppIssue[] = items.filter(
+			(i) => i.ordered === false
+		);
+
+		const orderedItemsConverted: Issue.AppIssue[] = orderedItems.map(
+			(item, index) =>
+				index === 0
+					? { ...item, after: null, before: orderedItems[index + 1].id }
+					: index === orderedItems.length - 1
+					? { ...item, before: null, after: orderedItems[index - 1].id }
+					: {
+							...item,
+							after: orderedItems[index - 1].id,
+							before: orderedItems[index + 1].id,
+					  }
+		);
+
+		const all: Issue.AppIssue[] = [...orderedItemsConverted, ...unorderedItems];
+
+		return all;
+	}
+
+	//============ THESE FUNCS BELOW CAN BE CONVERTED INTO D&D ============//
+	//==== BUT MAYBE LEAVE THEM LIKE THIS TO STILL ENABLE MENU OPTIONS ====//
 
 	async function convertIntoOrdered(issueId: string) {
 		const convertTime = Date.now();
@@ -275,6 +470,9 @@ export default function RecursiveList({
 		}
 	}
 
+	//=====================================================================//
+	//=====================================================================//
+
 	async function addChildOrdered(parentId: string) {
 		const parent = findIssueById(parentId);
 
@@ -321,171 +519,35 @@ export default function RecursiveList({
 		);
 	}
 
-	//=============================================================
+	useEffect(() => {
+		if (issuesToList) {
+			const rootIssues = issuesToList.filter(
+				(i) => !i.parent || i.parent === root
+			);
+			const rootIssuesOrdered = listifyIssues(
+				rootIssues.filter((i) => i.ordered).sort((a, b) => b.rank - a.rank)
+			);
+			const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+			setRootIssues([...rootIssuesOrdered, ...rootIssuesUnordered]);
+		}
+	}, [issuesToList, root]);
 
-	function RecursiveListItem({ i }: { i: Issue.AppIssue }) {
-		return (
-			<li>
-				<div style={{ display: "flex" }}>
-					<span>
-						<span
-							style={{
-								textDecoration: i.closedAt ? "line-through" : "",
-								backgroundColor:
-									i.status === "in progress" ? "rgb(50, 140, 113)" : "",
-								color: i.status === "in progress" ? "white" : "",
-							}}
-						>
-							{i.title}
-						</span>{" "}
-						{i.children && i.children.length ? (
-							<Badge
-								bg={theme === "dark" ? "light" : "dark"}
-								className={`me-1 text-${theme}`}
-							>
-								{
-									findAllIssueChidrenRecursively(i).filter(
-										(child) =>
-											child.status !== "open" && child.status !== "in progress"
-									).length
-								}
-								/{findAllIssueChidrenRecursively(i).length}
-							</Badge>
-						) : (
-							""
-						)}
-						{showRank && <span>({i.rank}/90)</span>}
-					</span>
-					<Dropdown className="ms-2">
-						<Dropdown.Toggle as="a" variant="outline-secondary" />
+	// useEffect(() => console.log("set over:", over), [over]);
+	// useEffect(() => console.log("set dragging:", dragging), [dragging]);
 
-						<Dropdown.Menu>
-							{i.ordered && (
-								<>
-									<Dropdown.Item
-										onClick={() =>
-											navigate(
-												createAddIssueLinkWithParams(
-													i.projectId,
-													true,
-													i.id,
-													i.before ? i.before : null,
-													i.parent ? i.parent : null
-												)
-											)
-										}
-									>
-										<BsArrowDown />
-										<BsPlus /> add after
-									</Dropdown.Item>
+	useEffect(() => {
+		if (prev && current) {
+			if (prev !== current) {
+				const dir = current > prev ? "down" : "up";
+				console.log("direction:", dir);
+				setDirection(dir);
+			} else {
+				setDirection(null);
+			}
+		}
+	}, [current, prev]);
 
-									<Dropdown.Item
-										onClick={() =>
-											navigate(
-												createAddIssueLinkWithParams(
-													i.projectId,
-													true,
-													i.after ? i.after : null,
-													i.id,
-													i.parent ? i.parent : null
-												)
-											)
-										}
-									>
-										<BsArrowUp />
-										<BsPlus /> add before
-									</Dropdown.Item>
-
-									<Dropdown.Divider />
-
-									<Dropdown.Item onClick={() => moveUp(i.id)}>
-										<BsArrowUp /> move up
-									</Dropdown.Item>
-									<Dropdown.Item onClick={() => moveDown(i.id)}>
-										<BsArrowDown /> move down
-									</Dropdown.Item>
-
-									<Dropdown.Divider />
-
-									<Dropdown.Item onClick={() => convertIntoUnordered(i.id)}>
-										1. <BsArrowRight />
-										<BsDot /> convert into unordered
-									</Dropdown.Item>
-								</>
-							)}
-
-							{!i.ordered && (
-								<Dropdown.Item onClick={() => convertIntoOrdered(i.id)}>
-									<BsDot />
-									<BsArrowRight /> 1. convert into ordered
-								</Dropdown.Item>
-							)}
-
-							<Dropdown.Divider />
-
-							<Dropdown.Item onClick={() => addChildOrdered(i.id)}>
-								<BsArrowReturnRight />
-								<BsPlus /> 1. add ordered child
-							</Dropdown.Item>
-
-							<Dropdown.Item onClick={() => addChildUnordered(i.id)}>
-								<BsArrowReturnRight />
-								<BsPlus /> <BsDot /> add unordered child
-							</Dropdown.Item>
-
-							<Dropdown.Divider />
-
-							{i.status && i.status === "open" && (
-								<Dropdown.Item onClick={() => setToInProgressIssue(i)}>
-									<BsRocketTakeoff />{" "}
-									<span className="text-primary">in progress...</span>
-								</Dropdown.Item>
-							)}
-
-							{i.status &&
-							(i.status === "open" || i.status === "in progress") ? (
-								<Dropdown.Item onClick={() => resolveIssue(i)}>
-									<BsCheck2Square className="text-success" />{" "}
-									<span className="text-success">resolve</span>
-								</Dropdown.Item>
-							) : (
-								<Dropdown.Item onClick={() => reopenIssue(i)}>
-									<VscIssueReopened /> <span>reopen</span>
-								</Dropdown.Item>
-							)}
-
-							<Dropdown.Divider />
-
-							<Dropdown.Item onClick={() => navigate("/issues/" + i.id)}>
-								<BsEye /> view
-							</Dropdown.Item>
-
-							<Dropdown.Item
-								onClick={() => navigate("/issues/" + i.id + "/edit")}
-							>
-								<BsPencilSquare /> edit
-							</Dropdown.Item>
-
-							<Dropdown.Item onClick={() => deleteIssue(i)}>
-								<BsTrash className="text-danger" />{" "}
-								<span className="text-danger">delete</span>
-							</Dropdown.Item>
-						</Dropdown.Menu>
-					</Dropdown>
-				</div>
-				{i.children && i.children.length ? (
-					<RecursiveList
-						issuesToList={
-							i.children
-								.map((id) => issues.find((iss) => iss.id === id))
-								.filter((f) => f !== undefined) as Issue.AppIssue[]
-						}
-						root={i.id}
-					/>
-				) : null}
-			</li>
-		);
-	}
+	if (!projectId) return null;
 
 	return (
 		<>
@@ -498,26 +560,49 @@ export default function RecursiveList({
 								: i.status === "open" || i.status === "in progress"
 						)
 						.map((i) => (
-							<RecursiveListItem key={i.id} i={i} />
+							<RecursiveListItem
+								addChildOrdered={addChildOrdered}
+								addChildUnordered={addChildUnordered}
+								moveDown={moveDown}
+								moveUp={moveUp}
+								convertIntoOrdered={convertIntoOrdered}
+								convertIntoUnordered={convertIntoUnordered}
+								key={i.id}
+								i={i}
+								//============== D&D ==================//
+								handleDragStart={handleDragStart}
+								handleDragOver={handleDragOver}
+								handleDragEnd={handleDragEnd}
+							/>
 						))}
 				</ol>
 			) : null}
 
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
-				<>
-					<ul>
-						{rootIssuesUnordered
-							.sort((a, b) => b.rank - a.rank)
-							.filter((i) =>
-								showClosedIssues
-									? true
-									: i.status === "open" || i.status === "in progress"
-							)
-							.map((i) => (
-								<RecursiveListItem key={i.id} i={i} />
-							))}
-					</ul>
-				</>
+				<ul>
+					{rootIssuesUnordered
+						.filter((i) =>
+							showClosedIssues
+								? true
+								: i.status === "open" || i.status === "in progress"
+						)
+						.map((i) => (
+							<RecursiveListItem
+								addChildOrdered={addChildOrdered}
+								addChildUnordered={addChildUnordered}
+								moveDown={moveDown}
+								moveUp={moveUp}
+								convertIntoOrdered={convertIntoOrdered}
+								convertIntoUnordered={convertIntoUnordered}
+								key={i.id}
+								i={i}
+								//============== D&D ==================//
+								handleDragStart={handleDragStart}
+								handleDragOver={handleDragOver}
+								handleDragEnd={handleDragEnd}
+							/>
+						))}
+				</ul>
 			) : null}
 		</>
 	);
