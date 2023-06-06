@@ -55,9 +55,9 @@ export default function NavigationBar() {
 							<Nav.Link>About</Nav.Link>
 						</LinkContainer>
 
-						<LinkContainer to="/drag-and-drop">
+						{/* <LinkContainer to="/drag-and-drop">
 							<Nav.Link>D&D</Nav.Link>
-						</LinkContainer>
+						</LinkContainer> */}
 
 						{user && (
 							<>
