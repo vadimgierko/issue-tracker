@@ -67,27 +67,29 @@ export default function RecursiveListItem({
 	return (
 		<li>
 			<div style={{ display: "flex" }}>
-				<span
-					className={className + " mx-2"}
-					draggable="true"
-					onDragStart={() => {
-						console.log("drag start", i.id);
-						handleDragStart(i);
-						setClassname("draggable dragging");
-					}}
-					onDragEnd={() => {
-						console.log("drag end", i.id);
-						setClassname("draggable");
-						handleDragEnd();
-					}}
-					onDragOver={(e) => {
-						e.preventDefault();
-						console.log("over", i.id);
-						handleDragOver(i);
-					}}
-				>
-					<AiOutlineDrag />
-				</span>
+				{i.ordered && (
+					<span
+						className={className + " mx-2"}
+						draggable="true"
+						onDragStart={() => {
+							console.log("drag start", i.id);
+							handleDragStart(i);
+							setClassname("draggable dragging");
+						}}
+						onDragEnd={() => {
+							console.log("drag end", i.id);
+							setClassname("draggable");
+							handleDragEnd();
+						}}
+						onDragOver={(e) => {
+							e.preventDefault();
+							console.log("over", i.id);
+							handleDragOver(i);
+						}}
+					>
+						<AiOutlineDrag />
+					</span>
+				)}
 				<span
 					style={{
 						textDecoration: i.closedAt ? "line-through" : "",

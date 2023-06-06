@@ -34,20 +34,19 @@ export default function RecursiveList({
 	// without updating issues until onDragEnd:
 	const [rootIssues, setRootIssues] = useState<Issue.AppIssue[]>([]);
 
-	const rootIssuesOrdered = listifyIssues(rootIssues.filter((i) => i.ordered));
-	const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+	const rootIssuesOrdered = rootIssues.filter((i) => i.ordered);
+	const rootIssuesUnordered = rootIssues
+		.filter((i) => !i.ordered)
+		.sort((a, b) => b.rank - a.rank);
 
 	const lastOrderedIssue =
 		rootIssuesOrdered && rootIssuesOrdered.length
 			? rootIssuesOrdered[rootIssuesOrdered.length - 1]
 			: null;
 
-	// THESE FUNCTIONS BELOW ARE HERE & NOT IN useIssues()
-	// BECAUSE THEY ARE NEEDED ONLY HERE:
-	// (WELL, NOW THEY'RE NEEDED IN SEPARATED RECURSIVE LIST ITEM...)
-
 	function handleDragStart(i: Issue.AppIssue | null) {
 		if (!i) return;
+
 		setDragging(i);
 
 		const index = rootIssues.indexOf(i);
@@ -64,13 +63,13 @@ export default function RecursiveList({
 
 		setOver(over);
 
-		// this is only to set direction of the movement:
 		const index = rootIssues.indexOf(over);
 
 		if (index !== current) {
 			setPrev(current);
 			setCurrent(index);
 		}
+
 		//=============================================//
 
 		if (dragging.ordered && over.ordered) {
@@ -94,71 +93,67 @@ export default function RecursiveList({
 				convertIndexesIntoBeforeAfterRelation(reorderedItems);
 
 			setRootIssues(convertedIntoBeforeAfter);
-		} else if (dragging.ordered && !over.ordered) {
-			// convert into unordered
-			// do not add dragging to reorderedItems =>
-			// instead add converted dragging
-			const convertedIntoUnordered: Issue.AppIssue = {
-				...dragging,
-				ordered: false,
-				after: null,
-				before: null,
-			};
-
-			const reorderedItems: Issue.AppIssue[] = issuesToList.reduce(
-				(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
-					if (item.id === over.id) {
-						return direction === "down"
-							? [...reordered, over, convertedIntoUnordered]
-							: [...reordered, convertedIntoUnordered, over];
-					} else if (item.id === dragging.id) {
-						return reordered;
-					} else {
-						return [...reordered, item];
-					}
-				},
-				[]
-			);
-
-			// TODO:
-			// MODIFY IT TO USE WITH ISSUES:
-
-			// const convertedIntoBeforeAfter: Issue.AppIssue[] =
-			// 	convertIndexesIntoBeforeAfterRelation(reorderedItems);
-
-			// setItems(convertedIntoBeforeAfter);
-		} else if (!dragging.ordered && over.ordered) {
-			// convert dragging into ordered
-			// add draging to reorderedItems below (arr length++)
-			// with over index
-			const convertedIntoOrdered: Issue.AppIssue = {
-				...dragging,
-				ordered: true,
-			};
-
-			const reorderedItems: Issue.AppIssue[] = issuesToList.reduce(
-				(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
-					if (item.id === over.id) {
-						return direction === "down"
-							? [...reordered, over, convertedIntoOrdered]
-							: [...reordered, convertedIntoOrdered, over];
-					} else if (item.id === dragging.id) {
-						return reordered;
-					} else {
-						return [...reordered, item];
-					}
-				},
-				[]
-			);
-
-			// TODO:
-			// MODIFY IT TO USE WITH ISSUES:
-
-			// const convertedIntoBeforeAfter: Issue.AppIssue[] =
-			// 	convertIndexesIntoBeforeAfterRelation(reorderedItems);
-
-			// setItems(convertedIntoBeforeAfter);
 		}
+		// NOTE: commenter code below doesn't work. Left only to investigate why...
+
+		// else if (dragging.ordered && !over.ordered) {
+		// 	// convert into unordered
+		// 	// do not add dragging to reorderedItems =>
+		// 	// instead add converted dragging
+		// 	const convertedIntoUnordered: Issue.AppIssue = {
+		// 		...dragging,
+		// 		ordered: false,
+		// 		after: null,
+		// 		before: null,
+		// 	};
+
+		// 	const reorderedItems: Issue.AppIssue[] = rootIssues.reduce(
+		// 		(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
+		// 			if (item.id === dragging.id) {
+		// 				return [...reordered, convertedIntoUnordered];
+		// 			} else {
+		// 				return [...reordered, item];
+		// 			}
+		// 		},
+		// 		[]
+		// 	);
+
+		// 	const convertedIntoBeforeAfter: Issue.AppIssue[] =
+		// 		convertIndexesIntoBeforeAfterRelation(reorderedItems);
+
+		// 	setRootIssues(convertedIntoBeforeAfter);
+		// } else if (!dragging.ordered && over.ordered) {
+		// 	// convert dragging into ordered
+		// 	// add draging to reorderedItems below (arr length++)
+		// 	// with over index
+		// 	const convertedIntoOrdered: Issue.AppIssue = {
+		// 		...dragging,
+		// 		ordered: true,
+		// 	};
+
+		// 	// const reorderedItems: Issue.AppIssue[] = issuesToList.reduce(
+		// 	// 	(reordered: Issue.AppIssue[], item: Issue.AppIssue) => {
+		// 	// 		if (item.id === over.id) {
+		// 	// 			return direction === "down"
+		// 	// 				? [...reordered, over, convertedIntoOrdered]
+		// 	// 				: [...reordered, convertedIntoOrdered, over];
+		// 	// 		} else if (item.id === dragging.id) {
+		// 	// 			return reordered;
+		// 	// 		} else {
+		// 	// 			return [...reordered, item];
+		// 	// 		}
+		// 	// 	},
+		// 	// 	[]
+		// 	// );
+
+		// 	// TODO:
+		// 	// MODIFY IT TO USE WITH ISSUES:
+
+		// 	// const convertedIntoBeforeAfter: Issue.AppIssue[] =
+		// 	// 	convertIndexesIntoBeforeAfterRelation(reorderedItems);
+
+		// 	// setItems(convertedIntoBeforeAfter);
+		// }
 
 		// NOTE: there is no else for both unordered items (for now)
 		// because those items will be sorted by ranking or other prop
@@ -526,7 +521,14 @@ export default function RecursiveList({
 
 	useEffect(() => {
 		if (issuesToList) {
-			setRootIssues(issuesToList.filter((i) => !i.parent || i.parent === root));
+			const rootIssues = issuesToList.filter(
+				(i) => !i.parent || i.parent === root
+			);
+			const rootIssuesOrdered = listifyIssues(
+				rootIssues.filter((i) => i.ordered).sort((a, b) => b.rank - a.rank)
+			);
+			const rootIssuesUnordered = rootIssues.filter((i) => !i.ordered);
+			setRootIssues([...rootIssuesOrdered, ...rootIssuesUnordered]);
 		}
 	}, [issuesToList, root]);
 
@@ -579,7 +581,6 @@ export default function RecursiveList({
 			{rootIssuesUnordered && rootIssuesUnordered.length ? (
 				<ul>
 					{rootIssuesUnordered
-						.sort((a, b) => b.rank - a.rank)
 						.filter((i) =>
 							showClosedIssues
 								? true
