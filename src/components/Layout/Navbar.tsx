@@ -55,6 +55,13 @@ export default function NavigationBar() {
 							<Nav.Link>About</Nav.Link>
 						</LinkContainer>
 
+						<Nav.Link
+							href="https://www.markdownguide.org/cheat-sheet/"
+							target="blank"
+						>
+							Markdown guide
+						</Nav.Link>
+
 						{/* <LinkContainer to="/drag-and-drop">
 							<Nav.Link>D&D</Nav.Link>
 						</LinkContainer> */}
