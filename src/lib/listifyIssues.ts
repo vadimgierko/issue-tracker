@@ -18,7 +18,6 @@ export default function listifyIssues(
 
 	if (issues && issues.length) {
 		const rootIssue = issues.find((i) => !i.after || i.after === null);
-		// console.log("root issue:", rootIssue?.title, rootIssue?.id);
 
 		if (rootIssue) {
 			// add root issue:

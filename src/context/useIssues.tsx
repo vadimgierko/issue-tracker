@@ -43,6 +43,8 @@ const IsuesContext = createContext<{
 	setShowClosedIssues: React.Dispatch<React.SetStateAction<boolean>>;
 	showRank: boolean;
 	setShowRank: React.Dispatch<React.SetStateAction<boolean>>;
+	sortUnorderedIssuesByRank: boolean;
+	setSortUnorderedIssuesByRank: React.Dispatch<React.SetStateAction<boolean>>;
 	findAllIssueChidrenRecursively: (
 		issueToGetChildren: Issue.AppIssue
 	) => Issue.AppIssue[];
@@ -67,6 +69,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
 	const [showClosedIssues, setShowClosedIssues] = useState(false);
 	const [showRank, setShowRank] = useState(false);
+	const [sortUnorderedIssuesByRank, setSortUnorderedIssuesByRank] = useState(false)
 	const { user } = useUser();
 
 	// console.log(
@@ -793,6 +796,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		fetchIssue,
 		showRank,
 		setShowRank,
+		setSortUnorderedIssuesByRank,
+		sortUnorderedIssuesByRank
 	};
 
 	return (

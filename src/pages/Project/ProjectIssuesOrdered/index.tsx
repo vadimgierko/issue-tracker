@@ -6,6 +6,7 @@ import RecursiveList from "./RecursiveList";
 import createAddIssueLinkWithParams from "../../../lib/createAddIssueLinkWithParams";
 import { FormCheck } from "react-bootstrap";
 
+// TODO: rename to PROJECT ISSUES LIST
 export default function ProjectIssuesOrdered() {
 	const { projectId } = useParams();
 	const { projects } = useProjects();
@@ -15,6 +16,8 @@ export default function ProjectIssuesOrdered() {
 		setShowClosedIssues,
 		showRank,
 		setShowRank,
+		sortUnorderedIssuesByRank,
+		setSortUnorderedIssuesByRank
 	} = useIssues();
 	const project = projects.find((p) => p.id === projectId);
 	const projectIssues = issues.filter((i) => i.projectId === projectId);
@@ -47,6 +50,14 @@ export default function ProjectIssuesOrdered() {
 					label={"Show issue's rank"}
 					checked={showRank}
 					onChange={() => setShowRank(!showRank)}
+					className="do-not-display-when-print"
+				/>
+			</div>
+			<div className="d-flex justify-content-center do-not-display-when-print">
+				<FormCheck
+					label={"Sort unordered issues by rank"}
+					checked={sortUnorderedIssuesByRank}
+					onChange={() => setSortUnorderedIssuesByRank(!sortUnorderedIssuesByRank)}
 					className="do-not-display-when-print"
 				/>
 			</div>

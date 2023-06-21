@@ -31,6 +31,8 @@ export default function Project() {
 		}
 	}
 
+	// fetch & populate project issues in background when page mount,
+	// then it will be passed here via issues
 	useEffect(() => {
 		if (project) {
 			fetchProjectIssues(project);
