@@ -1,4 +1,4 @@
-import { Badge, Dropdown } from "react-bootstrap";
+import { Badge, Dropdown, Form } from "react-bootstrap";
 import {
 	BsArrowDown,
 	BsArrowReturnRight,
@@ -17,7 +17,7 @@ import { VscIssueReopened } from "react-icons/vsc";
 import { Issue } from "../../../../../interfaces/Issue";
 import useTheme from "../../../../../context/useTheme";
 import useIssues from "../../../../../context/useIssues";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import createAddIssueLinkWithParams from "../../../../../lib/createAddIssueLinkWithParams";
 import { AiOutlineDrag } from "react-icons/ai";
 import { useState } from "react";
@@ -62,7 +62,52 @@ export default function RecursiveListItem({
 		setToInProgressIssue,
 		showRank,
 		findAllIssueChidrenRecursively,
+		updateIssues,
 	} = useIssues();
+
+	const { projectId } = useParams();
+	const projectIssues = issues.filter((i) => i.projectId === projectId);
+
+	async function addAsAchildTo(newParentId: string) {
+		const updatedIssue: Issue.AppIssue = {
+			...i,
+			parent: newParentId,
+			ordered: false,
+			after: null,
+			before: null,
+		};
+
+		const beforeIssue = projectIssues.find((i) => i.id === i.after);
+
+		const afterIssue = projectIssues.find((i) => i.id === i.before);
+
+		const newParent = projectIssues.find(
+			(i) => i.id === newParentId
+		) as Issue.AppIssue;
+
+		const updatedNewParent: Issue.AppIssue = {
+			...newParent,
+			children: newParent.children
+				? [...newParent.children, updatedIssue.id]
+				: [updatedIssue.id],
+		};
+
+		const updatedBefore: Issue.AppIssue | null = beforeIssue
+			? { ...beforeIssue, before: i.before }
+			: null;
+		const updatedAfter: Issue.AppIssue | null = afterIssue
+			? { ...afterIssue, after: i.after }
+			: null;
+
+		const updatedIssues = [
+			updatedIssue,
+			updatedNewParent,
+			...(updatedBefore ? [updatedBefore] : []),
+			...(updatedAfter ? [updatedAfter] : []),
+		];
+
+		updateIssues({ update: updatedIssues });
+	}
 
 	return (
 		<li>
@@ -181,6 +226,25 @@ export default function RecursiveListItem({
 								<BsArrowRight /> 1. convert into ordered
 							</Dropdown.Item>
 						)}
+
+						<Dropdown.Divider />
+
+						<Form.Select
+							onChange={(e) => {
+								console.log(e.target.value);
+
+								const newParentId = e.target.value;
+
+								addAsAchildTo(newParentId);
+							}}
+						>
+							<option value="">add as a child to:</option>
+							{projectIssues.map((i) => (
+								<option value={i.id} key={i.id}>
+									{i.title}
+								</option>
+							))}
+						</Form.Select>
 
 						<Dropdown.Divider />
 
