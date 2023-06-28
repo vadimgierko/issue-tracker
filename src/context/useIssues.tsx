@@ -69,7 +69,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
 	const [showClosedIssues, setShowClosedIssues] = useState(false);
 	const [showRank, setShowRank] = useState(false);
-	const [sortUnorderedIssuesByRank, setSortUnorderedIssuesByRank] = useState(false)
+	const [sortUnorderedIssuesByRank, setSortUnorderedIssuesByRank] =
+		useState(false);
 	const { user } = useUser();
 
 	// console.log(
@@ -78,7 +79,11 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	// );
 
 	async function fetchIssue(issueId: string) {
-		if (!user || !issueId) return;
+		console.log("fetching issue...");
+		if (!user || !issueId)
+			return console.error(
+				"no logged user or no issue id... can not fetch issue"
+			);
 
 		if (issues.find((i) => i.id === issueId))
 			return console.warn(
@@ -797,7 +802,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		showRank,
 		setShowRank,
 		setSortUnorderedIssuesByRank,
-		sortUnorderedIssuesByRank
+		sortUnorderedIssuesByRank,
 	};
 
 	return (

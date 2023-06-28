@@ -1,5 +1,6 @@
 export namespace Issue {
 	export type Type =
+		| ""
 		| "bug"
 		| "feature request"
 		| "improvement"
@@ -14,6 +15,7 @@ export namespace Issue {
 		| "other";
 
 	export const allowedTypeValues: Type[] = [
+		"",
 		"bug",
 		"security",
 		"dependencies",
@@ -30,8 +32,8 @@ export namespace Issue {
 
 	//===================== helper type: ============================//
 
-	export type Level = "high" | "medium" | "low";
-	export const allowedLevels: Level[] = ["high", "medium", "low"];
+	export type Level = "" | "high" | "medium" | "low";
+	export const allowedLevels: Level[] = ["", "high", "medium", "low"];
 
 	//===============================================================//
 
@@ -143,13 +145,13 @@ export namespace Issue {
 	];
 
 	export interface FilterFormData {
-		type: Type | "";
-		urgency: Urgency | "";
-		importance: Importance | "";
-		estimatedTime: EstimatedTime | "";
-		difficulty: Difficulty | "";
-		feature: string | "";
-		page: string | "";
-		component: string | "";
+		type: Type;
+		urgency: Urgency;
+		importance: Importance;
+		estimatedTime: EstimatedTime;
+		difficulty: Difficulty;
+		feature: string;
+		page: string;
+		component: string;
 	}
 }

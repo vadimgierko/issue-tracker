@@ -151,7 +151,6 @@ export default function IssueEdit() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">feature</option>
 								{projects
 									.find((p) => p.id === updatedIssue.projectId)
 									?.features?.map((f) => (
@@ -179,7 +178,6 @@ export default function IssueEdit() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">page</option>
 								{projects
 									.find((p) => p.id === updatedIssue.projectId)
 									?.pages?.map((p) => (
@@ -207,7 +205,6 @@ export default function IssueEdit() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">component</option>
 								{projects
 									.find((p) => p.id === updatedIssue.projectId)
 									?.components?.map((c) => (
@@ -289,7 +286,6 @@ export default function IssueEdit() {
 									})
 								}
 							>
-								<option value="">Estimated time</option>
 								{Issue.allowedLevels.map((level) => (
 									<option value={level} key={"estimated-time-" + level}>
 										{level}
@@ -315,7 +311,6 @@ export default function IssueEdit() {
 									})
 								}
 							>
-								<option value="">Difficulty</option>
 								{Issue.allowedLevels.map((level) => (
 									<option value={level} key={"difficulty-" + level}>
 										{level}

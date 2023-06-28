@@ -5,16 +5,22 @@ export default function rankifyIssues(
 	sort: boolean = false
 ) {
 	const rankifiedIssues: Issue.AppIssue[] = issues.map((i) => {
-		const typeRank: number =
-			[...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1;
-		const importanceRank: number =
-			[...Issue.allowedImportanceValues].reverse().indexOf(i.importance) + 1;
-		const urgencyRank: number =
-			[...Issue.allowedUrgencyValues].reverse().indexOf(i.urgency) + 1;
-		const difficultyRank: number =
-			[...Issue.allowedDifficultyValues].indexOf(i.difficulty) + 1;
-		const estimatedTimeRank: number =
-			[...Issue.allowedEstimatedTimeValues].indexOf(i.estimatedTime) + 1;
+		const typeRank: number = i.type.length
+			? [...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1 // we add + 1, because the first index of reversed array is 0
+			: 0;
+		const importanceRank: number = i.importance.length
+			? [...Issue.allowedImportanceValues].reverse().indexOf(i.importance) + 1
+			: 0;
+		const urgencyRank: number = i.urgency.length
+			? [...Issue.allowedUrgencyValues].reverse().indexOf(i.urgency) + 1
+			: 0;
+		const difficultyRank: number = i.difficulty.length
+			? [...Issue.allowedDifficultyValues].indexOf(i.difficulty) // we DO NOT ADD + 1, because array starts from empty string
+			: 0;
+		const estimatedTimeRank: number = i.estimatedTime.length
+			? [...Issue.allowedEstimatedTimeValues].indexOf(i.estimatedTime)
+			: 0;
+
 		return {
 			...i,
 			rank:

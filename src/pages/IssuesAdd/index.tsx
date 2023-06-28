@@ -16,11 +16,11 @@ const emptyIssue: Issue.FormData = {
 	projectId: "",
 	title: "",
 	description: "",
-	type: "improvement",
-	importance: "medium",
-	urgency: "medium",
-	estimatedTime: "medium",
-	difficulty: "medium",
+	type: "",
+	importance: "",
+	urgency: "",
+	estimatedTime: "",
+	difficulty: "",
 	status: "open",
 	feature: "",
 	page: "",
@@ -179,7 +179,6 @@ export default function IssuesAdd() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">feature</option>
 								{projects
 									.find((p) => p.id === issueData.projectId)
 									?.features?.map((f) => (
@@ -207,7 +206,6 @@ export default function IssuesAdd() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">page</option>
 								{projects
 									.find((p) => p.id === issueData.projectId)
 									?.pages?.map((p) => (
@@ -235,7 +233,6 @@ export default function IssuesAdd() {
 									color: theme === "light" ? "black" : "white",
 								}}
 							>
-								<option value="">component</option>
 								{projects
 									.find((p) => p.id === issueData.projectId)
 									?.components?.map((c) => (
