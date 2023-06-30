@@ -777,7 +777,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
-	// TODO: reopen/ resolve if it's the case
 	async function addAsAchildTo(issue: Issue.AppIssue, newParentId: string) {
 		if (!newParentId || !newParentId.length || !issue) return;
 
@@ -796,15 +795,52 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			updated: updateTime,
 		};
 
+		const resolvePrevParent: boolean = prevParent
+			? isLastUnresolvedParentIssue(prevParent)
+			: false;
+
+		// update & resolve parent if needed:
 		const updatedPrevParent: Issue.AppIssue | null = prevParent
 			? {
 					...prevParent,
+					status: resolvePrevParent ? "resolved" : prevParent.status,
+					closedAt: resolvePrevParent ? updateTime : null,
 					updated: updateTime,
 					children: prevParent.children
 						? prevParent.children.filter((id) => id !== issue.id)
 						: [],
 			  }
 			: null;
+
+		//================== resolve prev grand parents if needed...
+
+		const grandParentsToResolve: Issue.AppIssue[] = [];
+
+		// helper function:
+		function resolveIssueWithoutUpdatingIssues(issueToResolve: Issue.AppIssue) {
+			const resolvedIssue: Issue.AppIssue = {
+				...issueToResolve,
+				status: "resolved",
+				closedAt: updateTime,
+				updated: updateTime,
+			};
+
+			return resolvedIssue;
+		}
+
+		if (resolvePrevParent) {
+			const grandParents = prevParent ? findAllIssueParents(prevParent) : [];
+
+			grandParents.forEach((g) => {
+				const resolveGrandParent = isLastUnresolvedParentIssue(g);
+
+				if (resolveGrandParent) {
+					grandParentsToResolve.push(resolveIssueWithoutUpdatingIssues(g));
+				}
+			});
+		}
+
+		//=====================================================//
 
 		const beforeIssue = projectIssues.find((i) => i.id === issue.after);
 
@@ -814,12 +850,33 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			(i) => i.id === newParentId
 		) as Issue.AppIssue;
 
+		const reopenNewParent =
+			newParent.status !== "open" && newParent.status !== "in progress";
+
 		const updatedNewParent: Issue.AppIssue = {
 			...newParent,
+			// if parent was closed, reopen it manually:
+			status: reopenNewParent ? "open" : newParent.status,
+			closedAt: null,
+			//=========================================//
+			updated: updateTime,
 			children: newParent.children
 				? [...newParent.children, updatedIssue.id]
 				: [updatedIssue.id],
 		};
+
+		// now reopen potentially existing parent's parents:
+		const reopenedResolvedParents: Issue.AppIssue[] =
+			newParent && reopenNewParent
+				? findAllIssueParents(newParent)
+						.filter((i) => i.status !== "open" && i.status !== "in progress")
+						.map((i) => ({
+							...i,
+							status: "open",
+							updated: updateTime,
+							closedAt: null,
+						}))
+				: [];
 
 		const updatedBefore: Issue.AppIssue | null = beforeIssue
 			? { ...beforeIssue, before: issue.before, updated: updateTime }
@@ -834,13 +891,26 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			...(updatedBefore ? [updatedBefore] : []),
 			...(updatedAfter ? [updatedAfter] : []),
 			...(updatedPrevParent ? [updatedPrevParent] : []),
+			...reopenedResolvedParents,
+			...grandParentsToResolve,
 		];
 
-		updateIssues({ update: updatedIssues });
+		try {
+			await updateIssues({ update: updatedIssues });
+		} catch (error: any) {
+			logError(
+				`An error occurred while adding issue as a child: ${error.message}. Cannot add issue.`
+			);
+		}
 	}
 
-	// TODO: reopen/ resolve if it's the case
 	async function removeFromParent(issue: Issue.AppIssue) {
+		if (issue.status !== "open" && issue.status !== "in progress") {
+			return console.error(
+				"Issue is resolved, so cannnot be removed from parent..."
+			);
+		}
+
 		if (!issue.parent)
 			return console.error(
 				"Issue doesn't have parent, so cannnot be removed from parent..."
@@ -850,13 +920,15 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		console.log("removing issue from parent...");
 
-		//const resolveParent: boolean = isLastUnresolvedParentIssue(parent);
+		const resolveParent: boolean = isLastUnresolvedParentIssue(parent);
 
 		const updateTime = Date.now();
 
 		const updatedParent: Issue.AppIssue = {
 			...parent,
+			status: resolveParent ? "resolved" : parent.status,
 			updated: updateTime,
+			closedAt: resolveParent ? updateTime : null,
 			children: parent.children
 				? parent.children.filter((id) => id !== issue.id)
 				: [],
@@ -865,10 +937,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		const newParent = updatedParent.parent
 			? findIssueById(updatedParent.parent)
 			: null;
-
-		// const reopenNewParent: boolean = newParent
-		// 	? newParent.status !== "open" && newParent.status !== "in progress"
-		// 	: false;
 
 		const updatedNewParent: Issue.AppIssue | null = newParent
 			? {
@@ -906,15 +974,13 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			...(updatedNewParent ? [updatedNewParent] : []),
 		];
 
-		await updateIssues({ update: updatedIssues });
-
-		// if (resolveParent) {
-		// 	await resolveIssue(updatedParent);
-		// }
-
-		// if (updatedNewParent && reopenNewParent) {
-		// 	await reopenIssue(updatedNewParent);
-		// }
+		try {
+			await updateIssues({ update: updatedIssues });
+		} catch (error: any) {
+			logError(
+				`An error occurred while removing issue from a parent: ${error.message}. Cannot remove issue from a parent.`
+			);
+		}
 	}
 
 	// TODO:

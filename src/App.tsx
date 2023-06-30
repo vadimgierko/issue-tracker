@@ -24,8 +24,8 @@ import IssueEdit from "./pages/IssueEdit";
 import Issue from "./pages/Issue";
 import ProjectDetails from "./pages/Project/ProjectDetails";
 import DragAndDropContainer from "./components/DragAndDrop";
-import ProjectIssuesList from "./pages/Project/ProjectList";
 import ProjectIssuesTable from "./pages/Project/ProjectIssuesTable";
+import ProjectIssuesList from "./pages/Project/ProjectIssuesList";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//

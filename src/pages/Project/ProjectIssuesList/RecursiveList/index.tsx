@@ -542,7 +542,7 @@ export default function RecursiveList({
 				: rootIssues.filter((i) => !i.ordered);
 			setRootIssues([...rootIssuesOrdered, ...rootIssuesUnordered]);
 		}
-	}, [issuesToList, root]);
+	}, [issuesToList, root, sortUnorderedIssuesByRank]);
 
 	// useEffect(() => console.log("set over:", over), [over]);
 	// useEffect(() => console.log("set dragging:", dragging), [dragging]);
