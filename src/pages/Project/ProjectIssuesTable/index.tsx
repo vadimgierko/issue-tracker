@@ -4,8 +4,7 @@ import { AiOutlinePlusSquare } from "react-icons/ai";
 import IssuesFilterableTable from "../../Issues/IssuesFilterableTable";
 import createAddIssueLinkWithParams from "../../../lib/createAddIssueLinkWithParams";
 
-// TODO: rename to PROJECT ISSUES TABLE
-export default function ProjectIssues() {
+export default function ProjectIssuesTable() {
 	const { projectId } = useParams<string>();
 	const { issues } = useIssues();
 	const projectIssues = issues.filter((i) => i.projectId === projectId);

@@ -69,9 +69,9 @@ export default function Project() {
 				}
 			>
 				<p className="text-center">
-					<Link to="issues">Issues Table ({projectIssues.length})</Link> |{" "}
+					<Link to="issues-table">Issues Table ({projectIssues.length})</Link> |{" "}
 					<Link to="details">Details</Link> |{" "}
-					<Link to="issues-ordered">Issues List ({projectIssues.length})</Link>
+					<Link to="issues-list">Issues List ({projectIssues.length})</Link>
 				</p>
 			</PageHeader>
 

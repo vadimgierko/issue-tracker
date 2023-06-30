@@ -22,10 +22,10 @@ import Issues from "./pages/Issues";
 import IssuesAdd from "./pages/IssuesAdd";
 import IssueEdit from "./pages/IssueEdit";
 import Issue from "./pages/Issue";
-import ProjectIssues from "./pages/Project/ProjectIssues";
 import ProjectDetails from "./pages/Project/ProjectDetails";
-import ProjectIssuesOrdered from "./pages/Project/ProjectIssuesOrdered";
 import DragAndDropContainer from "./components/DragAndDrop";
+import ProjectIssuesList from "./pages/Project/ProjectList";
+import ProjectIssuesTable from "./pages/Project/ProjectIssuesTable";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -65,16 +65,16 @@ const privateRoutes: RouteObject[] = [
 		element: <Project />,
 		children: [
 			{
-				path: "issues",
-				element: <ProjectIssues />,
+				path: "issues-table",
+				element: <ProjectIssuesTable />,
 			},
 			{
 				path: "details",
 				element: <ProjectDetails />,
 			},
 			{
-				path: "issues-ordered",
-				element: <ProjectIssuesOrdered />,
+				path: "issues-list",
+				element: <ProjectIssuesList />,
 			},
 		],
 	},

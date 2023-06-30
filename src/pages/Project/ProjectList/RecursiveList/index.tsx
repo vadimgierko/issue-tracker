@@ -16,7 +16,13 @@ export default function RecursiveList({
 }) {
 	const navigate = useNavigate();
 	const { projectId } = useParams();
-	const { issues, findIssueById, updateIssues, showClosedIssues, sortUnorderedIssuesByRank } = useIssues();
+	const {
+		issues,
+		findIssueById,
+		updateIssues,
+		showClosedIssues,
+		sortUnorderedIssuesByRank,
+	} = useIssues();
 
 	//==================== D&D ==========================//
 	const [dragging, setDragging] = useState<Issue.AppIssue | null>(null);
@@ -35,10 +41,9 @@ export default function RecursiveList({
 	const [rootIssues, setRootIssues] = useState<Issue.AppIssue[]>([]);
 
 	const rootIssuesOrdered = rootIssues.filter((i) => i.ordered);
-	const rootIssuesUnordered = sortUnorderedIssuesByRank ? rootIssues
-		.filter((i) => !i.ordered)
-		.sort((a, b) => b.rank - a.rank) : rootIssues
-			.filter((i) => !i.ordered)
+	const rootIssuesUnordered = sortUnorderedIssuesByRank
+		? rootIssues.filter((i) => !i.ordered).sort((a, b) => b.rank - a.rank)
+		: rootIssues.filter((i) => !i.ordered);
 
 	const lastOrderedIssue =
 		rootIssuesOrdered && rootIssuesOrdered.length
@@ -181,7 +186,7 @@ export default function RecursiveList({
 						if (
 							key !== "id" &&
 							obj1[key as keyof Issue.AppIssue] !==
-							obj2[key as keyof Issue.AppIssue]
+								obj2[key as keyof Issue.AppIssue]
 						) {
 							return false;
 						}
@@ -240,12 +245,12 @@ export default function RecursiveList({
 				index === 0
 					? { ...item, after: null, before: orderedItems[index + 1].id }
 					: index === orderedItems.length - 1
-						? { ...item, before: null, after: orderedItems[index - 1].id }
-						: {
+					? { ...item, before: null, after: orderedItems[index - 1].id }
+					: {
 							...item,
 							after: orderedItems[index - 1].id,
 							before: orderedItems[index + 1].id,
-						}
+					  }
 		);
 
 		const all: Issue.AppIssue[] = [...orderedItemsConverted, ...unorderedItems];
@@ -277,10 +282,10 @@ export default function RecursiveList({
 
 		const issueAfterUpdated: Issue.AppIssue | null = issueAfter
 			? {
-				...issueAfter,
-				before: convertedIssue.id,
-				updated: convertTime,
-			}
+					...issueAfter,
+					before: convertedIssue.id,
+					updated: convertTime,
+			  }
 			: null;
 
 		const updatedIssuesArray: Issue.AppIssue[] = [
@@ -327,18 +332,18 @@ export default function RecursiveList({
 
 		const issueAfterUpdated: Issue.AppIssue | null = issueAfter
 			? {
-				...issueAfter,
-				before: issueToConvert.before,
-				updated: convertTime,
-			}
+					...issueAfter,
+					before: issueToConvert.before,
+					updated: convertTime,
+			  }
 			: null;
 
 		const issueBeforeUpdated: Issue.AppIssue | null = issueBefore
 			? {
-				...issueBefore,
-				after: issueToConvert.after,
-				updated: convertTime,
-			}
+					...issueBefore,
+					after: issueToConvert.after,
+					updated: convertTime,
+			  }
 			: null;
 
 		const updatedIssuesArray: Issue.AppIssue[] = [
@@ -421,7 +426,7 @@ export default function RecursiveList({
 		if (
 			!issueToMove_DOWN ||
 			rootIssuesOrdered.map((i) => i.id).indexOf(issueId) ===
-			rootIssuesOrdered.length - 1
+				rootIssuesOrdered.length - 1
 		)
 			return;
 
@@ -524,7 +529,7 @@ export default function RecursiveList({
 	// to enable order manipulation on them during onDragOver
 	// without updating issues until onDragEnd:
 	useEffect(() => {
-		// TODO: rootIssues must be 
+		// TODO: rootIssues must be
 		if (issuesToList) {
 			const rootIssues = issuesToList.filter(
 				(i) => !i.parent || i.parent === root
@@ -532,7 +537,9 @@ export default function RecursiveList({
 			const rootIssuesOrdered = listifyIssues(
 				rootIssues.filter((i) => i.ordered)
 			);
-			const rootIssuesUnordered = sortUnorderedIssuesByRank ? rootIssues.filter((i) => !i.ordered).sort((a, b) => b.rank - a.rank) : rootIssues.filter((i) => !i.ordered)
+			const rootIssuesUnordered = sortUnorderedIssuesByRank
+				? rootIssues.filter((i) => !i.ordered).sort((a, b) => b.rank - a.rank)
+				: rootIssues.filter((i) => !i.ordered);
 			setRootIssues([...rootIssuesOrdered, ...rootIssuesUnordered]);
 		}
 	}, [issuesToList, root]);
