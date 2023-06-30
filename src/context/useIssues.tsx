@@ -45,10 +45,10 @@ const IsuesContext = createContext<{
 	setShowRank: React.Dispatch<React.SetStateAction<boolean>>;
 	sortUnorderedIssuesByRank: boolean;
 	setSortUnorderedIssuesByRank: React.Dispatch<React.SetStateAction<boolean>>;
-	findAllIssueChidrenRecursively: (
-		issueToGetChildren: Issue.AppIssue
-	) => Issue.AppIssue[];
+	findAllIssueChidren: (issueToGetChildren: Issue.AppIssue) => Issue.AppIssue[];
 	fetchIssue: (issueId: string) => Promise<void>;
+	addAsAchildTo: (issue: Issue.AppIssue, newParentId: string) => Promise<void>;
+	removeFromParent: (issue: Issue.AppIssue) => Promise<void>;
 } | null>(null);
 
 export default function useIssues() {
@@ -67,16 +67,106 @@ type IssuesProviderProps = {
 
 export function IssuesProvider({ children }: IssuesProviderProps) {
 	const [issues, setIssues] = useState<Issue.AppIssue[]>([]);
+
 	const [showClosedIssues, setShowClosedIssues] = useState(false);
 	const [showRank, setShowRank] = useState(false);
 	const [sortUnorderedIssuesByRank, setSortUnorderedIssuesByRank] =
 		useState(false);
+
 	const { user } = useUser();
 
-	// console.log(
-	// 	"user issues stored in the app (it may be not all user issues, but only some projects' issues only):",
-	// 	issues
-	// );
+	//============================ helper functions =======================//
+
+	function findAllIssueParents(
+		issue: Issue.AppIssue,
+		prevParents: Issue.AppIssue[] = []
+	): Issue.AppIssue[] {
+		const parents = [...prevParents];
+
+		if (!issue || !issue.parent) return parents;
+
+		const parent = findIssueById(issue.parent);
+
+		if (parent) {
+			parents.push(parent);
+			return findAllIssueParents(parent, parents);
+		}
+
+		return parents;
+	}
+
+	function findIssueById(id: string): Issue.AppIssue | null {
+		if (!id) return null;
+		if (!issues || !issues.length) return null;
+
+		const i = issues.find((i) => i.id === id);
+
+		if (!i) return null;
+
+		return i;
+	}
+
+	function findAllIssueChidren(
+		issueToGetChildren: Issue.AppIssue,
+		prevChildren: Issue.AppIssue[] = []
+	) {
+		let children: Issue.AppIssue[] = prevChildren;
+
+		if (!issueToGetChildren) return children;
+		//console.log("looking for children of", issueToGetChildren.title);
+
+		if (
+			!issueToGetChildren.children ||
+			(issueToGetChildren.children && !issueToGetChildren.children.length)
+		)
+			return children;
+
+		issueToGetChildren.children.forEach((i, x) => {
+			const childIssue = findIssueById(i);
+
+			if (childIssue) {
+				if (childIssue.children && childIssue.children.length) {
+					findAllIssueChidren(childIssue, children);
+				}
+
+				children.push(childIssue);
+			}
+		});
+
+		return children;
+	}
+
+	function isLastUnresolvedParentIssue(parent: Issue.AppIssue) {
+		const parentChildren: Issue.AppIssue[] = [];
+
+		if (parent && parent.children) {
+			parent.children.forEach((id) => {
+				const i = findIssueById(id);
+				if (i) {
+					parentChildren.push(i);
+				}
+			});
+		}
+		//console.log(`${issue.title} parent children:`, parentChildren);
+
+		const unresolvedParentChildren = parentChildren.length
+			? parentChildren.filter(
+					(i) => i.status === "open" || i.status === "in progress"
+			  )
+			: [];
+		// console.log(
+		// 	`${issue.title} parent unresolved children:`,
+		// 	unresolvedParentChildren
+		// );
+
+		if (unresolvedParentChildren.length === 1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	//=========================== helper functions END ====================//
 
 	async function fetchIssue(issueId: string) {
 		console.log("fetching issue...");
@@ -230,35 +320,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		const rerankifiedUpdatedIssues = rankifyIssues(appIssuesAfterAdd);
 		setIssues(rerankifiedUpdatedIssues);
-	}
-
-	function findAllIssueParents(
-		issue: Issue.AppIssue,
-		prevParents: Issue.AppIssue[] = []
-	): Issue.AppIssue[] {
-		const parents = [...prevParents];
-
-		if (!issue || !issue.parent) return parents;
-
-		const parent = findIssueById(issue.parent);
-
-		if (parent) {
-			parents.push(parent);
-			return findAllIssueParents(parent, parents);
-		}
-
-		return parents;
-	}
-
-	function findIssueById(id: string): Issue.AppIssue | null {
-		if (!id) return null;
-		if (!issues || !issues.length) return null;
-
-		const i = issues.find((i) => i.id === id);
-
-		if (!i) return null;
-
-		return i;
 	}
 
 	/**
@@ -473,7 +534,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		// when issue has children =>
 		// check recursively, if there are futher grand chidren =>
 		// delete all children & grand children:
-		const children = findAllIssueChidrenRecursively(issue);
+		const children = findAllIssueChidren(issue);
 
 		if (children && children.length) {
 			console.warn(
@@ -543,7 +604,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		if (!issue) return;
 
 		// get recursively all issue chidren:
-		const children = findAllIssueChidrenRecursively(issue);
+		const children = findAllIssueChidren(issue);
 		const unresolvedChildren = children.filter(
 			(ch) => ch.status === "open" || ch.status === "in progress"
 		);
@@ -554,44 +615,13 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		// if false => resolve the issue:
 
 		const parent = issue.parent ? findIssueById(issue.parent) : null;
-		console.log(`${issue.title} parent:`, parent);
-
-		function isLastUnresolvedParentIssue(parent: Issue.AppIssue) {
-			const parentChildren: Issue.AppIssue[] = [];
-
-			if (parent && parent.children) {
-				parent.children.forEach((id) => {
-					const i = findIssueById(id);
-					if (i) {
-						parentChildren.push(i);
-					}
-				});
-			}
-			console.log(`${issue.title} parent children:`, parentChildren);
-
-			const unresolvedParentChildren =
-				parentChildren && parentChildren?.length
-					? parentChildren.filter(
-							(i) => i.status === "open" || i.status === "in progress"
-					  )
-					: [];
-			console.log(
-				`${issue.title} parent unresolved children:`,
-				unresolvedChildren
-			);
-
-			if (unresolvedParentChildren.length === 1) {
-				return true;
-			}
-
-			return false;
-		}
+		//console.log(`${issue.title} parent:`, parent);
 
 		if (parent && isLastUnresolvedParentIssue(parent)) {
-			console.log(
-				"isLastUnresolvedParentIssue?",
-				isLastUnresolvedParentIssue(parent)
-			);
+			// console.log(
+			// 	"isLastUnresolvedParentIssue?",
+			// 	isLastUnresolvedParentIssue(issue, parent)
+			// );
 			resolveIssue(parent);
 		} else {
 			// const confirmToResolveChildrenIfExist =
@@ -652,36 +682,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 				alert(error);
 			}
 		}
-	}
-
-	function findAllIssueChidrenRecursively(
-		issueToGetChildren: Issue.AppIssue,
-		prevChildren: Issue.AppIssue[] = []
-	) {
-		let children: Issue.AppIssue[] = prevChildren;
-
-		if (!issueToGetChildren) return children;
-		//console.log("looking for children of", issueToGetChildren.title);
-
-		if (
-			!issueToGetChildren.children ||
-			(issueToGetChildren.children && !issueToGetChildren.children.length)
-		)
-			return children;
-
-		issueToGetChildren.children.forEach((i, x) => {
-			const childIssue = findIssueById(i);
-
-			if (childIssue) {
-				if (childIssue.children && childIssue.children.length) {
-					findAllIssueChidrenRecursively(childIssue, children);
-				}
-
-				children.push(childIssue);
-			}
-		});
-
-		return children;
 	}
 
 	async function reopenIssue(issue: Issue.AppIssue): Promise<void> {
@@ -777,6 +777,151 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		}
 	}
 
+	// TODO: reopen/ resolve if it's the case
+	async function addAsAchildTo(issue: Issue.AppIssue, newParentId: string) {
+		if (!newParentId || !newParentId.length || !issue) return;
+
+		const projectIssues = issues.filter((i) => i.projectId === issue.projectId);
+
+		const updateTime = Date.now();
+
+		const prevParent = projectIssues.find((i) => i.id === issue.parent);
+
+		const updatedIssue: Issue.AppIssue = {
+			...issue,
+			parent: newParentId,
+			ordered: false,
+			after: null,
+			before: null,
+			updated: updateTime,
+		};
+
+		const updatedPrevParent: Issue.AppIssue | null = prevParent
+			? {
+					...prevParent,
+					updated: updateTime,
+					children: prevParent.children
+						? prevParent.children.filter((id) => id !== issue.id)
+						: [],
+			  }
+			: null;
+
+		const beforeIssue = projectIssues.find((i) => i.id === issue.after);
+
+		const afterIssue = projectIssues.find((i) => i.id === issue.before);
+
+		const newParent = projectIssues.find(
+			(i) => i.id === newParentId
+		) as Issue.AppIssue;
+
+		const updatedNewParent: Issue.AppIssue = {
+			...newParent,
+			children: newParent.children
+				? [...newParent.children, updatedIssue.id]
+				: [updatedIssue.id],
+		};
+
+		const updatedBefore: Issue.AppIssue | null = beforeIssue
+			? { ...beforeIssue, before: issue.before, updated: updateTime }
+			: null;
+		const updatedAfter: Issue.AppIssue | null = afterIssue
+			? { ...afterIssue, after: issue.after, updated: updateTime }
+			: null;
+
+		const updatedIssues = [
+			updatedIssue,
+			updatedNewParent,
+			...(updatedBefore ? [updatedBefore] : []),
+			...(updatedAfter ? [updatedAfter] : []),
+			...(updatedPrevParent ? [updatedPrevParent] : []),
+		];
+
+		updateIssues({ update: updatedIssues });
+	}
+
+	// TODO: reopen/ resolve if it's the case
+	async function removeFromParent(issue: Issue.AppIssue) {
+		if (!issue.parent)
+			return console.error(
+				"Issue doesn't have parent, so cannnot be removed from parent..."
+			);
+
+		const parent = findIssueById(issue.parent) as Issue.AppIssue;
+
+		console.log("removing issue from parent...");
+
+		//const resolveParent: boolean = isLastUnresolvedParentIssue(parent);
+
+		const updateTime = Date.now();
+
+		const updatedParent: Issue.AppIssue = {
+			...parent,
+			updated: updateTime,
+			children: parent.children
+				? parent.children.filter((id) => id !== issue.id)
+				: [],
+		};
+
+		const newParent = updatedParent.parent
+			? findIssueById(updatedParent.parent)
+			: null;
+
+		// const reopenNewParent: boolean = newParent
+		// 	? newParent.status !== "open" && newParent.status !== "in progress"
+		// 	: false;
+
+		const updatedNewParent: Issue.AppIssue | null = newParent
+			? {
+					...newParent,
+					children: newParent.children ? [...newParent.children, issue.id] : [],
+					updated: updateTime,
+			  }
+			: null;
+
+		const beforeIssue = issue.after ? findIssueById(issue.after) : null;
+
+		const afterIssue = issue.before ? findIssueById(issue.before) : null;
+
+		const updatedIssue: Issue.AppIssue = {
+			...issue,
+			parent: parent.parent,
+			ordered: false,
+			before: null,
+			after: null,
+			updated: updateTime,
+		};
+
+		const updatedBefore: Issue.AppIssue | null = beforeIssue
+			? { ...beforeIssue, before: issue.before, updated: updateTime }
+			: null;
+		const updatedAfter: Issue.AppIssue | null = afterIssue
+			? { ...afterIssue, after: issue.after, updated: updateTime }
+			: null;
+
+		const updatedIssues = [
+			updatedIssue,
+			updatedParent,
+			...(updatedBefore ? [updatedBefore] : []),
+			...(updatedAfter ? [updatedAfter] : []),
+			...(updatedNewParent ? [updatedNewParent] : []),
+		];
+
+		await updateIssues({ update: updatedIssues });
+
+		// if (resolveParent) {
+		// 	await resolveIssue(updatedParent);
+		// }
+
+		// if (updatedNewParent && reopenNewParent) {
+		// 	await reopenIssue(updatedNewParent);
+		// }
+	}
+
+	// TODO:
+	async function removeFromAllParents(issue: Issue.AppIssue) {
+		return console.error("not implemented yet...");
+	}
+
 	// clear state when user is logged out:
 	useEffect(() => {
 		if (!user) {
@@ -797,12 +942,14 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		setToInProgressIssue,
 		showClosedIssues,
 		setShowClosedIssues,
-		findAllIssueChidrenRecursively,
+		findAllIssueChidren,
 		fetchIssue,
 		showRank,
 		setShowRank,
 		setSortUnorderedIssuesByRank,
 		sortUnorderedIssuesByRank,
+		addAsAchildTo,
+		removeFromParent,
 	};
 
 	return (

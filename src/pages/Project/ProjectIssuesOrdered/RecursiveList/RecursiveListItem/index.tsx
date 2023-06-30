@@ -1,6 +1,8 @@
 import { Badge, Dropdown, Form } from "react-bootstrap";
 import {
+	BsArrow90DegLeft,
 	BsArrowDown,
+	BsArrowReturnLeft,
 	BsArrowReturnRight,
 	BsArrowRight,
 	BsArrowUp,
@@ -61,53 +63,13 @@ export default function RecursiveListItem({
 		resolveIssue,
 		setToInProgressIssue,
 		showRank,
-		findAllIssueChidrenRecursively,
-		updateIssues,
+		findAllIssueChidren,
+		addAsAchildTo,
+		removeFromParent,
 	} = useIssues();
 
 	const { projectId } = useParams();
 	const projectIssues = issues.filter((i) => i.projectId === projectId);
-
-	async function addAsAchildTo(newParentId: string) {
-		const updatedIssue: Issue.AppIssue = {
-			...i,
-			parent: newParentId,
-			ordered: false,
-			after: null,
-			before: null,
-		};
-
-		const beforeIssue = projectIssues.find((i) => i.id === i.after);
-
-		const afterIssue = projectIssues.find((i) => i.id === i.before);
-
-		const newParent = projectIssues.find(
-			(i) => i.id === newParentId
-		) as Issue.AppIssue;
-
-		const updatedNewParent: Issue.AppIssue = {
-			...newParent,
-			children: newParent.children
-				? [...newParent.children, updatedIssue.id]
-				: [updatedIssue.id],
-		};
-
-		const updatedBefore: Issue.AppIssue | null = beforeIssue
-			? { ...beforeIssue, before: i.before }
-			: null;
-		const updatedAfter: Issue.AppIssue | null = afterIssue
-			? { ...afterIssue, after: i.after }
-			: null;
-
-		const updatedIssues = [
-			updatedIssue,
-			updatedNewParent,
-			...(updatedBefore ? [updatedBefore] : []),
-			...(updatedAfter ? [updatedAfter] : []),
-		];
-
-		updateIssues({ update: updatedIssues });
-	}
 
 	return (
 		<li>
@@ -151,12 +113,12 @@ export default function RecursiveListItem({
 						className={`ms-1 text-${theme}`}
 					>
 						{
-							findAllIssueChidrenRecursively(i).filter(
+							findAllIssueChidren(i).filter(
 								(child) =>
 									child.status !== "open" && child.status !== "in progress"
 							).length
 						}
-						/{findAllIssueChidrenRecursively(i).length}
+						/{findAllIssueChidren(i).length}
 					</Badge>
 				) : (
 					""
@@ -231,20 +193,27 @@ export default function RecursiveListItem({
 
 						<Form.Select
 							onChange={(e) => {
-								console.log(e.target.value);
-
 								const newParentId = e.target.value;
-
-								addAsAchildTo(newParentId);
+								addAsAchildTo(i, newParentId);
 							}}
 						>
 							<option value="">add as a child to:</option>
-							{projectIssues.map((i) => (
-								<option value={i.id} key={i.id}>
-									{i.title}
-								</option>
-							))}
+							{projectIssues
+								.filter((issue) => issue.id !== i.id)
+								.map((i) => (
+									<option value={i.id} key={i.id}>
+										{i.title}
+									</option>
+								))}
 						</Form.Select>
+
+						<Dropdown.Divider />
+
+						{i.parent && (
+							<Dropdown.Item onClick={() => removeFromParent(i)}>
+								<BsArrow90DegLeft /> remove from parent
+							</Dropdown.Item>
+						)}
 
 						<Dropdown.Divider />
 

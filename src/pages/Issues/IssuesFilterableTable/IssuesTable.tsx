@@ -30,7 +30,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 		reopenIssue,
 		resolveIssue,
 		setToInProgressIssue,
-		findAllIssueChidrenRecursively,
+		findAllIssueChidren,
 	} = useIssues();
 
 	// all issues have same status,
@@ -112,11 +112,11 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 									className={`me-1 text-${theme}`}
 								>
 									{
-										findAllIssueChidrenRecursively(issue).filter(
+										findAllIssueChidren(issue).filter(
 											(i) => i.status !== "open" && i.status !== "in progress"
 										).length
 									}
-									/{findAllIssueChidrenRecursively(issue).length}
+									/{findAllIssueChidren(issue).length}
 								</Badge>
 							) : (
 								""
