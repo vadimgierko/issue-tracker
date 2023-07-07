@@ -79,7 +79,7 @@ export default function ProjectsAdd() {
 					required={false}
 				/>
 
-				<div className="mb-3">
+				{/* <div className="mb-3">
 					<hr />
 					<p>
 						<strong>Features</strong>:{" "}
@@ -240,7 +240,7 @@ export default function ProjectsAdd() {
 							Add component
 						</Button>
 					</InputGroup>
-				</div>
+				</div> */}
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">

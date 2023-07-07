@@ -41,8 +41,8 @@ export default function Issue() {
 							className="me-1"
 						>
 							{issue.type}
-						</Badge>
-						{issue.feature && (
+						</Badge>{" "}
+						{/* {issue.feature && (
 							<Badge bg="secondary" className="me-1">
 								{issue.feature}
 							</Badge>
@@ -54,7 +54,7 @@ export default function Issue() {
 						)}
 						{issue.component && (
 							<Badge bg="secondary">{`<${issue.component} />`}</Badge>
-						)}{" "}
+						)} */}
 						in <Link to={"/projects/" + project.id}>{project.title}</Link>
 					</p>
 					<div className="mt-3">

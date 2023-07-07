@@ -116,9 +116,35 @@ export default function IssuesFilterForm({
 						</FloatingLabel>
 					</Col>
 				))}
+
+				<Col>
+					<Button
+						variant="secondary"
+						type="button"
+						onClick={() => {
+							resetFilterFormData();
+							// TODO: REFACTOR THIS:
+							setIssueRealtedFilterFormData({
+								type: "",
+								urgency: "",
+								importance: "",
+								estimatedTime: "",
+								difficulty: "",
+							});
+
+							setProjectReleatedFilterFormData({
+								feature: "",
+								page: "",
+								component: "",
+							});
+						}}
+					>
+						<MdOutlineCancel />
+					</Button>
+				</Col>
 			</Row>
 
-			{projectId && (
+			{/* {projectId && (
 				<Row
 					className="justify-content-md-center align-items-center justify-content-xs-start"
 					xs="auto"
@@ -183,34 +209,8 @@ export default function IssuesFilterForm({
 							</FloatingLabel>
 						</Col>
 					))}
-
-					<Col>
-						<Button
-							variant="secondary"
-							type="button"
-							onClick={() => {
-								resetFilterFormData();
-								// TODO: REFACTOR THIS:
-								setIssueRealtedFilterFormData({
-									type: "",
-									urgency: "",
-									importance: "",
-									estimatedTime: "",
-									difficulty: "",
-								});
-
-								setProjectReleatedFilterFormData({
-									feature: "",
-									page: "",
-									component: "",
-								});
-							}}
-						>
-							<MdOutlineCancel />
-						</Button>
-					</Col>
 				</Row>
-			)}
+			)} */}
 		</Form>
 	);
 }

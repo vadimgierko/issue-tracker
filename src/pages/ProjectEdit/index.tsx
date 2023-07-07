@@ -116,7 +116,7 @@ export default function ProjectEdit() {
 					required={false}
 				/>
 
-				<div className="mb-3">
+				{/* <div className="mb-3">
 					<hr />
 					<p>
 						<strong>Features</strong>:{" "}
@@ -277,7 +277,7 @@ export default function ProjectEdit() {
 							Add component
 						</Button>
 					</InputGroup>
-				</div>
+				</div> */}
 
 				<div className="d-grid gap-2">
 					<Button variant="primary" type="submit">

@@ -23,8 +23,8 @@ export default function ProjectDetails() {
 				<strong>Description</strong>:
 			</p>
 			<MarkdownRenderer markdown={project.description} />
-			<hr />
-			{["features", "pages", "components"].map((x) => (
+			{/* <hr />
+			 {["features", "pages", "components"].map((x) => (
 				<div key={x}>
 					<p>
 						<strong>
@@ -39,7 +39,7 @@ export default function ProjectDetails() {
 						))}
 					</p>
 				</div>
-			))}
+			))} */}
 		</>
 	);
 }

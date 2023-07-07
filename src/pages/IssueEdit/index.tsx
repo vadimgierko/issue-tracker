@@ -109,32 +109,7 @@ export default function IssueEdit() {
 					required={false}
 				/>
 
-				<Row>
-					<Col xs={12} md="auto" className="mb-2">
-						<FloatingLabel label="type" className="mb-3">
-							<Form.Select
-								value={updatedIssue.type}
-								onChange={(e) =>
-									setUpdatedIssue({
-										...updatedIssue,
-										type: e.target.value as Issue.Type,
-									})
-								}
-								style={{
-									backgroundColor:
-										theme === "light" ? "white" : "rgb(13, 17, 23)",
-									color: theme === "light" ? "black" : "white",
-								}}
-							>
-								{Issue.allowedTypeValues.map((type) => (
-									<option value={type} key={type}>
-										{type}
-									</option>
-								))}
-							</Form.Select>
-						</FloatingLabel>
-					</Col>
-
+				{/* <Row>
 					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="feature" className="mb-3">
 							<Form.Select
@@ -215,9 +190,34 @@ export default function IssueEdit() {
 							</Form.Select>
 						</FloatingLabel>
 					</Col>
-				</Row>
+				</Row> */}
 
 				<Row>
+					<Col xs={12} md="auto" className="mb-2">
+						<FloatingLabel label="type" className="mb-3">
+							<Form.Select
+								value={updatedIssue.type}
+								onChange={(e) =>
+									setUpdatedIssue({
+										...updatedIssue,
+										type: e.target.value as Issue.Type,
+									})
+								}
+								style={{
+									backgroundColor:
+										theme === "light" ? "white" : "rgb(13, 17, 23)",
+									color: theme === "light" ? "black" : "white",
+								}}
+							>
+								{Issue.allowedTypeValues.map((type) => (
+									<option value={type} key={type}>
+										{type}
+									</option>
+								))}
+							</Form.Select>
+						</FloatingLabel>
+					</Col>
+
 					<Col xs={12} md={true} className="mb-2">
 						<FloatingLabel label="importance" className="mb-3">
 							<Form.Select

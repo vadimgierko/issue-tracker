@@ -127,7 +127,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 							>
 								{issue.type}
 							</Badge>
-							{issue.feature && (
+							{/* {issue.feature && (
 								<Badge bg="secondary" className="me-1">
 									{issue.feature}
 								</Badge>
@@ -141,7 +141,7 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 								<Badge bg="secondary" className="me-1">
 									{`<${issue.component} />`}
 								</Badge>
-							)}
+							)} */}
 							<br />
 							<span className="text-muted">
 								{issuesStatus === "open"
