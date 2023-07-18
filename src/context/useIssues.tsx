@@ -7,6 +7,7 @@ import {
 	writeBatch,
 	arrayUnion,
 	arrayRemove,
+	onSnapshot,
 } from "firebase/firestore";
 import useUser from "./useUser";
 import { Issue } from "../interfaces/Issue";
@@ -46,7 +47,6 @@ const IsuesContext = createContext<{
 	sortUnorderedIssuesByRank: boolean;
 	setSortUnorderedIssuesByRank: React.Dispatch<React.SetStateAction<boolean>>;
 	findAllIssueChidren: (issueToGetChildren: Issue.AppIssue) => Issue.AppIssue[];
-	fetchIssue: (issueId: string) => Promise<void>;
 	addAsAchildTo: (issue: Issue.AppIssue, newParentId: string) => Promise<void>;
 	removeFromParent: (issue: Issue.AppIssue) => Promise<void>;
 } | null>(null);
@@ -167,40 +167,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	}
 
 	//=========================== helper functions END ====================//
-
-	async function fetchIssue(issueId: string) {
-		console.log("fetching issue...");
-		if (!user || !issueId)
-			return console.error(
-				"no logged user or no issue id... can not fetch issue"
-			);
-
-		if (issues.find((i) => i.id === issueId))
-			return console.warn(
-				`Issue with ${issueId} is already fetched. No need to fetch again.`
-			);
-
-		try {
-			const docRef = doc(firestore, "issues", issueId);
-			const docSnap = await getDoc(docRef);
-
-			if (docSnap.exists()) {
-				const fetchedIssue: Issue.DbIssue = docSnap.data() as Issue.DbIssue;
-				console.log("Document data:", docSnap.data());
-				const rankifiedIssue = rankifyIssue(fetchedIssue);
-
-				if (rankifiedIssue) {
-					setIssues([...issues, rankifiedIssue]);
-				}
-			} else {
-				// docSnap.data() will be undefined in this case
-				console.log("Found no issue with the id:", issueId);
-			}
-		} catch (error: any) {
-			console.error(error);
-			alert(error);
-		}
-	}
 
 	/**
 	 * This is a reusable function, that uses writeBatch(),
@@ -988,9 +954,66 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		return console.error("not implemented yet...");
 	}
 
-	// clear state when user is logged out:
+	// fetch /user-issues/userId doc
+	// & listen to changes =>
+	// convert into Issue.AppIssue[]
+	// setIssues()
 	useEffect(() => {
-		if (!user) {
+		function fetchIssues(userId: string) {
+			console.log(`Fetching user issues...`);
+
+			interface IssuesDocObject {
+				[key: string]: Issue.DbIssue;
+			}
+
+			const unsubscribeUserIssues = onSnapshot(
+				doc(firestore, `user-issues`, userId),
+				(snapshot) => {
+					const data = snapshot.data() as IssuesDocObject;
+
+					if (data) {
+						if (Object.keys(data).length) {
+							console.log(`Fetched user's issues doc object:`, data);
+
+							//================ Calculate size of fetched document in bytes ============//
+							const jsonString = JSON.stringify(data);
+							const docSizeInBytes = jsonString.length * 4;
+
+							// Calculate percentage of 1 MiB used by the document
+							const oneMiBInBytes = 1024 * 1024;
+							const percentageUsed = (docSizeInBytes / oneMiBInBytes) * 100;
+
+							console.log(`Issues document size: ${docSizeInBytes} bytes`);
+							console.log(
+								`Percentage of 1 MiB used by issues doc: ${percentageUsed.toFixed(
+									2
+								)}%`
+							);
+
+							//==========================================================================//
+
+							const convertedAndRankifiedIssues: Issue.AppIssue[] = Object.keys(
+								data
+							).map((id) => rankifyIssue(data[id]));
+
+							setIssues(convertedAndRankifiedIssues);
+						} else {
+							console.warn("There is no user items...");
+							setIssues([]);
+						}
+					} else {
+						console.warn("There is no user issues data at all...");
+						setIssues([]);
+					}
+				}
+			);
+
+			return () => unsubscribeUserIssues();
+		}
+
+		if (user) {
+			fetchIssues(user.uid);
+		} else {
 			setIssues([]);
 		}
 	}, [user]);
@@ -1009,7 +1032,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		showClosedIssues,
 		setShowClosedIssues,
 		findAllIssueChidren,
-		fetchIssue,
 		showRank,
 		setShowRank,
 		setSortUnorderedIssuesByRank,

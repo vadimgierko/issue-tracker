@@ -62,13 +62,13 @@ async function signUp(
 		const userRef = doc(firestore, "users", newUser.uid);
 		batch.set(userRef, updatedUserDataWithUid);
 
-		// init user project ids doc in /user-projects collection:
+		// init /user-projects collection:
 		const userProjectsRef = doc(firestore, "user-projects", newUser.uid);
-		batch.set(userProjectsRef, { projectsIds: [] });
+		batch.set(userProjectsRef, {});
 
-		// init user issues ids doc in /user-issues collection:
+		// init /user-issues collection:
 		const userIssuesRef = doc(firestore, "user-issues", newUser.uid);
-		batch.set(userIssuesRef, { issuesIds: [] });
+		batch.set(userIssuesRef, {});
 
 		// Commit the batch
 		await batch.commit();
@@ -230,9 +230,7 @@ async function changeEmail(
  */
 
 async function deleteUserAccount(
-	authUser: FirebaseUser | null = auth.currentUser,
-	deletedUserProjects: Project.Project[],
-	deletedUserIssues: Issue.AppIssue[]
+	authUser: FirebaseUser | null = auth.currentUser
 ): Promise<void> {
 	try {
 		if (!authUser) {
@@ -250,31 +248,13 @@ async function deleteUserAccount(
 		const userRef = doc(firestore, "users", deletedUserId);
 		batch.delete(userRef);
 
-		// delete user project ids doc from /user-projects collection:
+		// delete /user-projects collection:
 		const userProjectsRef = doc(firestore, "user-projects", deletedUserId);
 		batch.delete(userProjectsRef);
 
-		// delete user issues ids doc in /user-issues collection:
+		// delete /user-issues collection:
 		const userIssuesRef = doc(firestore, "user-issues", deletedUserId);
 		batch.delete(userIssuesRef);
-
-		// delete user's issues from /issues
-		deletedUserIssues.forEach((i) => {
-			const issueRef = doc(firestore, "issues", i.id);
-			batch.delete(issueRef);
-		});
-
-		// delete user's projects from /projects
-		deletedUserProjects.forEach((p) => {
-			const projectRef = doc(firestore, "projects", p.id);
-			batch.delete(projectRef);
-		});
-
-		// delete user's projects from /project-issues
-		deletedUserProjects.forEach((p) => {
-			const projectIssuesRef = doc(firestore, "project-issues", p.id);
-			batch.delete(projectIssuesRef);
-		});
 
 		await batch.commit();
 
@@ -292,11 +272,7 @@ async function deleteUserAccount(
 			// Require user to sign in again:
 			await reauthenticateUser();
 			// then try to delete user account:
-			return deleteUserAccount(
-				authUser,
-				deletedUserProjects,
-				deletedUserIssues
-			);
+			return deleteUserAccount(authUser);
 		} else {
 			console.error(
 				`Error message deleteUserAccount(): ${error.message}. Error code: ${error.code}`

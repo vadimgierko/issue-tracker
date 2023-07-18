@@ -8,14 +8,10 @@ import { Project } from "../../interfaces/Project";
 import useTheme from "../../context/useTheme";
 import { useState } from "react";
 import MarkdownTextAreaField from "../../components/MarkdownTextAreaField";
-import { Badge, InputGroup } from "react-bootstrap";
 
 const emptyProject: Project.Data = {
 	title: "",
 	description: "",
-	features: [],
-	pages: [],
-	components: [],
 };
 
 export default function ProjectsAdd() {
@@ -23,10 +19,6 @@ export default function ProjectsAdd() {
 	const [projectData, setProjectData] = useState<Project.Data>(emptyProject);
 	const { addProject } = useProjects();
 	const navigate = useNavigate();
-
-	const [newFeature, setNewFeature] = useState<string>("");
-	const [newPage, setNewPage] = useState<string>("");
-	const [newComponent, setNewComponent] = useState<string>("");
 
 	async function handleAddProject(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -79,175 +71,25 @@ export default function ProjectsAdd() {
 					required={false}
 				/>
 
-				{/* <div className="mb-3">
-					<hr />
-					<p>
-						<strong>Features</strong>:{" "}
-						{projectData.features.length
-							? projectData.features.map((f) => (
-									<Badge key={f} className="me-1">
-										{f}{" "}
-										<span
-											onClick={() =>
-												setProjectData({
-													...projectData,
-													features: projectData.features.filter(
-														(feature) => feature !== f
-													),
-												})
-											}
-											className="bg-danger px-1"
-											style={{ cursor: "pointer" }}
-										>
-											X
-										</span>
-									</Badge>
-							  ))
-							: "There are no project's features yet... Add some!"}
-					</p>
-					<InputGroup className="mb-3">
-						<Form.Control
-							value={newFeature}
-							placeholder="add new feature here"
-							onChange={(e) => setNewFeature(e.target.value)}
-							style={{
-								backgroundColor:
-									theme === "light" ? "white" : "rgb(13, 17, 23)",
-								color: theme === "light" ? "black" : "white",
-							}}
-						/>
-						<Button
-							variant="outline-secondary"
-							type="button"
-							onClick={() => {
-								if (newFeature) {
-									setProjectData({
-										...projectData,
-										features: [...projectData.features, newFeature],
-									});
-									setNewFeature("");
-								}
-							}}
-						>
-							Add feature
-						</Button>
-					</InputGroup>
-				</div>
-
-				<div className="mb-3">
-					<hr />
-					<p>
-						<strong>Pages</strong>:{" "}
-						{projectData.pages.length
-							? projectData.pages.map((p) => (
-									<Badge key={p} className="me-1">
-										{p}{" "}
-										<span
-											onClick={() =>
-												setProjectData({
-													...projectData,
-													pages: projectData.pages.filter((page) => page !== p),
-												})
-											}
-											className="bg-danger px-1"
-											style={{ cursor: "pointer" }}
-										>
-											X
-										</span>
-									</Badge>
-							  ))
-							: "There are no project's pages yet... Add some!"}
-					</p>
-					<InputGroup className="mb-3">
-						<Form.Control
-							value={newPage}
-							placeholder="add new page here"
-							onChange={(e) => setNewPage(e.target.value)}
-							style={{
-								backgroundColor:
-									theme === "light" ? "white" : "rgb(13, 17, 23)",
-								color: theme === "light" ? "black" : "white",
-							}}
-						/>
-						<Button
-							variant="outline-secondary"
-							type="button"
-							onClick={() => {
-								if (newPage) {
-									setProjectData({
-										...projectData,
-										pages: [...projectData.pages, newPage],
-									});
-									setNewPage("");
-								}
-							}}
-						>
-							Add page
-						</Button>
-					</InputGroup>
-				</div>
-
-				<div className="mb-3">
-					<hr />
-					<p>
-						<strong>Components</strong>:{" "}
-						{projectData.components.length
-							? projectData.components.map((c) => (
-									<Badge key={c} className="me-1">
-										{c}{" "}
-										<span
-											onClick={() =>
-												setProjectData({
-													...projectData,
-													components: projectData.components.filter(
-														(component) => component !== c
-													),
-												})
-											}
-											className="bg-danger px-1"
-											style={{ cursor: "pointer" }}
-										>
-											X
-										</span>
-									</Badge>
-							  ))
-							: "There are no project's components yet... Add some!"}
-					</p>
-					<InputGroup className="mb-3">
-						<Form.Control
-							value={newComponent}
-							placeholder="add new component here"
-							onChange={(e) => setNewComponent(e.target.value)}
-							style={{
-								backgroundColor:
-									theme === "light" ? "white" : "rgb(13, 17, 23)",
-								color: theme === "light" ? "black" : "white",
-							}}
-						/>
-						<Button
-							variant="outline-secondary"
-							type="button"
-							onClick={() => {
-								if (newComponent) {
-									setProjectData({
-										...projectData,
-										components: [...projectData.components, newComponent],
-									});
-									setNewComponent("");
-								}
-							}}
-						>
-							Add component
-						</Button>
-					</InputGroup>
-				</div> */}
-
-				<div className="d-grid gap-2">
+				<div className="d-grid">
 					<Button variant="primary" type="submit">
 						add project
 					</Button>
 				</div>
 			</Form>
+
+			<div className="d-grid mt-3">
+				<Button
+					variant="outline-secondary"
+					onClick={() => {
+						// clear edit data:
+						clearForm();
+						navigate(-1);
+					}}
+				>
+					cancel
+				</Button>
+			</div>
 		</>
 	);
 }

@@ -62,10 +62,6 @@ export default function NavigationBar() {
 							Markdown guide
 						</Nav.Link>
 
-						{/* <LinkContainer to="/drag-and-drop">
-							<Nav.Link>D&D</Nav.Link>
-						</LinkContainer> */}
-
 						{user && (
 							<>
 								<hr />
@@ -80,8 +76,7 @@ export default function NavigationBar() {
 								</LinkContainer>
 
 								<LinkContainer to="/issues">
-									{/* <Nav.Link>Issues ({issues.length})</Nav.Link> */}
-									<Nav.Link>Issues</Nav.Link>
+									<Nav.Link>Issues ({issues.length})</Nav.Link>
 								</LinkContainer>
 								<LinkContainer
 									to={createAddIssueLinkWithParams(

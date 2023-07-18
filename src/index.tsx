@@ -9,7 +9,6 @@ import { ThemeProvider } from "./context/useTheme";
 import { ProjectsProvider } from "./context/useProjects";
 import { MaxWidthProvider } from "./context/useMaxWidth";
 import { IssuesProvider } from "./context/useIssues";
-import { RootContextProvider } from "./context/useRootContext";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -22,9 +21,7 @@ root.render(
 				<UserProvider>
 					<IssuesProvider>
 						<ProjectsProvider>
-							<RootContextProvider>
-								<App />
-							</RootContextProvider>
+							<App />
 						</ProjectsProvider>
 					</IssuesProvider>
 				</UserProvider>
