@@ -4,16 +4,9 @@ import PageHeader from "../../components/Layout/PageHeader";
 import IssuesFilterableTable from "./IssuesFilterableTable";
 import { AiOutlinePlusSquare } from "react-icons/ai";
 import createAddIssueLinkWithParams from "../../lib/createAddIssueLinkWithParams";
-import useRootContext from "../../context/useRootContext";
-import { useEffect } from "react";
 
 export default function Issues() {
 	const { issues } = useIssues();
-	const { fetchAllIssues } = useRootContext();
-
-	useEffect(() => {
-		fetchAllIssues();
-	}, []);
 
 	function NoIssues() {
 		return <p className="text-center">There are no issues... Add one!</p>;

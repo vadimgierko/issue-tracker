@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
 import useProjects from "../../../context/useProjects";
-import { Badge } from "react-bootstrap";
 import MarkdownRenderer from "../../../components/MarkdownRenderer";
-import { Project } from "../../../interfaces/Project";
 
 export default function ProjectDetails() {
 	const { projectId } = useParams();
@@ -23,23 +21,6 @@ export default function ProjectDetails() {
 				<strong>Description</strong>:
 			</p>
 			<MarkdownRenderer markdown={project.description} />
-			{/* <hr />
-			 {["features", "pages", "components"].map((x) => (
-				<div key={x}>
-					<p>
-						<strong>
-							{x} ({project[x as keyof Project.Project].length})
-						</strong>
-					</p>
-					<p>
-						{(project[x as keyof Project.Project] as string[]).map((f) => (
-							<Badge key={f} className="me-1">
-								{f}
-							</Badge>
-						))}
-					</p>
-				</div>
-			))} */}
 		</>
 	);
 }

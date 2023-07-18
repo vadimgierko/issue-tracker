@@ -1,19 +1,11 @@
 import { Link } from "react-router-dom";
 import useProjects from "../../context/useProjects";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 
 export default function Projects() {
-	const { projects, loading, deleteProject } = useProjects();
-
-	function Loading() {
-		return (
-			<div className="text-center">
-				<Spinner />
-			</div>
-		);
-	}
+	const { projects, deleteProject } = useProjects();
 
 	async function handleDeleteProject(projectId: string) {
 		if (!projectId)
@@ -62,13 +54,7 @@ export default function Projects() {
 				</div>
 			</PageHeader>
 
-			{loading ? (
-				<Loading />
-			) : projects && projects.length ? (
-				<ProjectsList />
-			) : (
-				<NoProjects />
-			)}
+			{projects && projects.length ? <ProjectsList /> : <NoProjects />}
 		</>
 	);
 }
