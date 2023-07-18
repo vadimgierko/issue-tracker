@@ -127,21 +127,6 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
 							>
 								{issue.type}
 							</Badge>
-							{/* {issue.feature && (
-								<Badge bg="secondary" className="me-1">
-									{issue.feature}
-								</Badge>
-							)}
-							{issue.page && (
-								<Badge bg="secondary" className="me-1">
-									{"/" + issue.page}
-								</Badge>
-							)}
-							{issue.component && (
-								<Badge bg="secondary" className="me-1">
-									{`<${issue.component} />`}
-								</Badge>
-							)} */}
 							<br />
 							<span className="text-muted">
 								{issuesStatus === "open"

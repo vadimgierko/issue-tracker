@@ -3,7 +3,7 @@ import { Issue } from "../interfaces/Issue";
 export default function rankifyIssues(
 	issues: Issue.DbIssue[] | Issue.AppIssue[],
 	sort: boolean = false
-) {
+): Issue.AppIssue[] {
 	const rankifiedIssues: Issue.AppIssue[] = issues.map((i) => {
 		const typeRank: number = i.type.length
 			? [...Issue.allowedTypeValues].reverse().indexOf(i.type) + 1 // we add + 1, because the first index of reversed array is 0

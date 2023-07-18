@@ -211,7 +211,7 @@ export default function RecursiveList({
 
 		try {
 			if (changedIssues.length) {
-				await updateIssues({ update: changedIssues });
+				await updateIssues({ itemsToUpdate: changedIssues });
 				console.log(
 					`issues were successfully updated after an issue ${dragging.title} was dragged`,
 					changedIssues
@@ -294,7 +294,7 @@ export default function RecursiveList({
 		];
 
 		try {
-			await updateIssues({ update: updatedIssuesArray });
+			await updateIssues({ itemsToUpdate: updatedIssuesArray });
 			console.log(
 				"issues were updated succsessfully after converting issue to ordered:,",
 				updatedIssuesArray
@@ -353,7 +353,7 @@ export default function RecursiveList({
 		];
 
 		try {
-			await updateIssues({ update: updatedIssuesArray });
+			await updateIssues({ itemsToUpdate: updatedIssuesArray });
 
 			console.log(
 				"issues were updated succsessfully after converting issue to unordered:",
@@ -408,7 +408,7 @@ export default function RecursiveList({
 		];
 
 		try {
-			await updateIssues({ update: updatedIssuesArray });
+			await updateIssues({ itemsToUpdate: updatedIssuesArray });
 			console.log(
 				"issues were successfully updated after an issue moved up:",
 				updatedIssuesArray
@@ -465,7 +465,7 @@ export default function RecursiveList({
 		];
 
 		try {
-			await updateIssues({ update: updatedIssuesArray });
+			await updateIssues({ itemsToUpdate: updatedIssuesArray });
 			console.log(
 				"issues were successfully updated after an issue moved up:",
 				updatedIssuesArray

@@ -3,30 +3,27 @@ import { firestore } from "../firebaseConfig";
 import {
 	collection,
 	doc,
-	getDoc,
-	writeBatch,
-	arrayUnion,
-	arrayRemove,
 	onSnapshot,
+	deleteField,
+	updateDoc,
 } from "firebase/firestore";
 import useUser from "./useUser";
 import { Issue } from "../interfaces/Issue";
 import logError from "../lib/logError";
 import rankifyIssue from "../lib/rankifyIssue";
-import unrankifyIssue from "../lib/unrankifyIssue";
-import rankifyIssues from "../lib/rankifyIssues";
-
-type UpdateIssuesProps = {
-	add?: Issue.AppIssue[];
-	update?: Issue.AppIssue[];
-	delete?: Issue.AppIssue[];
-};
 
 const IsuesContext = createContext<{
 	issues: Issue.AppIssue[];
-	setIssues: React.Dispatch<React.SetStateAction<Issue.AppIssue[]>>;
 	findIssueById: (id: string) => Issue.AppIssue | null;
-	updateIssues: (props: UpdateIssuesProps) => Promise<void>;
+	updateIssues: ({
+		itemsToAdd,
+		itemsIdsToDelete,
+		itemsToUpdate,
+	}: {
+		itemsToAdd?: Issue.DbIssue[] | undefined;
+		itemsIdsToDelete?: string[] | undefined;
+		itemsToUpdate?: Issue.AppIssue[] | undefined;
+	}) => Promise<void>;
 	addIssue: (
 		issueData: Issue.FormData,
 		projectId: string,
@@ -169,123 +166,42 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	//=========================== helper functions END ====================//
 
 	/**
-	 * This is a reusable function, that uses writeBatch(),
-	 * so all passed issues will be deleted, added or updated
-	 * in 1 single batch.
-	 *
-	 * It cares about deleting issues from all related collections
-	 * & adding issues to all related collections.
-	 *
-	 * Also it updates app state automatically.
-	 *
-	 * So just pass all issues that need to be added, deleted or updated
-	 * via add, delete or update prop
-	 * and updateIssues() will take care of them.
-	 *
-	 * NOTE: you need to pass issues with updateTime!
-	 *
-	 * @param {UpdateIssuesProps} props {add?: Issue.AppIssue[], update?: Issue.AppIssue[], delete?: Issue.AppIssue[]}.
-	 *
+	 * WARNING: new & updated items should have current timestamps & all props updated!
 	 */
-	async function updateIssues(props: UpdateIssuesProps) {
-		console.log("issues to update:", props);
+	async function updateIssues({
+		itemsToAdd = [],
+		itemsIdsToDelete = [],
+		itemsToUpdate = [],
+	}: {
+		itemsToAdd?: Issue.DbIssue[];
+		itemsIdsToDelete?: string[];
+		itemsToUpdate?: Issue.AppIssue[];
+	}) {
+		if (!user) return;
 
-		if (!user || (user && !user.uid))
-			return logError("You need to be logged to update issues. Log in!");
+		try {
+			const userItemsRef = doc(firestore, "user-issues", user.uid);
 
-		const { add, update, delete: deleteIssues } = props;
+			const updatedKeys = {
+				...itemsToAdd.reduce((obj, item) => ({ ...obj, [item.id]: item }), {}),
+				...itemsIdsToDelete.reduce(
+					(obj, id) => ({ ...obj, [id]: deleteField() }),
+					{}
+				),
+				...itemsToUpdate.reduce(
+					(obj, item) => ({ ...obj, [item.id]: item }),
+					{}
+				),
+			};
 
-		//==================================> INIT BATCH:
-
-		const batch = writeBatch(firestore);
-
-		//==================================> BATCH ADD:
-		if (add && add.length) {
-			add.forEach((i) => {
-				// add new issue to /issues:
-				const issueRef = doc(firestore, "issues", i.id);
-				batch.set(issueRef, unrankifyIssue(i));
-
-				// add new issue to /user-issues:
-				const userIssuesRef = doc(firestore, "user-issues", user.uid);
-				batch.update(userIssuesRef, {
-					issuesIds: arrayUnion(i.id),
-				});
-
-				// add new issue to /project-issues:
-				const projectIssuesRef = doc(firestore, "project-issues", i.projectId);
-				batch.update(projectIssuesRef, { issuesIds: arrayUnion(i.id) });
+			await updateDoc(userItemsRef, {
+				...updatedKeys,
 			});
+		} catch (error: any) {
+			const errorMessage = `An error occurred while updating issues: ${error.message}. Cannot update issues.`;
+			console.error(errorMessage);
+			alert(errorMessage);
 		}
-
-		//==================================> BATCH UPDATE:
-		if (update && update.length) {
-			update.forEach((i) => {
-				const issueRef = doc(firestore, "issues", i.id);
-				batch.set(issueRef, unrankifyIssue(i));
-			});
-		}
-
-		//==================================> BATCH DELETE:
-		if (deleteIssues && deleteIssues.length) {
-			deleteIssues.forEach((i) => {
-				// delete issue from /issues:
-				const issueRef = doc(firestore, "issues", i.id);
-				batch.delete(issueRef);
-
-				// delete issue id from /user-issues doc's "issuesIds" array:
-				const userIssuesRef = doc(firestore, "user-issues", user.uid);
-				batch.update(userIssuesRef, {
-					issuesIds: arrayRemove(i.id),
-				});
-
-				// delete issue id from /project-issues doc's "issuesIds" array:
-				const projectIssuesRef = doc(firestore, "project-issues", i.projectId);
-				batch.update(projectIssuesRef, {
-					issuesIds: arrayRemove(i.id),
-				});
-			});
-		}
-
-		//==================================> BATCH COMMIT:
-		await batch.commit();
-
-		//==================================> UPDATE APP STATE:
-
-		// at first delete issues:
-		const appIssuesAfterDelete: Issue.AppIssue[] = issues.filter((i) => {
-			if (deleteIssues && deleteIssues.length) {
-				const issueToDelete = deleteIssues.find((d) => d.id === i.id);
-
-				if (issueToDelete) return false;
-			}
-
-			return true;
-		});
-
-		// then update remaining issues:
-		const appIssuesAfterUpdate: Issue.AppIssue[] = appIssuesAfterDelete.map(
-			(i) => {
-				if (update && update.length) {
-					const issueToUpdate = update.find((f) => f.id === i.id);
-
-					if (issueToUpdate) {
-						return issueToUpdate;
-					}
-				}
-
-				return i;
-			}
-		);
-
-		// finally add new issues:
-		const appIssuesAfterAdd: Issue.AppIssue[] =
-			add && add.length
-				? [...appIssuesAfterUpdate, ...add]
-				: [...appIssuesAfterUpdate];
-
-		const rerankifiedUpdatedIssues = rankifyIssues(appIssuesAfterAdd);
-		setIssues(rerankifiedUpdatedIssues);
 	}
 
 	/**
@@ -321,6 +237,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			after,
 			before,
 			parent,
+			children: [],
 		};
 
 		// if new issue is ordered => update also after/ before issues if exist:
@@ -387,8 +304,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		try {
 			await updateIssues({
-				add: [rankifyIssue(issueToAdd)],
-				update: issuesToUpdate,
+				itemsToAdd: [issueToAdd],
+				itemsToUpdate: issuesToUpdate,
 			});
 			return newIssueId;
 		} catch (error: any) {
@@ -417,7 +334,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		try {
 			await updateIssues({
-				update: [{ ...updatedIssue, updated: updateTime }],
+				itemsToUpdate: [{ ...updatedIssue, updated: updateTime }],
 			});
 
 			console.log(
@@ -549,8 +466,8 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		try {
 			await updateIssues({
-				update: issuesToUpdate,
-				delete: issuesToDelete,
+				itemsToUpdate: issuesToUpdate,
+				itemsIdsToDelete: issuesToDelete.map((i) => i.id),
 			});
 
 			console.log(
@@ -637,7 +554,10 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 			try {
 				await updateIssues({
-					update: [updatedIssue, ...(resolvedChildren ? resolvedChildren : [])],
+					itemsToUpdate: [
+						updatedIssue,
+						...(resolvedChildren ? resolvedChildren : []),
+					],
 				});
 				console.log(
 					`Issue ${issue.id} ${issue.title} was resolved successfully!"`
@@ -693,7 +613,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 		try {
 			await updateIssues({
-				update: [updatedIssue, ...reopenedResolvedParents],
+				itemsToUpdate: [updatedIssue, ...reopenedResolvedParents],
 			});
 			console.log(
 				`Issue ${issue.id} ${issue.title} was reopened successfully!"`
@@ -730,7 +650,9 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			}));
 
 		try {
-			await updateIssues({ update: [updatedIssue, ...parentsSetToInProgress] });
+			await updateIssues({
+				itemsToUpdate: [updatedIssue, ...parentsSetToInProgress],
+			});
 			console.log(
 				`Issue ${issue.id} ${issue.title} was set to be in progress successfully!`
 			);
@@ -862,7 +784,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		];
 
 		try {
-			await updateIssues({ update: updatedIssues });
+			await updateIssues({ itemsToUpdate: updatedIssues });
 		} catch (error: any) {
 			logError(
 				`An error occurred while adding issue as a child: ${error.message}. Cannot add issue.`
@@ -941,7 +863,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 		];
 
 		try {
-			await updateIssues({ update: updatedIssues });
+			await updateIssues({ itemsToUpdate: updatedIssues });
 		} catch (error: any) {
 			logError(
 				`An error occurred while removing issue from a parent: ${error.message}. Cannot remove issue from a parent.`
@@ -1020,7 +942,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 
 	const value = {
 		issues,
-		setIssues,
 		findIssueById,
 		updateIssues,
 		addIssue,

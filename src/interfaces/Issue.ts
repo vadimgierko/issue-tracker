@@ -53,20 +53,9 @@ export namespace Issue {
 	// I will not use "closed" status, because it doesn't provide specific info;
 	// Instead all not "open" & not "in progress" issues are closed
 	// if we select "closed" tab in issue table (see IssueTableTabStatus type below)
-	export type Status =
-		| "open"
-		| "in progress"
-		| "resolved"
-		| "abandoned"
-		| "won't fix";
+	export type Status = "open" | "in progress" | "resolved";
 
-	export const allowedStatuses: Status[] = [
-		"open",
-		"in progress",
-		"resolved",
-		"abandoned",
-		"won't fix",
-	];
+	export const allowedStatuses: Status[] = ["open", "in progress", "resolved"];
 
 	// IssueTableTabStatus is used to filter issues after selecting a tab in issue table,
 	// so IssueTableTabStatus is the name of each possible tab,
@@ -84,26 +73,24 @@ export namespace Issue {
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
 		status: Status;
-		// project's props:
-		feature?: string;
-		page?: string;
-		component?: string;
+	}
+
+	export interface OrderProps {
+		parent: string | null; // issue id OR null in case of Project/ root
+		children: string[]; // issues ids
+		ordered: boolean;
+		after: string | null; //issue id
+		before: string | null; //issue id
 	}
 
 	// this is what is fetched from db & sended to it:
-	export interface DbIssue extends FormData {
+	export interface DbIssue extends FormData, OrderProps {
 		id: string;
 		authorId: string;
 		created: number;
 		updated: number;
 		inProgressFrom: number | null;
 		closedAt: number | null;
-		// order features props:
-		parent?: string | null; // issue id OR null in case of Project/ root
-		children?: string[]; // issues ids
-		ordered?: boolean;
-		after?: string | null; //issue id
-		before?: string | null; //issue id
 	}
 
 	// this is the extended/ rankified interface to use in the app
@@ -150,8 +137,5 @@ export namespace Issue {
 		importance: Importance;
 		estimatedTime: EstimatedTime;
 		difficulty: Difficulty;
-		feature: string;
-		page: string;
-		component: string;
 	}
 }

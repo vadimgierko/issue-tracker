@@ -4,8 +4,6 @@ import { Issue } from "../../../interfaces/Issue";
 import useTheme from "../../../context/useTheme";
 import { MdOutlineCancel } from "react-icons/md";
 import { AiOutlineFilter } from "react-icons/ai";
-import useProjects from "../../../context/useProjects";
-import { useParams } from "react-router-dom";
 
 type IssuesFilterFormProps = {
 	filterFormData: Issue.FilterFormData;
@@ -33,8 +31,6 @@ export default function IssuesFilterForm({
 	resetFilterFormData,
 }: IssuesFilterFormProps) {
 	const { theme } = useTheme();
-	const { projects } = useProjects();
-	const { projectId } = useParams();
 
 	const [issueRealtedFilterFormData, setIssueRealtedFilterFormData] =
 		useState<IssueRealtedFilterFormData>({
@@ -45,19 +41,11 @@ export default function IssuesFilterForm({
 			difficulty: filterFormData.difficulty,
 		});
 
-	const [projectReleatedFilterFormData, setProjectReleatedFilterFormData] =
-		useState<ProjectRealtedFilterFormData>({
-			feature: filterFormData.feature,
-			page: filterFormData.page,
-			component: filterFormData.component,
-		});
-
 	useEffect(() => {
 		setFilterFormData({
 			...issueRealtedFilterFormData,
-			...projectReleatedFilterFormData,
 		});
-	}, [issueRealtedFilterFormData, projectReleatedFilterFormData]);
+	}, [issueRealtedFilterFormData]);
 
 	// Prev Form className="border border-secondary rounded mb-3 p-1"
 	return (
@@ -131,86 +119,12 @@ export default function IssuesFilterForm({
 								estimatedTime: "",
 								difficulty: "",
 							});
-
-							setProjectReleatedFilterFormData({
-								feature: "",
-								page: "",
-								component: "",
-							});
 						}}
 					>
 						<MdOutlineCancel />
 					</Button>
 				</Col>
 			</Row>
-
-			{/* {projectId && (
-				<Row
-					className="justify-content-md-center align-items-center justify-content-xs-start"
-					xs="auto"
-				>
-					{Object.keys(projectReleatedFilterFormData).map((key) => (
-						<Col key={key + "-filter"} className="mb-3">
-							<FloatingLabel
-								label={
-									<span>
-										<AiOutlineFilter /> {key}
-									</span>
-								}
-							>
-								<Form.Select
-									value={
-										projectReleatedFilterFormData[
-											key as keyof ProjectRealtedFilterFormData
-										]
-									}
-									onChange={(e) =>
-										setProjectReleatedFilterFormData({
-											...projectReleatedFilterFormData,
-											[key as keyof ProjectRealtedFilterFormData]:
-												e.target.value,
-										})
-									}
-									style={{
-										backgroundColor:
-											theme === "light" ? "white" : "rgb(13, 17, 23)",
-										color: theme === "light" ? "black" : "white",
-									}}
-								>
-									<option value="">{key}</option>
-
-									{key === "feature" &&
-										projects
-											.find((p) => p.id === projectId)
-											?.features?.map((p) => (
-												<option value={p} key={p}>
-													{p}
-												</option>
-											))}
-
-									{key === "page" &&
-										projects
-											.find((p) => p.id === projectId)
-											?.pages?.map((p) => (
-												<option value={p} key={p}>
-													{p}
-												</option>
-											))}
-
-									{key === "component" &&
-										projects
-											.find((p) => p.id === projectId)
-											?.components?.map((p) => (
-												<option value={p} key={p}>
-													{p}
-												</option>
-											))}
-								</Form.Select>
-							</FloatingLabel>
-						</Col>
-					))}
-				</Row>
-			)} */}
 		</Form>
 	);
 }

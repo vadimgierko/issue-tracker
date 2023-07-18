@@ -1,6 +1,6 @@
 import { Issue } from "../interfaces/Issue";
 
-export default function rankifyIssue(issue: Issue.DbIssue) {
+export default function rankifyIssue(issue: Issue.DbIssue): Issue.AppIssue {
 	const typeRank: number = issue.type.length
 		? [...Issue.allowedTypeValues].reverse().indexOf(issue.type) + 1 // we add + 1, because the first index of reversed array is 0
 		: 0;
