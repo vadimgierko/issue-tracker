@@ -62,7 +62,9 @@ export default function About() {
 					Welcome to Issue Tracker!
 				</h1>
 				<p className="mb-5" style={{ fontSize: windowSize > 576 ? 20 : 16 }}>
-					Track, manage, filter, sort, rank, nest and mix ordered & unordered issues in your dev projects & have an overview of all issues regardless of the project in 1 table.
+					Track, manage, filter, sort, rank, nest and mix ordered & unordered
+					issues in your dev projects & have an overview of all issues
+					regardless of the project in 1 table.
 				</p>
 				<Button
 					className="mb-5 me-3"
@@ -83,13 +85,13 @@ export default function About() {
 			</header>
 			{sections.length
 				? sections.map((section, i) => (
-					<Section
-						key={"section-" + i}
-						header={section.header}
-						cardsList={section.cardsList}
-						cardStyle={section.cardStyle}
-					/>
-				))
+						<Section
+							key={"section-" + i}
+							header={section.header}
+							cardsList={section.cardsList}
+							cardStyle={section.cardStyle}
+						/>
+				  ))
 				: null}
 		</div>
 	);

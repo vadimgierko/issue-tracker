@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import useTheme from "../../context/useTheme";
 import useUser from "../../context/useUser";
-import { logOut, signIn } from "../../services/auth";
+import { signIn } from "../../services/auth";
 import PageHeader from "../../components/Layout/PageHeader";
 
 export default function SignIn() {
@@ -34,8 +34,6 @@ export default function SignIn() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -85,14 +83,24 @@ export default function SignIn() {
 				</Form.Group>
 
 				<Form.Group className="mb-3">
-					<Form.Text>
+					<Form.Text
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
 						Forgot password?{" "}
 						<Link to="/password-reset">Send a password reset email!</Link>
 					</Form.Text>
 				</Form.Group>
 
 				<Form.Group className="mb-3">
-					<Form.Text>
+					<Form.Text
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
 						Don't have an account? <Link to="/signup">Sign up!</Link>
 					</Form.Text>
 				</Form.Group>

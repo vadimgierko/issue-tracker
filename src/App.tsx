@@ -23,9 +23,10 @@ import IssuesAdd from "./pages/IssuesAdd";
 import IssueEdit from "./pages/IssueEdit";
 import Issue from "./pages/Issue";
 import ProjectDetails from "./pages/Project/ProjectDetails";
-import DragAndDropContainer from "./components/DragAndDrop";
 import ProjectIssuesTable from "./pages/Project/ProjectIssuesTable";
 import ProjectIssuesList from "./pages/Project/ProjectIssuesList";
+import AppGuide from "./pages/AppGuide";
+import MarkdownGuide from "./pages/MarkdownGuide";
 
 const privateRoutes: RouteObject[] = [
 	//====================== AUTH / USER ====================//
@@ -126,6 +127,14 @@ const router = createBrowserRouter([
 				path: "about",
 				element: <About />,
 			},
+			{
+				path: "app-guide",
+				element: <AppGuide />,
+			},
+			{
+				path: "markdown-guide",
+				element: <MarkdownGuide />,
+			},
 			//====================== AUTH / USER =====================//
 			{
 				path: "signin",
@@ -134,11 +143,6 @@ const router = createBrowserRouter([
 			{
 				path: "signup",
 				element: <SignUp />,
-			},
-			//================== FOR EXPERIMENTS =====================//
-			{
-				path: "drag-and-drop",
-				element: <DragAndDropContainer />,
 			},
 			//================== PRIVATE / PROTECTED ROUTES ==========//
 			...protectedRoutes,

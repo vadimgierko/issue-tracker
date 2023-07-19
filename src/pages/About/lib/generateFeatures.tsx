@@ -1,17 +1,15 @@
 // import icons:
 import { MdDarkMode, MdFormatSize } from "react-icons/md";
-import { CgNotes } from "react-icons/cg";
 import {
 	AiOutlineLock,
-	AiOutlineSearch,
 	AiOutlineCloudDownload,
 	AiOutlineFilter,
 	AiOutlineFolder,
 	AiOutlineCheckSquare,
 	AiOutlineUnorderedList,
-	AiOutlineTable
+	AiOutlineTable,
 } from "react-icons/ai";
-import {TbArrowsSort} from "react-icons/tb"
+import { TbArrowsSort } from "react-icons/tb";
 import { Icon } from "../interfaces/Icon";
 import { Card } from "../interfaces/Card";
 
@@ -20,7 +18,8 @@ export default function generateFeatures(iconProps: Icon.Props): Card.Card[] {
 		{
 			icon: <AiOutlineCheckSquare {...iconProps} />,
 			header: "Issues",
-			paragraph: "Add, update, delete issues and organize them in projects. Optionally you can add type, urgency, importance, estimated time & difficulty props to each issue.",
+			paragraph:
+				"Add, update, delete issues and organize them in projects. Optionally you can add type, urgency, importance, estimated time & difficulty props to each issue.",
 		},
 		{
 			icon: <AiOutlineFilter {...iconProps} />,
@@ -42,12 +41,14 @@ export default function generateFeatures(iconProps: Icon.Props): Card.Card[] {
 		{
 			icon: <AiOutlineUnorderedList {...iconProps} />,
 			header: "List mode: ordered, unordered, nested & mixed issues",
-			paragraph: "You can add, convert & mix ordered & unordered issues, nest issues within issues and view project's issues in list mode.",
+			paragraph:
+				"You can add, convert & mix ordered & unordered issues, nest issues within issues and view project's issues in list mode.",
 		},
 		{
 			icon: <AiOutlineTable {...iconProps} />,
 			header: "Table mode with filter/sort",
-			paragraph: "You can view your project's issues or all issues regardless of a project they belong to in 1 table & sort/filter them.",
+			paragraph:
+				"You can view your project's issues or all issues regardless of a project they belong to in 1 table & sort/filter them.",
 		},
 		//=========================================================================================================//
 		{

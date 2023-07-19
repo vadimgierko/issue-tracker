@@ -10,7 +10,9 @@ import {
 import { Icon } from "../interfaces/Icon";
 import { Card } from "../interfaces/Card";
 
-export default function generateTechnologies(iconProps: Icon.Props): Card.Card[] {
+export default function generateTechnologies(
+	iconProps: Icon.Props
+): Card.Card[] {
 	return [
 		{
 			icon: <SiReact {...iconProps} />,
@@ -18,7 +20,7 @@ export default function generateTechnologies(iconProps: Icon.Props): Card.Card[]
 		},
 		{
 			icon: <SiTypescript {...iconProps} />,
-			header: "JavaScript",
+			header: "TypeScript",
 		},
 		{
 			icon: <SiFirebase {...iconProps} />,

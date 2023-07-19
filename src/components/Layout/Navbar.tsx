@@ -42,7 +42,7 @@ export default function NavigationBar() {
 			className="shadow do-not-display-when-print"
 		>
 			<Container style={{ maxWidth: maxWidth }}>
-				<LinkContainer to="/">
+				<LinkContainer to="/about">
 					<Navbar.Brand>Issue Tracker</Navbar.Brand>
 				</LinkContainer>
 
@@ -55,13 +55,18 @@ export default function NavigationBar() {
 							<Nav.Link>About</Nav.Link>
 						</LinkContainer>
 
-						<Nav.Link
-							href="https://www.markdownguide.org/cheat-sheet/"
-							target="blank"
-						>
-							Markdown guide
-						</Nav.Link>
+						<LinkContainer to="/app-guide">
+							<Nav.Link>App Guide</Nav.Link>
+						</LinkContainer>
 
+						<LinkContainer to="/markdown-guide">
+							<Nav.Link>Markdown Guide</Nav.Link>
+						</LinkContainer>
+					</Nav>
+
+					<hr />
+
+					<Nav>
 						{user && (
 							<>
 								<hr />
@@ -93,11 +98,7 @@ export default function NavigationBar() {
 								</LinkContainer>
 							</>
 						)}
-					</Nav>
 
-					<hr />
-
-					<Nav>
 						{!user && (
 							<LinkContainer to="/signin">
 								<Nav.Link>

@@ -1,7 +1,11 @@
 import { Section as ISection } from "../interfaces/Section";
-import Card from "./Card"
+import Card from "./Card";
 
-export default function Section({ header, cardsList, cardStyle }: ISection.Section) {
+export default function Section({
+	header,
+	cardsList,
+	cardStyle,
+}: ISection.Section) {
 	if (!cardsList.length) return null;
 
 	return (
@@ -20,11 +24,7 @@ export default function Section({ header, cardsList, cardStyle }: ISection.Secti
 				}}
 			>
 				{cardsList.map((card, i) => (
-					<Card
-						key={"card-" + i}
-						card={card}
-						cardStyle={cardStyle}
-					/>
+					<Card key={"card-" + i} card={card} cardStyle={cardStyle} />
 				))}
 			</div>
 		</section>

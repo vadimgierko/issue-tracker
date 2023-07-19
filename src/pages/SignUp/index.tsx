@@ -43,8 +43,6 @@ export default function SignUp() {
 	return (
 		<div
 			style={{
-				backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
-				color: theme === "light" ? "black" : "white",
 				maxWidth: 360,
 				margin: "auto",
 			}}
@@ -130,7 +128,12 @@ export default function SignUp() {
 				</Form.Group>
 
 				<Form.Group className="mb-3">
-					<Form.Text>
+					<Form.Text
+						style={{
+							backgroundColor: theme === "light" ? "white" : "rgb(13, 17, 23)",
+							color: theme === "light" ? "black" : "white",
+						}}
+					>
 						Already have an account? <Link to="/signin">Sign in!</Link>
 					</Form.Text>
 				</Form.Group>
