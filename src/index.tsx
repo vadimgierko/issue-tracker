@@ -14,9 +14,13 @@ const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
 );
 
+const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+	? "dark"
+	: "light";
+
 root.render(
 	<React.StrictMode>
-		<ThemeProvider>
+		<ThemeProvider preferredTheme={preferredTheme}>
 			<MaxWidthProvider>
 				<UserProvider>
 					<IssuesProvider>

@@ -32,6 +32,17 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- THIS SCRIPT BELOW IS NEEDED TO SET THEME BEFORE APP MOUNTS & AVOID FLICKERING -->
+    <script>
+      function setPreferredTheme() {
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = prefersDarkMode ? 'dark' : 'light';
+        // set Bootstrap theme in <html> tag:
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      }
+      setPreferredTheme()
+    </script>
+    <!-- REACT GOES HERE AFTER SETTING PREFERRED THEME IN HTML TAG: -->
     <div id="root"></div>
     <!--
       This HTML file is a template.

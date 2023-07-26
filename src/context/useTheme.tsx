@@ -2,12 +2,6 @@ import { createContext, useContext, useState } from "react";
 
 type Theme = "light" | "dark";
 
-// type ThemeContextType = {
-// 	value: Theme;
-// 	set: (theme: Theme) => void;
-// 	switch: () => void;
-// };
-
 const ThemeContext = createContext<{
 	theme: Theme;
 	setTheme: (theme: Theme) => void;
@@ -26,16 +20,22 @@ export default function useTheme() {
 
 type ThemeProviderProps = {
 	children: React.ReactNode;
+	preferredTheme: Theme; // is set in index.tsx before the <App /> mounts
 };
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
-	const [theme, setTheme] = useState<Theme>("dark");
+export function ThemeProvider({
+	children,
+	preferredTheme,
+}: ThemeProviderProps) {
+	const [theme, setTheme] = useState<Theme>(preferredTheme);
 
 	const switchTheme = () => {
 		if (theme === "dark") {
 			setTheme("light");
+			document.documentElement.setAttribute("data-bs-theme", "light");
 		} else {
 			setTheme("dark");
+			document.documentElement.setAttribute("data-bs-theme", "dark");
 		}
 	};
 
