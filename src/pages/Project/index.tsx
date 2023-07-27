@@ -1,14 +1,22 @@
-import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
+import {
+	Link,
+	Outlet,
+	useLocation,
+	useNavigate,
+	useParams,
+} from "react-router-dom";
 import useProjects from "../../context/useProjects";
 import PageHeader from "../../components/Layout/PageHeader";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 import useIssues from "../../context/useIssues";
+import ProjectIssuesList from "./ProjectIssuesList";
 
 export default function Project() {
 	const { projectId } = useParams<string>();
 	const { projects, deleteProject } = useProjects();
 	const project = projects.find((p) => p.id === projectId);
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	const { issues } = useIssues();
 	const projectIssues = issues.filter((i) => i.projectId === projectId);
@@ -28,10 +36,6 @@ export default function Project() {
 		}
 	}
 
-	// TODO: make "issues view" the root view for project page:
-	// useEffect(() => navigate("issues"), []); // this is just a workaround for now
-
-	// TODO: add some error here, but that is made to satisfy ts:
 	if (!projectId) return null;
 
 	if (!project)
@@ -64,7 +68,11 @@ export default function Project() {
 				</p>
 			</PageHeader>
 
-			<Outlet />
+			{pathname === `/projects/${projectId}` ? (
+				<ProjectIssuesList />
+			) : (
+				<Outlet />
+			)}
 		</>
 	);
 }

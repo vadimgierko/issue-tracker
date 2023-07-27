@@ -2,13 +2,15 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 import Container from "react-bootstrap/Container";
 import useTheme from "../../context/useTheme";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import useMaxWidth from "../../context/useMaxWidth";
 import ScrollToTop from "./ScrollToTop";
+import About from "../../pages/About";
 
 export default function Layout() {
 	const maxWidth = useMaxWidth();
 	const { theme } = useTheme();
+	const { pathname } = useLocation();
 
 	return (
 		<div
@@ -31,7 +33,7 @@ export default function Layout() {
 					color: theme === "light" ? "black" : "white",
 				}}
 			>
-				<Outlet />
+				{pathname === "/" ? <About /> : <Outlet />}
 			</Container>
 			<hr />
 			<Footer

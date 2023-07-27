@@ -881,7 +881,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 	// convert into Issue.AppIssue[]
 	// setIssues()
 	useEffect(() => {
-		function fetchIssues(userId: string) {
+		if (user) {
 			console.log(`Fetching user issues...`);
 
 			interface IssuesDocObject {
@@ -889,7 +889,7 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			}
 
 			const unsubscribeUserIssues = onSnapshot(
-				doc(firestore, `user-issues`, userId),
+				doc(firestore, `user-issues`, user.uid),
 				(snapshot) => {
 					const data = snapshot.data() as IssuesDocObject;
 
@@ -931,10 +931,6 @@ export function IssuesProvider({ children }: IssuesProviderProps) {
 			);
 
 			return () => unsubscribeUserIssues();
-		}
-
-		if (user) {
-			fetchIssues(user.uid);
 		} else {
 			setIssues([]);
 		}

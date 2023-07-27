@@ -30,7 +30,7 @@ export default function ProjectEdit() {
 
 		await updateProject(updatedProject);
 		alert(`Your project with the id ${projectId} was successfully updated.`);
-		navigate("/projects/" + projectId);
+		navigate("/projects/" + projectId, { replace: true });
 	}
 
 	async function handleDeleteProject(projectId: string) {

@@ -165,7 +165,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 	// convert into Project.Project[]
 	// setProjects()
 	useEffect(() => {
-		function fetchProjects(userId: string) {
+		if (user) {
 			console.log(`Fetching user projects...`);
 
 			interface ProjetsDocObject {
@@ -173,7 +173,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 			}
 
 			const unsubscribeUserProjects = onSnapshot(
-				doc(firestore, `user-projects`, userId),
+				doc(firestore, `user-projects`, user.uid),
 				(snapshot) => {
 					const data = snapshot.data() as ProjetsDocObject;
 
@@ -215,10 +215,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 			);
 
 			return () => unsubscribeUserProjects();
-		}
-
-		if (user) {
-			fetchProjects(user.uid);
 		} else {
 			setProjects([]);
 		}

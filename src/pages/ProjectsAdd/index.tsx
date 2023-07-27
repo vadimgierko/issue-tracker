@@ -29,7 +29,7 @@ export default function ProjectsAdd() {
 		const addedProjectId = await addProject(projectData);
 		alert(`Your project was successfully added with the id ${addedProjectId}.`);
 		clearForm();
-		navigate("/projects/" + addedProjectId);
+		navigate("/projects/" + addedProjectId, { replace: true });
 	}
 
 	function clearForm() {
