@@ -55,7 +55,7 @@ export default function generateFeatures(iconProps: Icon.Props): Card.Card[] {
 			icon: <MdFormatSize {...iconProps} />,
 			header: "Format",
 			paragraph:
-				"Format your issues & projects descriptions using Markdown syntax via built-in markdown editor to include headers, lists, code snippets, images from the web, links etc.",
+				"Format your issues & projects descriptions using Markdown syntax, HTML with inline styles, embeds, internal/ external links & highlighted code via built-in markdown editor etc.",
 		},
 		{
 			icon: <AiOutlineCloudDownload {...iconProps} />,
