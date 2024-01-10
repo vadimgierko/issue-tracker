@@ -3,6 +3,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Link } from "react-router-dom";
 import scrollToTop from "../../lib/scrollToTop";
+import rehypeHighlight from "rehype-highlight";
 
 /**
  *
@@ -29,10 +30,19 @@ export default function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
 
 	return (
 		<ReactMarkdown
-			children={markdown}
 			remarkPlugins={[remarkGfm]}
-			rehypePlugins={[rehypeRaw]} // enables rendering HTML tags
+			rehypePlugins={[
+				// enables rendering HTML tags:
+				rehypeRaw,
+				// enables code highlighting:
+				// ❗WARNING!❗
+				// to enable ✅ correct highlighting 👉 fetch css styles & always define language for code blocks
+				// in this project I fetch CSS styles in <Layout /> !!!
+				rehypeHighlight,
+			]}
 			components={{ a: ReactRouterLink }}
-		/>
+		>
+			{markdown}
+		</ReactMarkdown>
 	);
 }

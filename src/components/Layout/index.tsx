@@ -6,11 +6,29 @@ import { Outlet, useLocation } from "react-router-dom";
 import useMaxWidth from "../../context/useMaxWidth";
 import ScrollToTop from "./ScrollToTop";
 import About from "../../pages/About";
+import { useEffect } from "react";
 
 export default function Layout() {
 	const maxWidth = useMaxWidth();
 	const { theme } = useTheme();
 	const { pathname } = useLocation();
+
+	// fetch light/dark mode css for code highlighting in vsc style
+	useEffect(() => {
+		const link = document.createElement("link");
+		link.rel = "stylesheet";
+		link.type = "text/css";
+		link.href =
+			theme === "dark"
+				? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.css" // Dark mode styles
+				: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.css"; // Light mode styles
+
+		document.head.appendChild(link);
+
+		return () => {
+			document.head.removeChild(link); // Clean up the previous stylesheet when unmounting or switching modes
+		};
+	}, [theme]);
 
 	return (
 		<div
